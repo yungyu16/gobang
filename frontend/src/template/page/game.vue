@@ -15,11 +15,13 @@
                 for (let j = 0; j < 15; j++) {
                     gobangBoardBox[i][j] = {
                         checked: false,
+                        xIndex: i,
+                        yIndex: this.index2Char(j),
                         x: i * 30 + boardPadding,
                         y: j * 30 + boardPadding,
                         aroundHere(thisX, thisY) {
-                            let xFlag = thisX > this.x - 15 && thisX < this.x + 15;
-                            let yFlag = thisY > this.y - 15 && thisY < this.y + 15;
+                            let xFlag = thisX > this.x - 12 && thisX < this.x + 12;
+                            let yFlag = thisY > this.y - 12 && thisY < this.y + 12;
                             return xFlag && yFlag;
                         },
                     };
