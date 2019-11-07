@@ -1,4 +1,4 @@
-import axios from './axiosConfig';
+import axios from './util';
 
 function postRequest(url) {
     return function (param, callback) {

@@ -1,5 +1,6 @@
 import axios from 'axios';
 import {Loading, Message} from 'element-ui';
+import router from '../router'
 
 const service = axios.create({
     timeout: 5000
@@ -24,7 +25,7 @@ service.interceptors.response.use(
                     break;
                 case 401:
                     error.message = '未授权，请重新登录';
-                    Toast('未授权，请重新登录');
+                    router.push('/signUp');
                     break;
                 case 403:
                     error.message = '拒绝访问';
@@ -73,7 +74,7 @@ service.interceptors.response.use(
         }
     });
 
-function requestApi(method, url, param, data, headers, callback) {
+function requestApi(method, url, param, data, headers) {
     const loading = Loading.service({
         lock: true,
         text: 'Loading',
@@ -81,19 +82,18 @@ function requestApi(method, url, param, data, headers, callback) {
         background: 'rgba(0, 0, 0, 0.7)'
     });
 
-    service.request({
-        method: method,
-        url: url,
-        params: param,
-        data: data,
-        headers: headers,
-    }).finally(function (error) {
-        loading.close();
-        console.error(error);
-        Message.error(`请求错误:${error.message}`);
-    });
+    return service
+        .request({
+            method: method,
+            url: url,
+            params: param,
+            data: data,
+            headers: headers,
+        }).finally(() => {
+            loading.close();
+        });
 }
 
 export default {
-    service,
+    requestApi,
 };
