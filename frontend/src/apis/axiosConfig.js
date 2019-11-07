@@ -2,7 +2,6 @@ import axios from 'axios';
 import {Loading, Message} from 'element-ui';
 
 const service = axios.create({
-    baseURL: 'http://47.102.103.194:8093/',
     timeout: 5000
 });
 
@@ -10,12 +9,71 @@ service.interceptors.request.use(config => {
     config.headers['Content-Type'] = 'application/json;charset=UTF-8';
     return config;
 }, error => {
-    console.log(error);
-    return Promise.reject();
+    return Promise.reject(error);
 });
+service.interceptors.response.use(
+    config => {
+        return config
+    },
+    error => {
+        if (error && error.response) {
+            switch (error.response.status) {
+                case 400:
+                    error.message = '错误请求';
+                    Toast('错误请求');
+                    break;
+                case 401:
+                    error.message = '未授权，请重新登录';
+                    Toast('未授权，请重新登录');
+                    break;
+                case 403:
+                    error.message = '拒绝访问';
+                    Toast('拒绝访问');
+                    break;
+                case 404:
+                    error.message = '请求错误,未找到该资源';
+                    Toast('请求错误,未找到该资源');
+                    break;
+                case 405:
+                    error.message = '请求方法未允许';
+                    Toast('请求方法未允许');
+                    break;
+                case 408:
+                    error.message = '请求超时';
+                    Toast('请求超时');
+                    break;
+                case 500:
+                    error.message = '服务器端出错';
+                    Toast('服务器端出错');
+                    break;
+                case 501:
+                    error.message = '网络未实现';
+                    Toast('网络未实现');
+                    break;
+                case 502:
+                    error.message = '网络错误';
+                    Toast('网络错误');
+                    break;
+                case 503:
+                    error.message = '服务不可用';
+                    Toast('服务不可用');
+                    break;
+                case 504:
+                    error.message = '网络超时';
+                    Toast('网络超时');
+                    break;
+                case 505:
+                    error.message = 'http版本不支持该请求';
+                    Toast('http版本不支持该请求');
+                    break;
+                default:
+                    error.message = `连接错误${error.response.status}`;
+                    Toast(`'连接错误'${error.response.status}`);
+            }
+        }
+    });
 
 function requestApi(method, url, param, data, headers, callback) {
-
     const loading = Loading.service({
         lock: true,
         text: 'Loading',
@@ -29,48 +87,13 @@ function requestApi(method, url, param, data, headers, callback) {
         params: param,
         data: data,
         headers: headers,
-    }).then(function (response) {
-
+    }).finally(function (error) {
         loading.close();
-
-        if (response.status !== 200) {
-            Message.error("请求错误 SC:" + response.status);
-            return;
-        }
-        if (response.data.code === 99) {
-            Message.error("请重新登录...");
-            return;
-        }
-        if (response.data.code === 44
-            || response.data.code === 55) {
-            Message.error(response.data.msg);
-            return;
-        }
-        if (callback) {
-            callback(response.data.result);
-        } else {
-            Message.success("操作成功...");
-        }
-    }).catch(function (error) {
-
-        loading.close();
-
         console.error(error);
         Message.error(`请求错误:${error.message}`);
     });
 }
 
-function postApi(url, data, callback) {
-    requestApi('post', url, null, data, null, callback)
-}
-
-function getApi(url, param, callback) {
-    requestApi('get', url, param, null, null, callback)
-}
-
 export default {
     service,
-    requestApi,
-    postApi,
-    getApi,
 };

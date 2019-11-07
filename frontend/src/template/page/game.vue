@@ -1,13 +1,14 @@
 <template>
-    <canvas @click="whenClickBoard" height="480px" id="gobang_board" width="480px"></canvas>
+    <canvas @click="whenClickBoard" height="620px" id="gobang_board" width="620px"></canvas>
 </template>
 
 <script>
     export default {
         name: "game.vue",
         data() {
-            let boardSize = 480;
+            let boardSize = 620;
             let boardPadding = 30;
+            let boardDelta = 40;
 
             let gobangBoardBox = [];
             for (let i = 0; i < 15; i++) {
@@ -17,8 +18,8 @@
                         checked: false,
                         xIndex: i,
                         yIndex: this.index2Char(j),
-                        x: i * 30 + boardPadding,
-                        y: j * 30 + boardPadding,
+                        x: i * boardDelta + boardPadding,
+                        y: j * boardDelta + boardPadding,
                         aroundHere(thisX, thisY) {
                             let xFlag = thisX > this.x - 12 && thisX < this.x + 12;
                             let yFlag = thisY > this.y - 12 && thisY < this.y + 12;
@@ -33,6 +34,7 @@
                 boardContext: '',
                 boardSize: boardSize,
                 boardPadding: boardPadding,
+                boardDelta: boardDelta,
                 gobangBoardBox: gobangBoardBox
             };
         },
@@ -78,8 +80,8 @@
                     return
                 }
                 x = this.char2Index(x);
-                x = this.boardPadding + x * 30;
-                y = this.boardPadding + y * 30;
+                x = this.boardPadding + x * this.boardDelta;
+                y = this.boardPadding + y * this.boardDelta;
                 console.log("棋子坐标:", x, y);
                 this.drawChessman(color, x, y);
 
@@ -116,13 +118,13 @@
                 this.boardContext.textAlign = "center";
 
                 for (let i = 0; i < 15; i++) {
-                    this.boardContext.fillText(i + '', boardPadding + i * 30, boardPadding - 15);
-                    this.boardContext.moveTo(boardPadding + i * 30, boardPadding);
-                    this.boardContext.lineTo(boardPadding + i * 30, boardSize - boardPadding);
+                    this.boardContext.fillText(i + '', boardPadding + i * this.boardDelta, boardPadding - 15);
+                    this.boardContext.moveTo(boardPadding + i * this.boardDelta, boardPadding);
+                    this.boardContext.lineTo(boardPadding + i * this.boardDelta, boardSize - boardPadding);
                     this.boardContext.stroke();
-                    this.boardContext.fillText(this.index2Char(i), boardPadding - 20, boardPadding + i * 30 + 4);
-                    this.boardContext.moveTo(boardPadding, boardPadding + i * 30);
-                    this.boardContext.lineTo(boardSize - boardPadding, boardPadding + i * 30);
+                    this.boardContext.fillText(this.index2Char(i), boardPadding - 20, boardPadding + i * this.boardDelta + 4);
+                    this.boardContext.moveTo(boardPadding, boardPadding + i * this.boardDelta);
+                    this.boardContext.lineTo(boardSize - boardPadding, boardPadding + i * this.boardDelta);
                     this.boardContext.stroke();
                 }
                 console.log("初始化棋盘完成...");

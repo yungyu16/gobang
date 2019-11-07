@@ -8,6 +8,7 @@
              text-color="#fff">
         <el-menu-item :route='{path:"/hall"}' index="1">大厅</el-menu-item>
         <el-menu-item :route='{path:"/history"}' index="2">历史</el-menu-item>
+        <el-menu-item :route='{path:"/history"}' disabled index="3">接口文档</el-menu-item>
     </el-menu>
 </template>
 <script>
