@@ -2,4 +2,4 @@ logging:
   level:
     root: info
 server:
-  port: 8093
+  port: 8091
