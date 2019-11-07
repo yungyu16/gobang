@@ -102,9 +102,8 @@
                 this.boardContext.fill();
                 this.boardContext.closePath();
             },
-            drawChessBoard(context) {
+            drawChessBoard() {
                 console.log("开始初始化棋盘...");
-                this.boardContext = context;
                 let boardSize = this.boardSize;
                 let boardPadding = this.boardPadding;
 
@@ -131,8 +130,8 @@
         },
         mounted() {
             let board = document.getElementById("gobang_board");
-            let context = board.getContext('2d');
-            this.drawChessBoard(context);
+            this.boardContext = board.getContext('2d');
+            this.drawChessBoard();
         }
     }
 </script>
