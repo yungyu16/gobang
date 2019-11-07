@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<configuration>
+    <springProperty scope="context" name="contextName" source="spring.application.name"/>
+    <property name="LOG_PATH" value="/data/logs/${contextName}"/>
+    <property name="HISTORY_LOG_PATH" value="${LOG_PATH}/history/%d{yyyy-MM-dd}"/>
+    <property name="LOG_PATTERN"
+              value="%date{yyyy-MM-dd HH:mm:ss:SSS} %-5level [t: %t] %logger-%line [%X{accountId}] [%X{traceId}] %msg %n"/>
+
+    <contextName>${contextName}</contextName>
+
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <charset>UTF-8</charset>
+            <Pattern>
+                ${LOG_PATTERN}
+            </Pattern>
+        </encoder>
+    </appender>
+    <appender name="INFO" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <File>${LOG_PATH}/common.log</File>
+        <encoder>
+            <charset>UTF-8</charset>
+            <Pattern>
+                ${LOG_PATTERN}
+            </Pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>
+                ${HISTORY_LOG_PATH}/common.%i.log
+            </fileNamePattern>
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>100MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+            <maxHistory>8</maxHistory>
+        </rollingPolicy>
+    </appender>
+    <appender name="ERROR" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <File>${LOG_PATH}/error.log</File>
+        <encoder>
+            <charset>UTF-8</charset>
+            <Pattern>
+                ${LOG_PATTERN}
+            </Pattern>
+        </encoder>
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>ERROR</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>
+                ${HISTORY_LOG_PATH}/error.%i.log
+            </fileNamePattern>
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>100MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+            <maxHistory>8</maxHistory>
+        </rollingPolicy>
+    </appender>
+
+    <logger name="cn.xiaoshidai.web.open.platform.boot.dao" level="debug"/>
+
+    <root>
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="INFO"/>
+        <appender-ref ref="ERROR"/>
+    </root>
+</configuration>
