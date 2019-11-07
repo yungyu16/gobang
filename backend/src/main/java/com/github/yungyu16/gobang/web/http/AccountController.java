@@ -2,7 +2,7 @@
  * Copyright (c) 2019 Yungyu  songjialin16@gmail.com. All rights reserved.
  */
 
-package com.github.yungyu16.gobang.web;
+package com.github.yungyu16.gobang.web.http;
 
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestBody;

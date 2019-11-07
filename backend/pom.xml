@@ -29,6 +29,10 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-websocket</artifactId>
         </dependency>
+        <dependency>
+            <groupId>cn.xiaoshidai.common</groupId>
+            <artifactId>common-toolkit</artifactId>
+        </dependency>
     </dependencies>
     <build>
         <plugins>

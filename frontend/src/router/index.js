@@ -1,6 +1,5 @@
 import Vue from 'vue';
 import Router from 'vue-router';
-import hall from '../template/page/hall'
 import game from '../template/page/game'
 import pageContainer from '../template/common/pageContainer'
 import store from '../store'
@@ -14,16 +13,7 @@ const router = new Router({
             meta: {title: 'index'},
             children: [
                 {
-                    path: '',
-                    redirect: 'hall'
-                },
-                {
-                    path: 'hall',
-                    component: hall,
-                    meta: {title: '大厅', navItemIdx: '1'}
-                },
-                {
-                    path: 'game',
+                    path: '/game',
                     component: game,
                     meta: {title: '对局', navItemIdx: '2'}
                 },
