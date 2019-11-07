@@ -130,11 +130,7 @@
         mounted() {
             let board = document.getElementById("gobang_board");
             let context = board.getContext('2d');
-            this.drawChessBoard(context);//绘制棋盘
-
-            board.οnclick = function (e) {
-
-            };
+            this.drawChessBoard(context);
         }
     }
 </script>
