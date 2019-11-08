@@ -4,4 +4,4 @@ logging:
 server:
   servlet:
     context-path: /
-  port: 8092
+  port: 8093
