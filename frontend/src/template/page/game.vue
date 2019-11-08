@@ -1,8 +1,10 @@
 <template>
+    <div id="canvas_container">
+    </div>
 </template>
-
 <script>
     import {Notify} from 'vant';
+
 
     let boardSize = 480;
     let boardPadding = 30;
@@ -101,7 +103,6 @@
         },
         created() {
             let that = this;
-
             function drawPreCheck() {
                 console.log("预选", this.xIndex, this.yIndex);
                 that.boardContext.beginPath();
@@ -139,6 +140,12 @@
             })
         },
         methods: {
+            playSound(id) {
+                let node = document.getElementById(id);
+                if (node != null) {
+                    node.Play();
+                }
+            },
             whenClickBoard(e) {
                 let x = e.offsetX;
                 let y = e.offsetY;
@@ -272,7 +279,7 @@
             canvas.width = screenWidth;
             canvas.height = screenWidth;
             canvas.addEventListener('click', e => this.whenClickBoard(e));
-            document.body.appendChild(canvas);
+            document.getElementById('canvas_container').appendChild(canvas);
             this.boardContext = canvas.getContext('2d');
             this.initBoard();
         }
