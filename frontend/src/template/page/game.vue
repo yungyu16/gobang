@@ -140,13 +140,8 @@
         },
         methods: {
             whenClickBoard(e) {
-                console.log("==============");
-                console.log("offsetX", e.offsetX);
-                console.log("offsetY", e.offsetY);
-                let x = scale(e.offsetX);
-                let y = scale(e.offsetY);
-                console.log("x", x);
-                console.log("y", y);
+                let x = e.offsetX;
+                let y = e.offsetY;
                 let thisCell = this.findClickedCellByOffset(x, y);
                 let latestCell = this.latestClickCell;
 
