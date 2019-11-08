@@ -46,26 +46,21 @@ service.interceptors
         } else {
             errorMsg = "连接到服务器失败";
         }
-        Toast(errorMsg);
+        Toast({
+            duration: 2000,
+            message: errorMsg
+        });
         console.log('接口错误', error);
         return Promise.reject(error.message)
     });
 
 function requestApi(method, url, param, data, headers) {
-    Toast.loading({
-        message: '加载中...',
-        forbidClick: true,
-        loadingType: 'spinner'
-    });
-
     return service.request({
         method: method,
         url: url,
         params: param,
         data: data,
         headers: headers,
-    }).finally(() => {
-        Toast.clear();
     });
 }
 

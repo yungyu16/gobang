@@ -5,7 +5,6 @@
 <script>
     import {Notify} from 'vant';
 
-
     let boardSize = 480;
     let boardPadding = 30;
     let boardDelta = 30;
