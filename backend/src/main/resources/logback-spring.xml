@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <configuration>
-    <springProperty scope="context" name="contextName" source="spring.application.name"/>
+    <property scope="context" name="contextName" source="gobang"/>
     <property name="LOG_PATH" value="/data/logs/${contextName}"/>
     <property name="HISTORY_LOG_PATH" value="${LOG_PATH}/history/%d{yyyy-MM-dd}"/>
     <property name="LOG_PATTERN"
