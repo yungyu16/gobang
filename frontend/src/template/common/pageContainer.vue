@@ -3,6 +3,7 @@
         <van-notice-bar
                 left-icon="volume-o"
                 text="性感FZK,在线五子棋..."/>
+        <van-divider/>
         <router-view></router-view>
     </div>
 </template>
