@@ -14,7 +14,7 @@ import java.util.Optional;
  */
 public abstract class SessionOperationBase extends RedisOperationBase {
 
-    public final String USER_NAME = "userNmae";
+    public final String USER_NAME = "userName";
 
     protected Optional<String> getSessionAttr(String token, String attrKey) {
         if (StringTools.isAnyBlank(token, attrKey)) {

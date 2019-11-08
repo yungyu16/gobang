@@ -8,7 +8,7 @@ function postRequest(url) {
 
 function getRequest(url) {
     return function (param) {
-        return http.requestApi('POST', url, param, null, null);
+        return http.requestApi('GET', url, param, null, null);
     }
 }
 
