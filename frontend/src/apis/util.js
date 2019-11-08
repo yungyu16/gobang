@@ -1,68 +1,72 @@
 import axios from 'axios';
 import router from '../router'
+import {Toast} from 'vant';
 
 const service = axios.create({
     timeout: 5000
 });
-
-service.interceptors.request.use(config => {
-    config.headers['Content-Type'] = 'application/json;charset=UTF-8';
-    return config;
-}, error => {
-    return Promise.reject(error);
-});
-service.interceptors.response.use(
-    config => {
-        return config
-    },
-    error => {
+service.interceptors
+    .request
+    .use(req => {
+        req.headers['Content-Type'] = 'application/json;charset=UTF-8';
+        return req;
+    }, error => {
+        return Promise.reject(error);
+    });
+service.interceptors
+    .response
+    .use(resp => resp, error => {
+        let errorMsg = '请求错误';
         if (error && error.response) {
-            switch (error.response.status) {
-                case 400:
-                    error.message = '错误请求';
-                    Toast('错误请求');
-                    break;
-                case 401:
-                    error.message = '未授权，请重新登录';
-                    router.push('/signUp');
-                    break;
-                case 403:
-                    error.message = '拒绝访问';
-                    Toast('拒绝访问');
-                    break;
-                case 500:
-                    error.message = '服务器端出错';
-                    Toast('服务器端出错');
-                    break;
-                case 501:
-                    error.message = '网络未实现';
-                    Toast('网络未实现');
-                    break;
-                default:
-                    error.message = `连接错误${error.response.status}`;
-                    Toast(`'连接错误'${error.response.status}`);
+            let statusText = error.response.statusText;
+            if (statusText) {
+                errorMsg = statusText;
+            } else {
+                switch (error.response.status) {
+                    case 400:
+                        errorMsg = '错误请求';
+                        break;
+                    case 401:
+                        errorMsg = '未认证,请重新登录';
+                        router.push('/start');
+                        break;
+                    case 403:
+                        errorMsg = '未授权,拒绝访问';
+                        break;
+                    case 500:
+                        errorMsg = '服务器错误';
+                        break;
+                    case 501:
+                        errorMsg = '网络未实现';
+                        break;
+                    default:
+                        errorMsg = `连接错误${error.response.status}`;
+                }
             }
+        } else {
+            errorMsg = "连接到服务器失败";
         }
+        Toast(errorMsg);
+        console.log('接口错误', error);
+        return Promise.reject(error.message)
     });
 
 function requestApi(method, url, param, data, headers) {
-    const loading = Loading.service({
-        lock: true,
-        text: 'Loading',
-        spinner: 'el-icon-loading',
-        background: 'rgba(0, 0, 0, 0.7)'
+    Toast.loading({
+        message: '加载中...',
+        forbidClick: true,
+        loadingType: 'spinner'
     });
 
-    return service
-        .request({
-            method: method,
-            url: url,
-            params: param,
-            data: data,
-            headers: headers,
-        }).finally(() => {
-            loading.close();
-        });
+    return service.request({
+        method: method,
+        url: url,
+        params: param,
+        data: data,
+        headers: headers,
+    }).finally(() => {
+        Toast.clear();
+    });
 }
 
 export default {
