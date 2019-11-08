@@ -13,6 +13,7 @@
 </template>
 <script>
     import {Notify} from 'vant';
+    import apis from '../../apis'
 
     export default {
         data() {
@@ -22,12 +23,16 @@
             }
         },
         created() {
-            let gobangUserId = sessionStorage.getItem('gobangUserId')
+            let gobangUserId = sessionStorage.getItem('gobangUserId');
             if (!gobangUserId) {
-                Notify({type: 'danger', message: '通知内容'});
+                Notify({type: 'danger', message: '请输入用户名'});
                 return;
             }
-
+            apis.account.validate(gobangUserId,
+                ok => {
+                },
+                error => {
+                });
         },
         methods: {
             confirmUserName() {
