@@ -13,6 +13,11 @@ const router = new Router({
             meta: {title: 'index'},
             children: [
                 {
+                    path: '',
+                    component: game,
+                    meta: {title: '对局', navItemIdx: '2'}
+                },
+                {
                     path: '/game',
                     component: game,
                     meta: {title: '对局', navItemIdx: '2'}

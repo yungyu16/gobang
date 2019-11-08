@@ -1,6 +1,8 @@
 <template>
     <div>
-        <!--<pageHeader/>-->
+        <van-notice-bar
+                left-icon="volume-o"
+                text="性感FZK,在线五子棋..."/>
         <router-view></router-view>
     </div>
 </template>

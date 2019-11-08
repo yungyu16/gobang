@@ -1,17 +1,4 @@
 <template>
-    <div>
-        <canvas @click="whenClickBoard" id="gobang_board" height="480px" width="480px"></canvas>
-        <van-dialog v-model="signUpData.showFlag" title="注册" @confirm="confirmUserName">
-            <van-cell-group>
-                <van-field
-                        v-model="signUpData.userName"
-                        clearable
-                        label="用户名"
-                        placeholder="请输入用户名">
-                </van-field>
-            </van-cell-group>
-        </van-dialog>
-    </div>
 </template>
 
 <script>
@@ -20,84 +7,214 @@
     let boardSize = 480;
     let boardPadding = 30;
     let boardDelta = 30;
+
+    let screenWidth = window.screen.availWidth;
+    let scaleRate = screenWidth / boardSize;
+
+    function scale(input) {
+        return input * scaleRate;
+    }
+
+    function index2Char(input) {
+        return String.fromCharCode(65 + input);
+    }
+
+    boardSize = scale(boardSize);
+    boardPadding = scale(boardPadding);
+    boardDelta = scale(boardDelta);
+
+    console.log("boardSize", boardSize);
+    console.log("boardPadding", boardPadding);
+    console.log("boardDelta", boardDelta);
+
+    let lines = [];
+    let gobangPointMap = [];
+    let gobangPointList = [];
+    for (let i = 0; i < 15; i++) {
+        let line = {
+            h: {
+                charInfo: {
+                    char: i + '',
+                    x: boardPadding + i * boardDelta,
+                    y: boardPadding - scale(15)
+                },
+                fromX: boardPadding + i * boardDelta,
+                fromY: boardPadding,
+                toX: boardPadding + i * boardDelta,
+                toY: boardSize - boardPadding
+            },
+            v: {
+                charInfo: {
+                    char: index2Char(i),
+                    x: boardPadding - scale(20),
+                    y: boardPadding + i * boardDelta + scale(4)
+                },
+                fromX: boardPadding,
+                fromY: boardPadding + i * boardDelta,
+                toX: boardSize - boardPadding,
+                toY: boardPadding + i * boardDelta
+            }
+        };
+        lines.push(line);
+        //
+        gobangPointMap[i] = [];
+        for (let j = 0; j < 15; j++) {
+            let xIndex = i;
+            let yIndex = j;
+            gobangPointMap[i][j] = {
+                id: 'x' + xIndex + ':y' + yIndex,
+                //-1空 0预选 1黑色 2白色
+                status: -1,
+                xIndex: xIndex,
+                yIndex: yIndex,
+                x: i * boardDelta + boardPadding,
+                y: j * boardDelta + boardPadding,
+                aroundHere(thisX, thisY) {
+                    let checkFlag = this.status < 1;
+                    if (!checkFlag) {
+                        return false;
+                    }
+                    let xFlag = thisX > this.x - scale(12) && thisX < this.x + scale(12);
+                    if (!xFlag) {
+                        return false;
+                    }
+                    return thisY > this.y - scale(12) && thisY < this.y + scale(12);
+                },
+            };
+            gobangPointList.push(gobangPointMap[i][j]);
+        }
+    }
     export default {
         name: "game.vue",
         data() {
-            let gobangBoardBoxMap = [];
-            let gobangBoardBoxList = [];
-            for (let i = 0; i < 15; i++) {
-                gobangBoardBoxMap[i] = [];
-                for (let j = 0; j < 15; j++) {
-                    let xIndex = i;
-                    let yIndex = this.index2Char(j);
-                    gobangBoardBoxMap[i][j] = {
-                        id: xIndex + yIndex,
-                        //1黑色 2白色
-                        checkedBy: -1,
-                        xIndex: xIndex,
-                        yIndex: yIndex,
-                        x: i * boardDelta + boardPadding,
-                        y: j * boardDelta + boardPadding,
-                        aroundHere(thisX, thisY) {
-                            let checkFlag = this.checkedBy < 1;
-                            if (!checkFlag) {
-                                return false;
-                            }
-                            let xFlag = thisX > this.x - 12 && thisX < this.x + 12;
-                            if (!xFlag) {
-                                return false;
-                            }
-                            let yFlag = thisY > this.y - 12 && thisY < this.y + 12;
-                            if (!yFlag) {
-                                return false;
-                            }
-                            return true;
-                        },
-                    };
-                    gobangBoardBoxList.push(gobangBoardBoxMap[i][j]);
-                }
-            }
             return {
-                signUpData: {
-                    showFlag: false,
-                    userName: ''
-                },
-                userName: '',
-                chessColor: '',
-                boardContext: '',
                 boardSize: boardSize,
-                boardPadding: boardPadding,
-                boardDelta: boardDelta,
-                gobangBoardBoxMap: gobangBoardBoxMap,
-                gobangBoardBoxList: gobangBoardBoxList,
-                latestClickCell: ''
+                boardContext: '',
+                boardLines: lines,
+                gobangPointMap: gobangPointMap,
+                gobangPointList: gobangPointList,
+                latestClickCell: null,
+                latestBoardSnapshot: null,
+                //1黑 2白
+                currentUserColor: 1,
             };
         },
         created() {
-            // let userId = this.$cookies.get('userId');
-            // if (!userId) {
-            //     this.signUp();
-            //     return;
-            // }
-            // let roomId = this.$route.params.roomId;
-            // if (!roomId) {
-            //
-            // }
+            let that = this;
+
+            function drawPreCheck() {
+                console.log("预选", this.xIndex, this.yIndex);
+                that.boardContext.beginPath();
+                that.boardContext.arc(this.x, this.y, scale(13), 0, 2 * Math.PI);
+                that.boardContext.fillStyle = that.currentUserColor === 1 ? "#0A0A0A" : "#D1D1D1";
+                that.boardContext.stroke();
+                that.boardContext.closePath();
+                this.status = 0;
+            }
+
+            function drawCheck() {
+                console.log("确认", this.xIndex, this.yIndex);
+                that.boardContext.beginPath();
+                that.boardContext.arc(this.x, this.y, scale(13), 0, 2 * Math.PI);
+                let style = that.boardContext.createRadialGradient(this.x, this.y, scale(13), this.x, this.y, 0);
+                switch (that.currentUserColor) {
+                    case 1:
+                        style.addColorStop(0, '#0A0A0A');
+                        style.addColorStop(1, '#636766');
+                        break;
+                    case 2:
+                        style.addColorStop(0, '#D1D1D1');
+                        style.addColorStop(1, '#F9F9F9');
+                        break;
+                }
+                that.boardContext.fillStyle = style;
+                that.boardContext.fill();
+                that.boardContext.closePath();
+                this.status = that.currentUserColor;
+            }
+
+            gobangPointList.forEach(it => {
+                it.drawPreCheck = drawPreCheck;
+                it.drawCheck = drawCheck;
+            })
         },
         methods: {
-            signUp() {
-                this.signUpData.showFlag = true;
-            },
-            confirmUserName() {
-                let userName = this.signUpData.userName;
-                if (!userName) {
-                    Notify({type: 'danger', message: '注册失败,用户名为空'});
+            whenClickBoard(e) {
+                console.log("==============");
+                console.log("offsetX", e.offsetX);
+                console.log("offsetY", e.offsetY);
+                let x = scale(e.offsetX);
+                let y = scale(e.offsetY);
+                console.log("x", x);
+                console.log("y", y);
+                let thisCell = this.findClickedCellByOffset(x, y);
+                let latestCell = this.latestClickCell;
+
+                if (thisCell) {
+                    console.log("thisCell", thisCell.xIndex, thisCell.yIndex);
+                } else {
+                    console.log("未选中thisCell");
+                }
+                if (latestCell) {
+                    console.log("latestCell", latestCell.xIndex, latestCell.yIndex);
+                } else {
+                    console.log("未选中latestCell");
+                }
+
+                if (!thisCell && !latestCell) {
                     return;
                 }
+                if (thisCell && latestCell) {
+                    if (thisCell.id === latestCell.id) {
+                        console.log("确认");
+                        //提交后台
+                        thisCell.drawCheck();
+                        this.latestClickCell = null;
+                    } else {
+                        console.log("重选");
+                        this.undo();
+                        thisCell.drawPreCheck();
+                        latestCell.status = -1;
+                        this.latestClickCell = thisCell;
+                    }
+                    return;
+                }
+                if (!thisCell) {
+                    return;
+                }
+                this.save();
+                thisCell.drawPreCheck();
+                this.latestClickCell = thisCell;
             },
-            initWebSocket() { //初始化weosocket
-                const wsUri = "/ws/game-room";
-                this.websock = new WebSocket(wsUri, 'ws');
+            save() {
+                console.log("save");
+                this.latestBoardSnapshot = this.boardContext.getImageData(0, 0, boardSize, boardSize);
+            },
+            undo() {
+                console.log("undo");
+                this.boardContext.putImageData(this.latestBoardSnapshot, 0, 0);
+            },
+            findClickedCellByOffset(x, y) {
+                let box = this.gobangPointList;
+                for (let idx_i in box) {
+                    let cell = box[idx_i];
+                    if (cell.status < 1 && cell.aroundHere(x, y)) {
+                        return cell;
+                    }
+                }
+            },
+            findClickedCellByIndex(x, y) {
+                let box = this.gobangPointList;
+                for (let idx_i in box) {
+                    let cell = box[idx_i];
+                    if (cell.status < 1 && cell.aroundHere(x, y)) {
+                        return cell;
+                    }
+                }
+            },
+            initWebSocket() {
+                const wsUri = "ws://47.102.103.194:8099/ws/game-room";
+                this.websock = new WebSocket(wsUri);
                 this.websock.onmessage = this.onWebsocketMessage();
                 this.websock.onopen = this.onWebsocketOpen();
                 this.websock.onerror = this.onWebsocketError();
@@ -119,123 +236,50 @@
             onWebsocketClose(e) {
                 Notify({type: 'danger', message: '连接中断,请刷新页面'});
             },
-            whenClickBoard(e) {
-                let x = e.offsetX;
-                let y = e.offsetY;
-                let thisCell = this.findClickedCell(x, y);
-                let latestCell = this.latestClickCell;
-
-                if (!thisCell && !latestCell) {
-                    return;
-                }
-                if (thisCell && latestCell) {
-                    if (thisCell.id === latestCell.id) {
-
-                        this.drawCheck('AAAA', thisCell.x, thisCell.y);
-                    } else {
-                        this.clearPreCheck(latestCell.x, latestCell.y);
-                        this.drawPreCheck(this.chessColor, thisCell.x, thisCell.y);
-                        this.latestClickCell = thisCell;
-                    }
-                    return;
-                }
-                if (!thisCell) {
-                    return;
-                }
-                this.drawPreCheck('W', this.latestClickCell.x, this.latestClickCell.y);
-            },
-            findClickedCell(x, y) {
-                let box = this.gobangBoardBoxList;
-                for (let idx_i in box) {
-                    let cell = box[idx_i];
-                    if (cell.checkedBy < 1 && cell.aroundHere(x, y)) {
-                        return cell;
-                    }
-                }
-            },
-            char2Index(input) {
-                return input.charCodeAt(0) - 65;
-            },
-            index2Char(input) {
-                return String.fromCharCode(65 + input);
-            },
-            putByIndex(color, x, y) {
-                if (!color) {
-                    console.log("没有颜色");
-                    return
-                }
-                x = this.char2Index(x);
-                x = this.boardPadding + x * this.boardDelta;
-                y = this.boardPadding + y * this.boardDelta;
-                console.log("棋子坐标:", x, y);
-                this.drawChessman(color, x, y);
-
-            },
-            drawCheck(color, x, y) {
-                this.boardContext.beginPath();
-                this.boardContext.arc(x, y, 13, 0, 2 * Math.PI);
-                let style = this.boardContext.createRadialGradient(x, y, 13, x, y, 0);
-                switch (color) {
-                    case 'W':
-                        style.addColorStop(0, '#D1D1D1');
-                        style.addColorStop(1, '#F9F9F9');
-                        break;
-                    case 'B':
-                        style.addColorStop(0, '#0A0A0A');
-                        style.addColorStop(1, '#636766');
-                        break;
-                }
-                this.boardContext.fillStyle = style;
-                this.boardContext.fill();
-                this.boardContext.closePath();
-            },
-            drawPreCheck(color, x, y) {
-                this.boardContext.beginPath();
-                this.boardContext.arc(x, y, 13, 0, 2 * Math.PI);
-                this.boardContext.fillStyle = color === 1 ? "#0A0A0A" : "#D1D1D1";
-                this.boardContext.stroke();
-                this.boardContext.closePath();
-            },
-            clearPreCheck(x, y) {
-                this.boardContext.beginPath();
-                this.boardContext.fillStyle = "#ffdc99";
-                this.boardContext.arc(x, y, 13, 0, 2 * Math.PI);
-                this.boardContext.stroke();
-                this.boardContext.closePath();
-            },
-            drawBoard() {
+            initBoard() {
                 console.log("开始初始化棋盘...");
-                let boardSize = this.boardSize;
-                let boardPadding = this.boardPadding;
-
+                //棋盘背景色
                 this.boardContext.fillStyle = "#ffdc99";
                 this.boardContext.fillRect(0, 0, boardSize, boardSize);
+                console.log('boardSize', boardSize);
+                this.gobangPointList.forEach(it => it.status = -1);
 
-                this.boardContext.strokeStyle = "#2a2a2a";
-                this.boardContext.fillStyle = "black";
-                this.boardContext.font = "15px '微软雅黑'";
-                this.boardContext.textAlign = "center";
-                this.boardContext.lineWidth = 0.5;
+                let that = this;
 
-                for (let i = 0; i < 15; i++) {
-                    this.boardContext.fillText(i + '', boardPadding + i * this.boardDelta, boardPadding - 15);
-                    this.boardContext.moveTo(boardPadding + i * this.boardDelta, boardPadding);
-                    this.boardContext.lineTo(boardPadding + i * this.boardDelta, boardSize - boardPadding);
-                    this.boardContext.strokeStyle = "#2a2a2a";
-                    this.boardContext.stroke();
-                    this.boardContext.fillText(this.index2Char(i), boardPadding - 20, boardPadding + i * this.boardDelta + 4);
-                    this.boardContext.moveTo(boardPadding, boardPadding + i * this.boardDelta);
-                    this.boardContext.lineTo(boardSize - boardPadding, boardPadding + i * this.boardDelta);
-                    this.boardContext.strokeStyle = "#2a2a2a";
-                    this.boardContext.stroke();
+                function fillLine(line) {
+                    let charInfo = line.charInfo;
+                    //坐标文字
+                    that.boardContext.fillStyle = "black";
+                    that.boardContext.font = "15px '微软雅黑'";
+                    that.boardContext.textAlign = "center";
+                    that.boardContext.fillText(charInfo.char, charInfo.x, charInfo.y);
+                    //线
+                    that.boardContext.strokeStyle = "#2a2a2a";
+                    that.boardContext.lineWidth = 0.5;
+                    that.boardContext.moveTo(line.fromX, line.fromY);
+                    that.boardContext.lineTo(line.toX, line.toY);
+                    that.boardContext.stroke();
                 }
+
+                let lines = this.boardLines;
+                lines.forEach(it => {
+                    let hLine = it.h;
+                    let vLine = it.v;
+                    fillLine(hLine);
+                    fillLine(vLine);
+                });
                 console.log("初始化棋盘完成...");
             }
         },
         mounted() {
-            let board = document.getElementById("gobang_board");
-            this.boardContext = board.getContext('2d');
-            this.drawChessBoard();
+            let canvas = document.createElement('canvas');
+            canvas.id = 'gobang_board';
+            canvas.width = screenWidth;
+            canvas.height = screenWidth;
+            canvas.addEventListener('click', e => this.whenClickBoard(e));
+            document.body.appendChild(canvas);
+            this.boardContext = canvas.getContext('2d');
+            this.initBoard();
         }
     }
 </script>
@@ -253,7 +297,7 @@
 
     canvas {
         display: block;
-        margin: 50px auto;
+        margin: auto auto;
         box-shadow: -2px -2px 2px #F3F2F2, 5px 5px 5px #6F6767;
     }
 </style>
