@@ -13,7 +13,7 @@ function getRequest(url) {
 }
 
 const account = {
-    validate: postRequest("account/validate"),
+    validate: getRequest("account/validate"),
     signUp: postRequest("account/sign-up"),
 };
 

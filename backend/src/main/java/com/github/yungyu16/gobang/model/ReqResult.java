@@ -4,33 +4,40 @@
 
 package com.github.yungyu16.gobang.model;
 
+import lombok.Data;
+
 /**
  * @author Yungyu
  * @description Created by Yungyu on 2019/11/7.
  */
+@Data
 public class ReqResult<T> {
 
-    private int code = 0;
+    private int bizCode = 0;
 
-    private String errorMsg;
+    private String bizMsg;
 
     private T data;
 
-    private ReqResult(int code, String errorMsg, T data) {
-        this.code = code;
-        this.errorMsg = errorMsg;
+    private ReqResult(int bizCode, String bizMsg, T data) {
+        this.bizCode = bizCode;
+        this.bizMsg = bizMsg;
         this.data = data;
     }
 
-    public static <T> ReqResult<T> of(T data) {
+    public static <T> ReqResult<T> success() {
+        return new ReqResult<>(0, null, null);
+    }
+
+    public static <T> ReqResult<T> success(T data) {
         return new ReqResult<>(0, null, data);
     }
 
-    public static <T> ReqResult<T> of(int code, String msg) {
-        return new ReqResult<>(code, msg, null);
+    public static <T> ReqResult<T> of(int bizCode) {
+        return new ReqResult<>(bizCode, null, null);
     }
 
-    public static <T> ReqResult<T> of(int code, String msg, T data) {
-        return new ReqResult<>(code, msg, data);
+    public static <T> ReqResult<T> of(int bizCode, String bizMsg) {
+        return new ReqResult<>(bizCode, bizMsg, null);
     }
 }

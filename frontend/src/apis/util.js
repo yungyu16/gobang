@@ -3,7 +3,8 @@ import router from '../router'
 import {Toast} from 'vant';
 
 const service = axios.create({
-    timeout: 5000
+    timeout: 5000,
+    baseURL:'http://47.102.103.194:8099/'
 });
 service.interceptors
     .request

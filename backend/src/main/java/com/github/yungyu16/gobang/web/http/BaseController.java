@@ -6,6 +6,8 @@ package com.github.yungyu16.gobang.web.http;
 
 import cn.xiaoshidai.common.toolkit.base.ServletTools;
 import cn.xiaoshidai.common.toolkit.exception.BizSessionTimeOutException;
+import com.github.yungyu16.gobang.base.RedisOperationBase;
+import com.github.yungyu16.gobang.base.SessionOperationBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.ServletRequestBindingException;
@@ -18,7 +20,7 @@ import java.util.Optional;
  * @author Yungyu
  * @description Created by Yungyu on 2019/11/8.
  */
-public abstract class BaseController {
+public abstract class BaseController extends SessionOperationBase {
 
     protected Logger log = LoggerFactory.getLogger(getClass());
 
