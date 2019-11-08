@@ -5,3 +5,10 @@ server:
   servlet:
     context-path: /
   port: 8099
+spring:
+  redis:
+    database: 8
+    host: lzlz.site
+    port: 36379
+    password: QWERDF595182653QWERDF595182653
+    timeout: PT1M
