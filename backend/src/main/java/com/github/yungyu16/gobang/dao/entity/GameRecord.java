@@ -1,16 +1,16 @@
 package com.github.yungyu16.gobang.dao.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
-import java.time.LocalDateTime;
-import java.sql.Blob;
-import java.io.Serializable;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
+import java.io.Serializable;
+import java.time.LocalDateTime;
+
 /**
  * <p>
- * 
+ *
  * </p>
  *
  * @author Yungyu
@@ -36,7 +36,7 @@ public class GameRecord implements Serializable {
 
     private LocalDateTime gameEndTime;
 
-    private Blob gamePic;
+    private byte[] gamePic;
 
     private Integer isDeleted;
 

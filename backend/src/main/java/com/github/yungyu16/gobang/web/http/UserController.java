@@ -7,8 +7,14 @@ package com.github.yungyu16.gobang.web.http;
 import cn.xiaoshidai.common.toolkit.base.StringTools;
 import cn.xiaoshidai.common.toolkit.exception.BizException;
 import com.github.yungyu16.gobang.annotation.WithoutLogin;
+import com.github.yungyu16.gobang.dao.entity.UserRecord;
+import com.github.yungyu16.gobang.domain.UserDomain;
 import com.github.yungyu16.gobang.model.ReqResult;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * @author Yungyu
@@ -16,7 +22,10 @@ import org.springframework.web.bind.annotation.*;
  */
 @RestController
 @RequestMapping("user")
-public class UserController extends BaseController {
+public class UserController extends BaseController implements InitializingBean {
+
+    @Autowired
+    private UserDomain userDomain;
 
     @GetMapping("validate")
     public void validate() {
@@ -53,5 +62,11 @@ public class UserController extends BaseController {
 
     @GetMapping("history")
     public void history() {
+    }
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        List<UserRecord> list = userDomain.list();
+        System.out.println(list);
     }
 }

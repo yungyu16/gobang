@@ -59,7 +59,7 @@
         </rollingPolicy>
     </appender>
 
-    <logger name="cn.xiaoshidai.web.open.platform.boot.dao" level="debug"/>
+    <logger name="com.github.yungyu16.gobang.dao" level="debug"/>
 
     <root>
         <appender-ref ref="CONSOLE"/>

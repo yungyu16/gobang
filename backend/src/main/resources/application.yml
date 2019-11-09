@@ -13,6 +13,6 @@ spring:
     password: QWERDF595182653QWERDF595182653
     timeout: PT1M
   datasource:
-    url: jdbc:mysql://47.98.143.33/gobang
+    url: jdbc:mysql://47.98.143.33/gobang?useUnicode=true&characterEncoding=utf-8&useSSL=false
     username: root
     password: QWERDF595182653

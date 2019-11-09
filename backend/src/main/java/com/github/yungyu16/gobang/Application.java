@@ -7,7 +7,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 /**
  * Author: songjialin
  */
-@MapperScan("com.github.yungyu16.gobang.mapper")
+@MapperScan("com.github.yungyu16.gobang.dao.mapper")
 @SpringBootApplication
 public class Application {
     public static void main(String[] args) {
