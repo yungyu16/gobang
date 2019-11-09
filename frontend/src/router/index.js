@@ -2,7 +2,7 @@ import Vue from 'vue';
 import Router from 'vue-router';
 import util from '../util'
 
-import heartBeat from '../template/common/heartBeat'
+import basePage from '../template/common/basePage'
 import tabPage from '../template/common/tabPage'
 import signUp from '../template/biz/signUp'
 import signIn from '../template/biz/signIn'
@@ -19,7 +19,7 @@ const router = new Router({
     routes: [
         {
             path: '/',
-            component: heartBeat,
+            component: basePage,
             meta: {title: 'index'},
             children: [
                 {
@@ -49,7 +49,7 @@ const router = new Router({
                 }, {
                     path: '/history',
                     component: history,
-                    meta: {title: '历史'}
+                    meta: {title: '对战记录'}
                 },
                 {
                     path: '/tab',
@@ -82,7 +82,6 @@ const router = new Router({
                             path: 'mine',
                             component: mine,
                             meta: {
-                                showNotice: true,
                                 icon: 'manager-o',
                                 tabName: '我'
                             }

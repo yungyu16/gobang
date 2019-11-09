@@ -23,11 +23,6 @@
         </van-tabs>
         <van-action-sheet :round="false" v-model="action.addActionsShow" :actions="action.addActions"
                           @select="onSelectAddAction"/>
-        <floatBtn text="对战" @onFloatBtnClicked="onFloatBtnClick">
-            <template slot="icon">
-                <van-icon name="plus"/>
-            </template>
-        </floatBtn>
     </div>
 </template>
 <script>

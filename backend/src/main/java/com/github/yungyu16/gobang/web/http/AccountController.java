@@ -51,6 +51,10 @@ public class AccountController extends BaseController {
         return ReqResult.success(userToken);
     }
 
+    @GetMapping("detail")
+    public void detail() {
+    }
+
     @GetMapping("history")
     public void history() {
     }
