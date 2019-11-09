@@ -5,7 +5,6 @@ Vue.use(Vuex);
 
 let store = new Vuex.Store({
     state: {
-        activeNavItemIdx: '1'
     },
     getters: {},
     actions: {},

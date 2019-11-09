@@ -1,6 +1,7 @@
 import axios from 'axios';
 import router from '../router'
 import {Toast} from 'vant';
+import util from '../util'
 
 const service = axios.create({
     timeout: 5000,
@@ -52,7 +53,10 @@ service.interceptors
         return Promise.reject(error.message)
     });
 
-function requestApi(method, url, param, data, headers) {
+function requestApi(method, url, param, data) {
+    let headers={
+        'Authorization':util.getSessionToken()
+    }
     return service.request({
         method: method,
         url: url,

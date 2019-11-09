@@ -9,8 +9,8 @@ import util from './util'
 Vue.use(Vant);
 Vue.config.productionTip = false;
 
-Vue.prototype.getUserToken = util.getUserToken;
-Vue.prototype.setUserToken = util.setUserToken;
+Vue.prototype.getSessionToken = util.getSessionToken;
+Vue.prototype.setSessionToken = util.setSessionToken;
 
 new Vue({
     router,

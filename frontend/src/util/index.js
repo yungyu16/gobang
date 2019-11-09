@@ -1,6 +1,6 @@
-const getUserToken = () => localStorage.getItem('gobangUserToken');
-const setUserToken = userToken => localStorage.setItem('gobangUserToken', userToken);
+const getSessionToken = () => localStorage.getItem('sessionToken');
+const setSessionToken = userToken => localStorage.setItem('sessionToken', userToken);
 export default {
-    getUserToken,
-    setUserToken
+    getSessionToken,
+    setSessionToken
 }

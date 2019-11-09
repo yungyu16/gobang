@@ -15,11 +15,11 @@ import org.springframework.web.bind.annotation.*;
  * @description Created by Yungyu on 2019/11/7.
  */
 @RestController
-@RequestMapping("account")
-public class AccountController extends BaseController {
+@RequestMapping("user")
+public class UserController extends BaseController {
 
     @GetMapping("validate")
-    public void validate(@RequestParam String userToken) {
+    public void validate() {
 
     }
 
