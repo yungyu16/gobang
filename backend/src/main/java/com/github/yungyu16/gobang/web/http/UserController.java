@@ -76,7 +76,7 @@ public class UserController extends BaseController {
         checkPassword(password);
 
         LambdaQueryWrapper<UserRecord> queryWrapper = Wrappers.lambdaQuery(new UserRecord());
-        queryWrapper.ge(UserRecord::getMobile, mobile);
+        queryWrapper.eq(UserRecord::getMobile, mobile);
         int count = userDomain.count(queryWrapper);
         if (count > 0) {
             throw new BizException("手机号码已注册");
