@@ -9,6 +9,12 @@
                                 v-model="userName"
                                 required
                                 clearable
+                                label="用户名"
+                                placeholder="请输入用户名"/>
+                        <van-field
+                                v-model="mobile"
+                                required
+                                clearable
                                 label="手机号"
                                 placeholder="请输入手机号码"/>
                         <van-field
@@ -42,6 +48,7 @@
     name: "signIn.vue",
     data() {
         return {
+            mobile: '',
             userName: '',
             password: '',
             rePassword: '',
