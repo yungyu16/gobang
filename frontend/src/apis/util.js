@@ -1,6 +1,7 @@
 import axios from 'axios';
 import {Toast} from 'vant';
 import util from '../util'
+import router from '../router'
 
 const service = axios.create({
     timeout: 5000,
@@ -30,6 +31,10 @@ service.interceptors
             errorMsg = msg;
         }
         Toast(errorMsg);
+        if (code === 401) {
+            router.push('/sign-in')
+            return;
+        }
         return Promise.reject(errorMsg)
     }, error => {
         console.log('接口错误', error);
