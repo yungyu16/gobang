@@ -16,8 +16,8 @@ const user = {
     validate: getRequest("user/validate"),
     signUp: postRequest("user/sign-up"),
     signIn: postRequest("user/sign-in"),
-    detail: postRequest("user/detail"),
-    history: postRequest("user/history"),
+    detail: getRequest("user/detail"),
+    history: getRequest("user/history"),
 };
 
 export default {

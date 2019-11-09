@@ -6,9 +6,11 @@ import com.github.yungyu16.gobang.annotation.WithoutLogin;
 import com.github.yungyu16.gobang.base.SessionOperationBase;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.stereotype.Component;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
@@ -28,6 +30,12 @@ import java.lang.reflect.Method;
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
 
+    @Autowired
+    private SessionFilter sessionFilter;
+
+    @Autowired
+    private TrackFilter trackFilter;
+
     @Bean
     public CorsFilter corsFilter() {
         CorsConfiguration config = new CorsConfiguration();
@@ -43,8 +51,8 @@ public class WebConfig implements WebMvcConfigurer {
     @Bean
     public FilterRegistrationBean trackFilter() {
         FilterRegistrationBean<TrackFilter> registration = new FilterRegistrationBean<>();
-        registration.setFilter(new TrackFilter());
-        registration.addUrlPatterns("/**");
+        registration.setFilter(trackFilter);
+        registration.addUrlPatterns("/*");
         registration.setName("trackFilter");
         registration.setOrder(1);
         return registration;
@@ -52,11 +60,12 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(new SessionFilter())
+        registry.addInterceptor(sessionFilter)
                 .addPathPatterns("/**");
     }
 }
 
+@Component
 class SessionFilter extends SessionOperationBase implements HandlerInterceptor {
 
     @Override
@@ -77,6 +86,7 @@ class SessionFilter extends SessionOperationBase implements HandlerInterceptor {
 }
 
 @Slf4j
+@Component
 class TrackFilter extends OncePerRequestFilter {
 
     @Override
