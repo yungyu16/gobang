@@ -46,7 +46,6 @@ public class AccountController extends BaseController {
             throw new BizException("用户名已存在");
         }
         String userToken = StringTools.timestampUUID();
-        setSessionAttr(userToken, USER_NAME, userName);
         getRedisSetOperations().add(String.join(":", "ACCOUNT", "NAME_SET"), userName);
         return ReqResult.success(userToken);
     }
