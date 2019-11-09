@@ -65,7 +65,7 @@
                         password: this.password,
                     })
                     .then(it => {
-                        this.setSessionToken(it.data);
+                        this.setSessionToken(it);
                         this.$toast("登陆成功");
                         this.$router.push('/tab/start');
                     })

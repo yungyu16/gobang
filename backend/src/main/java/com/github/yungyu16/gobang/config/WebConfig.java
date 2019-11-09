@@ -82,8 +82,11 @@ public class WebConfig implements WebMvcConfigurer {
             }
             String sessionToken = getSessionToken().orElseThrow(BizSessionTimeOutException::new);
             boolean flag = checkSessionToken(sessionToken);
-            log.info("登陆检查结果：{}", flag);
-            return flag;
+            log.info("登陆检查结果：{} {}", sessionToken, flag);
+            if (!flag) {
+                throw new BizSessionTimeOutException();
+            }
+            return true;
         }
     }
 

@@ -4,7 +4,8 @@ import util from '../util'
 
 const service = axios.create({
     timeout: 5000,
-    baseURL: 'http://47.102.103.194:8099/'
+    // baseURL: 'http://47.102.103.194:8099/'
+    baseURL: 'http://localhost:8099/'
 });
 service.interceptors
     .request
@@ -24,11 +25,12 @@ service.interceptors
             return data.data;
         }
         let errorMsg = '请求错误';
-        let msg = data.msGetAsCastingSource();
+        let msg = data.msg;
         if (msg) {
             errorMsg = msg;
         }
         Toast(errorMsg);
+        return Promise.reject(errorMsg)
     }, error => {
         console.log('接口错误', error);
         Toast('接口错误');

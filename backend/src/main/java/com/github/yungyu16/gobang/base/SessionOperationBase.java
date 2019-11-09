@@ -12,6 +12,7 @@ import com.alibaba.fastjson.JSON;
 import com.google.common.net.HttpHeaders;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
@@ -38,13 +39,12 @@ public abstract class SessionOperationBase extends RedisOperationBase {
         if (StringTools.isAnyBlank(token, attrKey, attrValue)) {
             throw new NullPointerException();
         }
-        getRedisHashOperations().put(token, attrKey, attrValue);
     }
 
     protected String newSession(Integer userId) {
         ConditionTools.checkNotNull(userId);
         String token = StringTools.timestampUUID();
-        setSessionAttr(token, JSON.toJSONString(userId));
+        getRedisHashOperations().put(token, USER_ID, JSON.toJSONString(userId));
         touchSession(token);
         return token;
     }
@@ -54,6 +54,8 @@ public abstract class SessionOperationBase extends RedisOperationBase {
             return false;
         }
         token = token.trim();
+        Map<String, String> entries = getRedisHashOperations().entries(token);
+        log.info("{}", entries);
         Boolean hasKey = redisTemplate.hasKey(token);
         if (hasKey == null) {
             hasKey = false;

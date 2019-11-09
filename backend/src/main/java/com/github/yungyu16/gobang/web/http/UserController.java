@@ -52,7 +52,7 @@ public class UserController extends BaseController {
         MobileTools.checkMobile(mobile);
         log.info("开始登陆....");
         LambdaQueryWrapper<UserRecord> queryWrapper = Wrappers.lambdaQuery(new UserRecord());
-        queryWrapper.ge(UserRecord::getMobile, mobile);
+        queryWrapper.eq(UserRecord::getMobile, mobile);
         UserRecord user = userDomain.getOne(queryWrapper);
         String digestPwd = getDigestPwd(password);
         if (StringTools.equalsIgnoreCase(digestPwd, user.getPwd())) {
@@ -128,5 +128,4 @@ public class UserController extends BaseController {
             throw new BizException("用户名仅支持字母数字");
         }
     }
-
 }
