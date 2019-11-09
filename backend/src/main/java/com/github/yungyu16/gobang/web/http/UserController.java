@@ -36,7 +36,7 @@ public class UserController extends BaseController {
 
     @WithoutLogin
     @PostMapping("sign-in")
-    public ReqResult<String> signIn(@RequestParam AccountForm userForm) {
+    public ReqResult<String> signIn(@RequestBody AccountForm userForm) {
         String mobile = userForm.getMobile();
         String password = userForm.getPassword();
 
@@ -60,7 +60,7 @@ public class UserController extends BaseController {
 
     @WithoutLogin
     @PostMapping("sign-up")
-    public synchronized void signUp(@RequestParam AccountForm userForm) {
+    public synchronized void signUp(@RequestBody AccountForm userForm) {
         String userName = userForm.getUserName();
         String mobile = userForm.getMobile();
         String password = userForm.getPassword();
