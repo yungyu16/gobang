@@ -34,6 +34,7 @@ public class UserController extends BaseController {
 
     }
 
+    @WithoutLogin
     @PostMapping("sign-in")
     public ReqResult<String> signIn(@RequestParam AccountForm userForm) {
         String mobile = userForm.getMobile();
@@ -44,7 +45,7 @@ public class UserController extends BaseController {
         }
         mobile = mobile.trim();
         password = password.trim();
-
+        log.info("开始登陆....");
         LambdaQueryWrapper<UserRecord> queryWrapper = Wrappers.lambdaQuery(new UserRecord());
         queryWrapper.ge(UserRecord::getMobile, mobile);
         UserRecord user = userDomain.getOne(queryWrapper);

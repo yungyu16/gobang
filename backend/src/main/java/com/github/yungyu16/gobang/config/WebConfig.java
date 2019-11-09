@@ -72,6 +72,7 @@ public class WebConfig implements WebMvcConfigurer {
             if (!(handler instanceof HandlerMethod)) {
                 return true;
             }
+            log.info("开始进行登陆检查...");
             HandlerMethod handlerMethod = (HandlerMethod) handler;
             Method method = handlerMethod.getMethod();
             WithoutLogin withoutLogin = method.getAnnotation(WithoutLogin.class);
@@ -80,7 +81,9 @@ public class WebConfig implements WebMvcConfigurer {
                 return true;
             }
             String sessionToken = getSessionToken().orElseThrow(BizSessionTimeOutException::new);
-            return checkSessionToken(sessionToken);
+            boolean flag = checkSessionToken(sessionToken);
+            log.info("登陆检查结果：{}", flag);
+            return flag;
         }
     }
 
@@ -96,7 +99,7 @@ public class WebConfig implements WebMvcConfigurer {
             log.info(">>>>>>>>>>>>>>>> processing req:{}", requestURI);
             filterChain.doFilter(request, response);
             response.addHeader("traceId", uuid);
-            log.info("<<<<<<<<<<<<<<<< processed req:{}");
+            log.info("<<<<<<<<<<<<<<<< processed req:{}", requestURI);
         }
     }
 }

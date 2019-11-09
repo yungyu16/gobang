@@ -67,7 +67,7 @@
                     .then(it => {
                         this.setSessionToken(it.data);
                         this.$toast("登陆成功");
-                        this.$router.push('/start');
+                        this.$router.push('/tab/start');
                     })
             }
         }
