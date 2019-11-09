@@ -1,6 +1,5 @@
 import Vue from 'vue';
 import Router from 'vue-router';
-import store from '../store'
 import util from '../util'
 
 import heartBeat from '../template/common/heartBeat'
@@ -65,7 +64,8 @@ const router = new Router({
                             meta: {
                                 showNotice: false,
                                 icon: 'wap-home-o',
-                                tabName: '首页'
+                                tabName: '首页',
+                                ignoreLogin: true
                             }
                         },
                         {
@@ -89,7 +89,8 @@ const router = new Router({
                     ]
                 },
             ]
-        }, {
+        },
+        {
             name: 'notFound',
             path: '/404',
             component: notFound,
@@ -110,7 +111,7 @@ const router = new Router({
 
 router.beforeEach((to, from, next) => {
     let ignoreLogin = to.meta.ignoreLogin;
-    ignoreLogin=true;
+    ignoreLogin = true;
     if (!ignoreLogin) {
         let userToken = util.getUserToken();
         if (!userToken) {
@@ -119,11 +120,10 @@ router.beforeEach((to, from, next) => {
         }
     }
     let toTitle = to.meta.title;
-    document.title = `五子棋`;
+    document.title = '五子棋';
     if (toTitle) {
         document.title = `${toTitle} | 五子棋`;
     }
-    store.state.activeNavItemIdx = to.meta.navItemIdx;
     next();
 });
 
