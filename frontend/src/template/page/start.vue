@@ -1,13 +1,5 @@
 <template>
     <div>
-        <van-nav-bar
-                :title="$route.meta.title"
-                :left-arrow="false"
-                @click-right="onClickNavRight">
-            <div slot="right">
-                <van-icon name="plus"/>
-            </div>
-        </van-nav-bar>
         <van-tabs title-active-color="#1989fa"
                   color="#1989fa">
             <van-tab name="user" title="在线用户">
@@ -31,17 +23,23 @@
         </van-tabs>
         <van-action-sheet :round="false" v-model="action.addActionsShow" :actions="action.addActions"
                           @select="onSelectAddAction"/>
+        <floatBtn text="对战" @onFloatBtnClicked="onFloatBtnClick">
+            <template slot="icon">
+                <van-icon name="plus"/>
+            </template>
+        </floatBtn>
     </div>
 </template>
 <script>
+    import floatBtn from '../common/floatBtn'
     import {Notify, Toast} from 'vant';
     import apis from '../../apis'
 
     export default {
         data() {
             return {
-                userList: [1,2,3],
-                gameList: [1,2,3],
+                userList: [1, 2, 3],
+                gameList: [1, 2, 3],
                 action: {
                     addActionsShow: false,
                     addActions: [
@@ -54,8 +52,9 @@
         created() {
             this.validateUserToken()
         },
+        components: {floatBtn},
         methods: {
-            onClickNavRight() {
+            onFloatBtnClick() {
                 this.action.addActionsShow = true;
             },
             onSelectAddAction() {
