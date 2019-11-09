@@ -7,7 +7,7 @@ import lombok.Data;
  * @description Created by Yungyu on 2019/11/10.
  */
 @Data
-public class AccountForm {
+public class UserForm {
 
     private String userName;
 

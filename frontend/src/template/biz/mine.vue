@@ -1,5 +1,6 @@
 <template>
-    <div>                    <van-divider/>
+    <div>
+        <van-divider/>
 
         <van-cell-group>
             <van-row type="flex" justify="center">
@@ -36,6 +37,7 @@
 </template>
 <script>
     import Avatar from 'vue-avatar'
+    import apis from '../../apis'
 
     export default {
         name: "mine.vue",
@@ -44,10 +46,18 @@
         },
         data() {
             return {
-                userName: '宋加林',
-                mobile: '15156684305'
+                userName: '',
+                mobile: ''
             };
         },
+        created() {
+            apis.user
+                .detail()
+                .then(it => {
+                    this.userName = it.userName;
+                    this.mobile = it.mobile
+                });
+        }
     }
 </script>
 <style scoped>

@@ -4,17 +4,20 @@
 
 package com.github.yungyu16.gobang.web.http;
 
+import cn.xiaoshidai.common.toolkit.base.BeanTools;
 import cn.xiaoshidai.common.toolkit.base.DigestTools;
 import cn.xiaoshidai.common.toolkit.base.MobileTools;
 import cn.xiaoshidai.common.toolkit.base.StringTools;
 import cn.xiaoshidai.common.toolkit.exception.BizException;
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.github.yungyu16.gobang.annotation.WithoutLogin;
 import com.github.yungyu16.gobang.dao.entity.UserRecord;
 import com.github.yungyu16.gobang.domain.UserDomain;
 import com.github.yungyu16.gobang.model.ReqResult;
-import com.github.yungyu16.gobang.web.http.entity.AccountForm;
+import com.github.yungyu16.gobang.web.http.entity.UserForm;
+import com.github.yungyu16.gobang.web.http.entity.UserVO;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -37,7 +40,7 @@ public class UserController extends BaseController {
 
     @WithoutLogin
     @PostMapping("sign-in")
-    public ReqResult<String> signIn(@RequestBody AccountForm userForm) {
+    public ReqResult<String> signIn(@RequestBody UserForm userForm) {
         String mobile = userForm.getMobile();
         String password = userForm.getPassword();
 
@@ -62,7 +65,7 @@ public class UserController extends BaseController {
 
     @WithoutLogin
     @PostMapping("sign-up")
-    public synchronized void signUp(@RequestBody AccountForm userForm) {
+    public synchronized void signUp(@RequestBody UserForm userForm) {
         String userName = userForm.getUserName();
         String mobile = userForm.getMobile();
         String password = userForm.getPassword();
@@ -93,7 +96,13 @@ public class UserController extends BaseController {
     }
 
     @GetMapping("detail")
-    public void detail() {
+    public ReqResult<UserVO> detail() {
+        return getSessionAttr(USER_ID)
+                .map(it -> JSON.parseObject(it, Integer.class))
+                .map(it -> {
+                    UserRecord userRecord = userDomain.getById(it);
+                    return BeanTools.map(userRecord, UserVO.class);
+                }).map(ReqResult::success).orElseThrow(() -> new BizException("用户不存在"));
     }
 
     @GetMapping("history")
