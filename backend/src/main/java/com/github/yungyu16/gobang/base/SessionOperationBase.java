@@ -20,13 +20,13 @@ public abstract class SessionOperationBase extends RedisOperationBase {
         if (StringTools.isAnyBlank(token, attrKey)) {
             return Optional.empty();
         }
-        return Optional.ofNullable(redisHashOperations.get(token, attrKey));
+        return Optional.ofNullable(getRedisHashOperations().get(token, attrKey));
     }
 
     protected void setSessionAttr(String token, String attrKey, String attrValue) {
         if (StringTools.isAnyBlank(token, attrKey, attrValue)) {
             throw new NullPointerException();
         }
-        redisHashOperations.put(token, attrKey, attrValue);
+        getRedisHashOperations().put(token, attrKey, attrValue);
     }
 }
