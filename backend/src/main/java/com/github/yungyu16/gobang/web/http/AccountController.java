@@ -22,7 +22,7 @@ public class AccountController extends BaseController {
         if (StringTools.isBlank(userToken)) {
             throw new BizException("用户令牌为空");
         }
-        Boolean hasToken = redisTemplate.hasKey(String.join(":", "token", userToken));
+        Boolean hasToken = redisTemplate.hasKey(userToken);
         if (hasToken == null) {
             hasToken = false;
         }
@@ -47,6 +47,7 @@ public class AccountController extends BaseController {
         }
         String userToken = StringTools.timestampUUID();
         setSessionAttr(userToken, USER_NAME, userName);
+        getRedisSetOperations().add(String.join(":", "ACCOUNT", "NAME_SET"), userName);
         return ReqResult.success(userToken);
     }
 

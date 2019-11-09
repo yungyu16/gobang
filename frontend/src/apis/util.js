@@ -47,10 +47,7 @@ service.interceptors
         } else {
             errorMsg = "连接到服务器失败";
         }
-        Toast({
-            duration: 2000,
-            message: errorMsg
-        });
+        Toast(errorMsg);
         console.log('接口错误', error);
         return Promise.reject(error.message)
     });

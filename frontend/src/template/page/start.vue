@@ -52,7 +52,7 @@
                     this.dialogShow = true;
                     return;
                 }
-                apis.account.validate(userToken)
+                apis.account.validate({userToken: userToken})
                     .then(payload => {
                         if (payload.code !== 0) {
                             this.dialogShow = true;
