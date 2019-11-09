@@ -1,10 +1,19 @@
 <template>
     <div>
-        <van-row>
-            <van-col offset='8' span="8">
-                <van-button type="primary">创建对局</van-button>
-            </van-col>
-        </van-row>
+        <van-nav-bar
+                :title="$route.meta.title"
+                :left-arrow="false"
+                title-active-color="#1989fa"
+                color="#1989fa"
+                @click-right="onClickNavRight">
+            <div slot="right">
+                <van-icon name="plus"/>
+            </div>
+        </van-nav-bar>
+        <van-tabs v-model="activeTab">
+            <van-tab title="在线用户">在线用户</van-tab>
+            <van-tab title="在线对局">在线对局</van-tab>
+        </van-tabs>
         <van-dialog
                 v-model="dialogShow"
                 title="注册"
@@ -27,25 +36,39 @@
                     </van-col>
                 </van-row>
             </div>
-
         </van-dialog>
+        <van-action-sheet :round="false" v-model="action.addActionsShow" :actions="action.addActions" @select="onSelectAddAction"/>
     </div>
 </template>
 <script>
-    import {Notify} from 'vant';
+    import {Notify, Toast} from 'vant';
     import apis from '../../apis'
 
     export default {
         data() {
             return {
+                activeTab: '1',
                 userName: '',
-                dialogShow: false
+                dialogShow: false,
+                action: {
+                    addActionsShow: false,
+                    addActions: [
+                        {name: '好友对战'},
+                        {name: '人机对战'}
+                    ]
+                }
             }
         },
         created() {
             this.validateUserToken()
         },
         methods: {
+            onClickNavRight() {
+                this.action.addActionsShow = true;
+            },
+            onSelectAddAction() {
+
+            },
             validateUserToken() {
                 let userToken = this.getUserToken();
                 if (!userToken) {
@@ -54,7 +77,7 @@
                 }
                 apis.account.validate({userToken: userToken})
                     .then(payload => {
-                        if (payload.code !== 0) {
+                        if (payload.bizCode !== 0) {
                             this.dialogShow = true;
                         }
                     });

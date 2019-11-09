@@ -6,6 +6,7 @@ package com.github.yungyu16.gobang.config;
 
 import cn.xiaoshidai.common.toolkit.base.ServletTools;
 import cn.xiaoshidai.common.toolkit.exception.BizException;
+import cn.xiaoshidai.common.toolkit.exception.BizSessionTimeOutException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -24,6 +25,16 @@ public class WebExceptionHandler {
         log.info("请求错误", e.getMessage());
         try {
             ServletTools.getCurrentResponse().sendError(HttpStatus.BAD_REQUEST.value(), e.getMessage());
+        } catch (IOException e1) {
+            log.error("异常处理异常...");
+        }
+    }
+
+    @ExceptionHandler
+    public void bizException(BizSessionTimeOutException e) {
+        log.info("未登陆");
+        try {
+            ServletTools.getCurrentResponse().sendError(HttpStatus.UNAUTHORIZED.value(), e.getMessage());
         } catch (IOException e1) {
             log.error("异常处理异常...");
         }
