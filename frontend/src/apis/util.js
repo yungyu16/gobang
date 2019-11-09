@@ -4,7 +4,7 @@ import {Toast} from 'vant';
 
 const service = axios.create({
     timeout: 5000,
-    baseURL:'http://47.102.103.194:8099/'
+    baseURL: 'http://47.102.103.194:8099/'
 });
 service.interceptors
     .request
@@ -62,7 +62,7 @@ function requestApi(method, url, param, data, headers) {
         params: param,
         data: data,
         headers: headers,
-    });
+    }).then(it => it.data);
 }
 
 export default {
