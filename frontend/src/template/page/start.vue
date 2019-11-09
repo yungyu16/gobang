@@ -3,14 +3,13 @@
         <van-nav-bar
                 :title="$route.meta.title"
                 :left-arrow="false"
-                title-active-color="#1989fa"
-                color="#1989fa"
                 @click-right="onClickNavRight">
             <div slot="right">
                 <van-icon name="plus"/>
             </div>
         </van-nav-bar>
-        <van-tabs>
+        <van-tabs title-active-color="#1989fa"
+                  color="#1989fa">
             <van-tab name="user" title="在线用户">
                 <van-list :finished="true">
                     <van-cell
