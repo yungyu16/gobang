@@ -6,6 +6,7 @@ package com.github.yungyu16.gobang.web.http;
 
 import cn.xiaoshidai.common.toolkit.base.StringTools;
 import cn.xiaoshidai.common.toolkit.exception.BizException;
+import com.github.yungyu16.gobang.annotation.WithoutLogin;
 import com.github.yungyu16.gobang.model.ReqResult;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,20 +19,16 @@ import org.springframework.web.bind.annotation.*;
 public class AccountController extends BaseController {
 
     @GetMapping("validate")
-    public ReqResult validate(@RequestParam String userToken) {
-        if (StringTools.isBlank(userToken)) {
-            throw new BizException("用户令牌为空");
-        }
-        Boolean hasToken = redisTemplate.hasKey(userToken);
-        if (hasToken == null) {
-            hasToken = false;
-        }
-        if (!hasToken) {
-            return ReqResult.of(1);
-        }
-        return ReqResult.success();
+    public void validate(@RequestParam String userToken) {
+
     }
 
+    @GetMapping("sign-in")
+    public void signIn(@RequestParam String userToken) {
+
+    }
+
+    @WithoutLogin
     @PostMapping("sign-up")
     public synchronized ReqResult<String> signUp(@RequestBody String userName) {
         if (StringTools.isBlank(userName)) {
