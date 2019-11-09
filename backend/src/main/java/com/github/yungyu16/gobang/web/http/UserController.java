@@ -5,6 +5,7 @@
 package com.github.yungyu16.gobang.web.http;
 
 import cn.xiaoshidai.common.toolkit.base.DigestTools;
+import cn.xiaoshidai.common.toolkit.base.MobileTools;
 import cn.xiaoshidai.common.toolkit.base.StringTools;
 import cn.xiaoshidai.common.toolkit.exception.BizException;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -45,6 +46,7 @@ public class UserController extends BaseController {
         }
         mobile = mobile.trim();
         password = password.trim();
+        MobileTools.checkMobile(mobile);
         log.info("开始登陆....");
         LambdaQueryWrapper<UserRecord> queryWrapper = Wrappers.lambdaQuery(new UserRecord());
         queryWrapper.ge(UserRecord::getMobile, mobile);
@@ -72,6 +74,7 @@ public class UserController extends BaseController {
         mobile = mobile.trim();
         password = password.trim();
 
+        MobileTools.checkMobile(mobile);
         checkUserName(userName);
         checkPassword(password);
 
