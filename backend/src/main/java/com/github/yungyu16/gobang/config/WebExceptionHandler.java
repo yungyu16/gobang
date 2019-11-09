@@ -7,6 +7,7 @@ package com.github.yungyu16.gobang.config;
 import cn.xiaoshidai.common.toolkit.base.ServletTools;
 import cn.xiaoshidai.common.toolkit.exception.BizException;
 import cn.xiaoshidai.common.toolkit.exception.BizSessionTimeOutException;
+import com.github.yungyu16.gobang.model.ReqResult;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -41,12 +42,17 @@ public class WebExceptionHandler {
     }
 
     @ExceptionHandler
-    public void unknownException(Exception e) {
-        log.error("服务端异常", e);
-        try {
-            ServletTools.getCurrentResponse().sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), "系统繁忙，请稍后再试");
-        } catch (IOException e1) {
-            log.error("异常处理异常...");
+    @ResponseBody
+    public ReqResult unknownException(Exception e) {
+        if (e instanceof BizSessionTimeOutException) {
+            log.info("会话过期 {}", e.getMessage());
+            return ReqResult.sessionTimeout();
         }
+        if (e instanceof BizException) {
+            log.info("请求错误 {}", e.getMessage());
+            return ReqResult.badRequest(e.getMessage());
+        }
+        log.error("服务端异常", e);
+        return ReqResult.error();
     }
 }

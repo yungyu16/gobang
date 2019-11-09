@@ -1,5 +1,4 @@
 import axios from 'axios';
-import router from '../router'
 import {Toast} from 'vant';
 import util from '../util'
 
@@ -17,40 +16,22 @@ service.interceptors
     });
 service.interceptors
     .response
-    .use(resp => resp, error => {
+    .use(resp => {
+        let data = resp.data;
+        let code = data.code;
+
+        if (code === 200) {
+            return data.data;
+        }
         let errorMsg = '请求错误';
-        if (error && error.response) {
-            console.log(error.response)
-            let statusText = error.response.statusText;
-            if (statusText) {
-                errorMsg = statusText;
-            } else {
-                switch (error.response.status) {
-                    case 400:
-                        errorMsg = '错误请求';
-                        break;
-                    case 401:
-                        errorMsg = '未认证,请重新登录';
-                        router.push('/sign-in');
-                        break;
-                    case 403:
-                        errorMsg = '未授权,拒绝访问';
-                        break;
-                    case 500:
-                        errorMsg = '服务器错误';
-                        break;
-                    case 501:
-                        errorMsg = '网络未实现';
-                        break;
-                    default:
-                        errorMsg = `连接错误${error.response.status}`;
-                }
-            }
-        } else {
-            errorMsg = "连接到服务器失败";
+        let msg = data.msGetAsCastingSource();
+        if (msg) {
+            errorMsg = msg;
         }
         Toast(errorMsg);
+    }, error => {
         console.log('接口错误', error);
+        Toast('接口错误');
         return Promise.reject(error.message)
     });
 
@@ -64,7 +45,7 @@ function requestApi(method, url, param, data) {
         params: param,
         data: data,
         headers: headers,
-    }).then(it => it.data);
+    });
 }
 
 export default {
