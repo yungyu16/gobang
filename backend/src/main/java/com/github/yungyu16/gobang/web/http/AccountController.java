@@ -38,7 +38,7 @@ public class AccountController extends BaseController {
             throw new BizException("用户名为空");
         }
         userName = userName.trim();
-        Boolean isMember = redisSetOperations.isMember(String.join(":", "ACCOUNT", "NAME_SET"), userName);
+        Boolean isMember = getRedisSetOperations().isMember(String.join(":", "ACCOUNT", "NAME_SET"), userName);
         if (isMember == null) {
             isMember = false;
         }

@@ -19,12 +19,15 @@ public abstract class RedisOperationBase {
     @Autowired
     protected StringRedisTemplate redisTemplate;
 
-    @Autowired
-    protected ValueOperations<String, String> redisValueOperations;
+    protected ValueOperations<String, String> getRedisValueOperations() {
+        return redisTemplate.opsForValue();
+    }
 
-    @Autowired
-    protected SetOperations<String, String> redisSetOperations;
+    protected SetOperations<String, String> getRedisSetOperations() {
+        return redisTemplate.opsForSet();
+    }
 
-    @Autowired
-    protected HashOperations<String, String, String> redisHashOperations;
+    protected HashOperations<String, String, String> getRedisHashOperations() {
+        return redisTemplate.opsForHash();
+    }
 }
