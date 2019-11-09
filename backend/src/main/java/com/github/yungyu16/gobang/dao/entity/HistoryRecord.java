@@ -37,7 +37,7 @@ public class HistoryRecord implements Serializable {
 
     @TableLogic
     @TableField(fill = FieldFill.INSERT)
-    private Integer isDeleted;
+    private Boolean isDeleted;
 
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createTime;

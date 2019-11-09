@@ -16,3 +16,8 @@ spring:
     url: jdbc:mysql://47.98.143.33/gobang?useUnicode=true&characterEncoding=utf-8&useSSL=false
     username: root
     password: QWERDF595182653
+mybatis-plus:
+  global-config:
+    db-config:
+      logic-delete-value: true
+      logicNotDeleteValue: false
