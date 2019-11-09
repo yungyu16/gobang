@@ -1,6 +1,7 @@
 import Vue from 'vue';
 import Router from 'vue-router';
 import store from '../store'
+import util from '../util'
 
 import heartBeat from '../template/common/heartBeat'
 import tabPage from '../template/common/tabPage'
@@ -28,12 +29,18 @@ const router = new Router({
                 {
                     path: '/sign-up',
                     component: signUp,
-                    meta: {title: '注册'}
+                    meta: {
+                        title: '注册',
+                        ignoreLogin: true
+                    }
                 },
                 {
                     path: '/sign-in',
                     component: signIn,
-                    meta: {title: '登陆'}
+                    meta: {
+                        title: '登陆',
+                        ignoreLogin: true
+                    }
                 },
                 {
                     path: '/game',
@@ -47,7 +54,6 @@ const router = new Router({
                 {
                     path: '/tab',
                     component: tabPage,
-                    meta: {title: 'index'},
                     children: [
                         {
                             path: '',
@@ -59,7 +65,6 @@ const router = new Router({
                             meta: {
                                 showNotice: false,
                                 icon: 'wap-home-o',
-                                title: '开始',
                                 tabName: '首页'
                             }
                         },
@@ -69,7 +74,6 @@ const router = new Router({
                             meta: {
                                 showNotice: true,
                                 icon: 'chat-o',
-                                title: '聊天',
                                 tabName: '聊天'
                             }
                         },
@@ -79,7 +83,6 @@ const router = new Router({
                             meta: {
                                 showNotice: true,
                                 icon: 'manager-o',
-                                title: '我',
                                 tabName: '我'
                             }
                         },
@@ -89,17 +92,37 @@ const router = new Router({
         }, {
             name: 'notFound',
             path: '/404',
-            component: notFound
+            component: notFound,
+            meta: {
+                title: '404',
+                ignoreLogin: true
+            }
         },
         {
             path: '*',
-            redirect: '/404'
+            redirect: '/404',
+            meta: {
+                ignoreLogin: true
+            }
         }
     ]
 });
 
 router.beforeEach((to, from, next) => {
+    let ignoreLogin = to.meta.ignoreLogin;
+    ignoreLogin=true;
+    if (!ignoreLogin) {
+        let userToken = util.getUserToken();
+        if (!userToken) {
+            next('/sign-in');
+            return
+        }
+    }
+    let toTitle = to.meta.title;
     document.title = `五子棋`;
+    if (toTitle) {
+        document.title = `${toTitle} | 五子棋`;
+    }
     store.state.activeNavItemIdx = to.meta.navItemIdx;
     next();
 });

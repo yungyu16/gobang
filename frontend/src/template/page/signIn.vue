@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div style="width:100%;height:150px;"></div>
+        <div style="width:100%;height:190px;"></div>
         <div style="margin-top:20px">
             <van-row type="flex" justify="center">
                 <van-col span="20">
@@ -10,13 +10,11 @@
                                 required
                                 clearable
                                 label="手机号"
-                                icon="phone"
                                 placeholder="请输入手机号码"/>
                         <van-field
                                 v-model="password"
                                 type="password"
                                 label="密码"
-                                icon="eye"
                                 placeholder="请输入密码"
                                 required
                                 v-on:keyup.13="handleSignIn"
@@ -28,10 +26,16 @@
         <div style="margin-top:180px">
             <van-row type="flex" justify="center">
                 <van-col span="18">
-                    <van-button type="primary" size="large" @click="handleSignIn">确定</van-button>
+                    <van-button type="primary" size="large" @click="handleSignIn">登陆</van-button>
                 </van-col>
             </van-row>
         </div>
+        <van-divider />
+        <van-row type="flex" justify="center">
+            <van-col span="8">
+                <router-link to="/sign-up">没有账号,前往注册</router-link>
+            </van-col>
+        </van-row>
     </div>
 </template>
 <script>  export default {
