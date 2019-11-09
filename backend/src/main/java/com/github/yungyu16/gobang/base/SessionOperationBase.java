@@ -4,9 +4,16 @@
 
 package com.github.yungyu16.gobang.base;
 
+import cn.xiaoshidai.common.toolkit.base.ConditionTools;
+import cn.xiaoshidai.common.toolkit.base.ServletTools;
 import cn.xiaoshidai.common.toolkit.base.StringTools;
+import cn.xiaoshidai.common.toolkit.exception.BizSessionTimeOutException;
+import com.alibaba.fastjson.JSON;
+import com.google.common.net.HttpHeaders;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Yungyu
@@ -16,17 +23,57 @@ public abstract class SessionOperationBase extends RedisOperationBase {
 
     public final String USER_NAME = "userName";
 
-    protected Optional<String> getSessionAttr(String token, String attrKey) {
+    public final String USER_ID = "userId";
+
+    protected Optional<String> getSessionAttr(String attrKey) {
+        String token = getSessionToken().orElseThrow(BizSessionTimeOutException::new);
         if (StringTools.isAnyBlank(token, attrKey)) {
             return Optional.empty();
         }
         return Optional.ofNullable(getRedisHashOperations().get(token, attrKey));
     }
 
-    protected void setSessionAttr(String token, String attrKey, String attrValue) {
+    protected void setSessionAttr(String attrKey, String attrValue) {
+        String token = getSessionToken().orElseThrow(BizSessionTimeOutException::new);
         if (StringTools.isAnyBlank(token, attrKey, attrValue)) {
             throw new NullPointerException();
         }
         getRedisHashOperations().put(token, attrKey, attrValue);
+    }
+
+    protected String newSession(Integer userId) {
+        ConditionTools.checkNotNull(userId);
+        String token = StringTools.timestampUUID();
+        setSessionAttr(token, JSON.toJSONString(userId));
+        touchSession(token);
+        return token;
+    }
+
+    protected boolean checkSessionToken(String token) {
+        if (StringTools.isBlank(token)) {
+            return false;
+        }
+        token = token.trim();
+        Boolean hasKey = redisTemplate.hasKey(token);
+        if (hasKey == null) {
+            hasKey = false;
+        }
+        if (hasKey) {
+            touchSession(token);
+        }
+        return hasKey;
+    }
+
+    protected void touchSession(String token) {
+        if (StringTools.isBlank(token)) {
+            return;
+        }
+        log.info("session有效期顺延7天");
+        redisTemplate.expire(token, 7, TimeUnit.DAYS);
+    }
+
+    protected Optional<String> getSessionToken() {
+        HttpServletRequest currentRequest = ServletTools.getCurrentRequest();
+        return Optional.ofNullable(currentRequest.getHeader(HttpHeaders.AUTHORIZATION));
     }
 }

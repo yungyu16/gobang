@@ -14,7 +14,7 @@ import org.springframework.data.redis.core.ValueOperations;
  * @author Yungyu
  * @description Created by Yungyu on 2019/11/8.
  */
-public abstract class RedisOperationBase {
+public abstract class RedisOperationBase extends LogOperationBase {
 
     @Autowired
     protected StringRedisTemplate redisTemplate;
