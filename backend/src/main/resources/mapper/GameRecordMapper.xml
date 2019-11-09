@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.github.yungyu16.gobang.dao.mapper.GameMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.github.yungyu16.gobang.dao.entity.GameRecord">
+        <id column="id" property="id" />
+        <result column="black_user_id" property="blackUserId" />
+        <result column="white_user_id" property="whiteUserId" />
+        <result column="winner_id" property="winnerId" />
+        <result column="game_start_time" property="gameStartTime" />
+        <result column="game_end_time" property="gameEndTime" />
+        <result column="game_pic" property="gamePic" />
+        <result column="is_deleted" property="isDeleted" />
+        <result column="create_time" property="createTime" />
+        <result column="modify_time" property="modifyTime" />
+        <result column="remark" property="remark" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, black_user_id, white_user_id, winner_id, game_start_time, game_end_time, game_pic, is_deleted, create_time, modify_time, remark
+    </sql>
+
+</mapper>
