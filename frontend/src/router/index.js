@@ -4,16 +4,17 @@ import util from '../util'
 
 import heartBeat from '../template/common/heartBeat'
 import tabPage from '../template/common/tabPage'
-import signUp from '../template/page/signUp'
-import signIn from '../template/page/signIn'
-import game from '../template/page/game'
-import start from '../template/page/start'
-import history from '../template/page/history'
-import mine from '../template/page/mine'
-import chat from '../template/page/chat'
-import notFound from '../template/page/notFound'
+import signUp from '../template/biz/signUp'
+import signIn from '../template/biz/signIn'
+import game from '../template/biz/game'
+import start from '../template/biz/start'
+import history from '../template/biz/history'
+import mine from '../template/biz/mine'
+import chat from '../template/biz/chat'
+import notFound from '../template/biz/notFound'
 
 Vue.use(Router);
+
 const router = new Router({
     routes: [
         {
