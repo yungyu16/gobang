@@ -21,8 +21,8 @@
         data() {
             let tabs = [];
             let routes = this.$router.options.routes;
-            console.log(routes);
-            let tabParentRoute = routes.filter(it => it.path === '/tab')[0];
+            let tabParentRoute = routes[0].children.filter(it => it.path === '/tab')[0];
+            console.log(tabParentRoute);
             if (tabParentRoute) {
                 tabs = tabParentRoute.children.filter(it => it.path)
             }

@@ -29,7 +29,7 @@ service.interceptors
                         break;
                     case 401:
                         errorMsg = '未认证,请重新登录';
-                        router.push('/start');
+                        router.push('/sign-in');
                         break;
                     case 403:
                         errorMsg = '未授权,拒绝访问';

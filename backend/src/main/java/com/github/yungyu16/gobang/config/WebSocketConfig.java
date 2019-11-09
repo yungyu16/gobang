@@ -4,7 +4,7 @@
 
 package com.github.yungyu16.gobang.config;
 
-import com.github.yungyu16.gobang.web.websocket.GobangMsgHandler;
+import com.github.yungyu16.gobang.web.websocket.ChatMsgHandler;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;
@@ -21,6 +21,6 @@ public class WebSocketConfig implements WebSocketConfigurer {
     }
 
     public WebSocketHandler gobangMsgHandler() {
-        return new GobangMsgHandler();
+        return new ChatMsgHandler();
     }
 }
