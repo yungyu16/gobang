@@ -112,7 +112,7 @@ public class UserController extends BaseController {
         if (userName.length() > 20) {
             throw new BizException("用户名太长");
         }
-        if (StringUtils.isAlphanumeric(userName)) {
+        if (!StringUtils.isAlphanumeric(userName)) {
             throw new BizException("用户名仅支持字母数字");
         }
     }
