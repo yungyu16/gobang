@@ -63,40 +63,41 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addInterceptor(sessionFilter)
                 .addPathPatterns("/**");
     }
-}
 
-@Component
-class SessionFilter extends SessionOperationBase implements HandlerInterceptor {
+    @Component
+    public static class SessionFilter extends SessionOperationBase implements HandlerInterceptor {
 
-    @Override
-    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        if (!(handler instanceof HandlerMethod)) {
-            return true;
+        @Override
+        public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+            if (!(handler instanceof HandlerMethod)) {
+                return true;
+            }
+            HandlerMethod handlerMethod = (HandlerMethod) handler;
+            Method method = handlerMethod.getMethod();
+            WithoutLogin withoutLogin = method.getAnnotation(WithoutLogin.class);
+            if (withoutLogin != null) {
+                log.info("当前接口不需要登陆...");
+                return true;
+            }
+            String sessionToken = getSessionToken().orElseThrow(BizSessionTimeOutException::new);
+            return checkSessionToken(sessionToken);
         }
-        HandlerMethod handlerMethod = (HandlerMethod) handler;
-        Method method = handlerMethod.getMethod();
-        WithoutLogin withoutLogin = method.getAnnotation(WithoutLogin.class);
-        if (withoutLogin != null) {
-            log.info("当前接口不需要登陆...");
-            return true;
+    }
+
+    @Slf4j
+    @Component
+    public static class TrackFilter extends OncePerRequestFilter {
+
+        @Override
+        protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+            String uuid = StringTools.timestampUUID();
+            MDC.put("traceId", uuid);
+            String requestURI = request.getRequestURI();
+            log.info(">>>>>>>>>>>>>>>> processing req:{}", requestURI);
+            filterChain.doFilter(request, response);
+            response.addHeader("traceId", uuid);
+            log.info("<<<<<<<<<<<<<<<< processed req:{}");
         }
-        String sessionToken = getSessionToken().orElseThrow(BizSessionTimeOutException::new);
-        return checkSessionToken(sessionToken);
     }
 }
 
-@Slf4j
-@Component
-class TrackFilter extends OncePerRequestFilter {
-
-    @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        String uuid = StringTools.timestampUUID();
-        MDC.put("traceId", uuid);
-        String requestURI = request.getRequestURI();
-        log.info(">>>>>>>>>>>>>>>> processing req:{}", requestURI);
-        filterChain.doFilter(request, response);
-        response.addHeader("traceId", uuid);
-        log.info("<<<<<<<<<<<<<<<< processed req:{}");
-    }
-}
