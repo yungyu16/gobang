@@ -20,6 +20,7 @@ service.interceptors
     .use(resp => resp, error => {
         let errorMsg = '请求错误';
         if (error && error.response) {
+            console.log(error.response)
             let statusText = error.response.statusText;
             if (statusText) {
                 errorMsg = statusText;

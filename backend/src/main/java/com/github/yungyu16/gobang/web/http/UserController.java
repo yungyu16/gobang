@@ -34,7 +34,7 @@ public class UserController extends BaseController {
 
     }
 
-    @GetMapping("sign-in")
+    @PostMapping("sign-in")
     public ReqResult<String> signIn(@RequestParam AccountForm userForm) {
         String mobile = userForm.getMobile();
         String password = userForm.getPassword();
