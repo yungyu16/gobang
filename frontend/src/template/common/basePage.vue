@@ -12,7 +12,9 @@
     export default {
         name: "basePage.vue",
         data() {
-            return {};
+            return {
+                websock: ''
+            };
         },
         created() {
             this.initWebSocket();
@@ -20,11 +22,12 @@
         methods: {
             initWebSocket() {
                 const wsUri = "ws://47.102.103.194:8099/ws/game";
-                this.websock = new WebSocket(wsUri);
-                this.websock.onmessage = this.onWebsocketMessage();
-                this.websock.onopen = this.onWebsocketOpen();
-                this.websock.onerror = this.onWebsocketError();
-                this.websock.onclose = this.onWebsocketClose();
+                let websock = new WebSocket(wsUri);
+                websock.onmessage = this.onWebsocketMessage;
+                websock.onopen = this.onWebsocketOpen;
+                websock.onerror = this.onWebsocketError;
+                websock.onclose = this.onWebsocketClose;
+                this.websock = websock;
             },
             onWebsocketOpen() {
                 console.log("ws open");

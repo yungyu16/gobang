@@ -22,14 +22,12 @@
             let tabs = [];
             let routes = this.$router.options.routes;
             let tabParentRoute = routes[0].children.filter(it => it.path === '/tab')[0];
-            console.log(tabParentRoute);
             if (tabParentRoute) {
                 tabs = tabParentRoute.children.filter(it => it.path)
             }
             if (!tabs || tabs.length <= 0) {
                 console.log("没有tab路由...")
             }
-            console.log(tabs);
             return {
                 tabs
             };

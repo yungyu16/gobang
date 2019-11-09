@@ -54,9 +54,9 @@ service.interceptors
     });
 
 function requestApi(method, url, param, data) {
-    let headers={
-        'Authorization':util.getSessionToken()
-    }
+    let headers = {
+        'Authorization': util.getSessionToken()
+    };
     return service.request({
         method: method,
         url: url,

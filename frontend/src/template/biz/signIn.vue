@@ -1,12 +1,12 @@
 <template>
     <div>
-                <img src="../../../public/favicon.png"/>
+        <img src="../../../public/favicon.png"/>
         <div style="margin-top:20px">
             <van-row type="flex" justify="center">
                 <van-col span="20">
                     <van-cell-group style="border-radius:10px;">
                         <van-field
-                                v-model="userName"
+                                v-model="mobile"
                                 required
                                 clearable
                                 label="手机号"
@@ -38,19 +38,40 @@
         </van-row>
     </div>
 </template>
-<script>  export default {
-    name: "signIn.vue",
-    data() {
-        return {
-            userName: '',
-            password: '',
-        };
-    },
-    methods: {
-        handleSignIn() {
+<script>
+    import apis from '../../apis'
+
+    export default {
+        name: "signIn.vue",
+        data() {
+            return {
+                mobile: '',
+                password: '',
+            };
+        },
+        methods: {
+            handleSignIn() {
+                if (!this.mobile) {
+                    this.$toast("请输入手机号");
+                    return;
+                }
+                if (!this.password) {
+                    this.$toast("请输入密码");
+                    return;
+                }
+                apis.user
+                    .signIn({
+                        mobile: this.mobile,
+                        password: this.password,
+                    })
+                    .then(it => {
+                        this.setSessionToken(it.data);
+                        this.$toast("登陆成功");
+                        this.$router.push('/start');
+                    })
+            }
         }
     }
-}
 </script>
 <style scoped>
     img {
