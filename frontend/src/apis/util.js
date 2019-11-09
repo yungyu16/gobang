@@ -32,7 +32,7 @@ service.interceptors
         }
         Toast(errorMsg);
         if (code === 401) {
-            router.push('/sign-in')
+            router.push('/sign-in');
             return;
         }
         return Promise.reject(errorMsg)
