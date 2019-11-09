@@ -72,7 +72,7 @@ public class WebConfig implements WebMvcConfigurer {
             if (!(handler instanceof HandlerMethod)) {
                 return true;
             }
-            log.info("开始进行登陆检查...");
+            log.info("开始进行登陆检查... {}", request.getRequestURI());
             HandlerMethod handlerMethod = (HandlerMethod) handler;
             Method method = handlerMethod.getMethod();
             WithoutLogin withoutLogin = method.getAnnotation(WithoutLogin.class);
