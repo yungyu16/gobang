@@ -22,7 +22,7 @@ public class WebExceptionHandler {
 
     @ExceptionHandler
     public void bizException(BizException e) {
-        log.info("请求错误", e.getMessage(),e);
+        log.info("请求错误 {}", e.getMessage());
         try {
             ServletTools.getCurrentResponse().sendError(HttpStatus.BAD_REQUEST.value(), e.getMessage());
         } catch (IOException e1) {
