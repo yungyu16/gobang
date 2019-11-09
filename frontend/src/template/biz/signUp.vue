@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div style="width:100%;height:190px;"></div>
+                <img src="../../../public/favicon.png"/>
         <div style="margin-top:20px">
             <van-row type="flex" justify="center">
                 <van-col span="20">
@@ -35,7 +35,7 @@
                 </van-col>
             </van-row>
         </div>
-        <div style="margin-top:180px">
+        <div style="margin-top:100px">
             <van-row type="flex" justify="center">
                 <van-col span="18">
                     <van-button type="primary" size="large" @click="handleSignUp">注册</van-button>
@@ -61,4 +61,8 @@
 }
 </script>
 <style scoped>
+    img{
+        display: block;
+        margin: 0px auto;
+    }
 </style>
