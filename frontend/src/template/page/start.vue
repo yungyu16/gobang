@@ -43,19 +43,22 @@
             }
         },
         created() {
-            let userToken = this.getUserToken();
-            if (!userToken) {
-                this.dialogShow = true;
-                return;
-            }
-            apis.account.validate(userToken)
-                .then(payload => {
-                    if (payload.code !== 0) {
-                        this.dialogShow = true;
-                    }
-                });
+            this.validateUserToken()
         },
         methods: {
+            validateUserToken() {
+                let userToken = this.getUserToken();
+                if (!userToken) {
+                    this.dialogShow = true;
+                    return;
+                }
+                apis.account.validate(userToken)
+                    .then(payload => {
+                        if (payload.code !== 0) {
+                            this.dialogShow = true;
+                        }
+                    });
+            },
             confirmUserName() {
                 if (!this.userName) {
                     Notify({type: 'danger', message: '请输入用户名'});
@@ -64,8 +67,9 @@
                 apis.account.signUp(this.userName)
                     .then(payload => {
                         this.dialogShow = false;
-                        this.setUserToken(payload.token);
-                    })
+                        this.setUserToken(payload.data);
+                    });
+                this.validateUserToken();
             }
         }
     }

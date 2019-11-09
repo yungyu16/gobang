@@ -10,8 +10,8 @@ Vue.use(Vant);
 Vue.use(VueCookies);
 Vue.config.productionTip = false;
 
-Vue.prototype.getUserToken = () => sessionStorage.getItem('gobangUserToken');
-Vue.prototype.setUserToken = userToken => sessionStorage.setItem('gobangUserToken', userToken);
+Vue.prototype.getUserToken = () => localStorage.getItem('gobangUserToken');
+Vue.prototype.setUserToken = userToken => localStorage.setItem('gobangUserToken', userToken);
 
 new Vue({
     router,
