@@ -27,7 +27,6 @@
 <script>
     import floatBtn from '../common/floatBtn'
     import {Notify, Toast} from 'vant';
-    import apis from '../../apis'
 
     export default {
         data() {
@@ -37,35 +36,10 @@
             }
         },
         created() {
-            this.validateUserToken()
         },
         components: {floatBtn},
         methods: {
-            validateUserToken() {
-                let userToken = this.getUserToken();
-                if (!userToken) {
-                    this.dialogShow = true;
-                    return;
-                }
-                apis.account.validate({userToken: userToken})
-                    .then(payload => {
-                        if (payload.bizCode !== 0) {
-                            this.dialogShow = true;
-                        }
-                    });
-            },
-            confirmUserName() {
-                if (!this.userName) {
-                    Notify({type: 'danger', message: '请输入用户名'});
-                    return;
-                }
-                apis.account.signUp(this.userName)
-                    .then(payload => {
-                        this.dialogShow = false;
-                        this.setUserToken(payload.data);
-                    });
-                this.validateUserToken();
-            }
+
         }
     }
 </script>
