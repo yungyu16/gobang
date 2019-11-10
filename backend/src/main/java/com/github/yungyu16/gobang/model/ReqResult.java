@@ -5,6 +5,7 @@
 package com.github.yungyu16.gobang.model;
 
 import lombok.Data;
+import org.slf4j.MDC;
 
 /**
  * @author Yungyu
@@ -15,11 +16,14 @@ public class ReqResult<T> {
 
     private int code;
 
+    private String traceId;
+
     private String msg;
 
     private T data;
 
     private ReqResult(int code, String msg, T data) {
+        this.traceId = MDC.get("traceId");
         this.code = code;
         this.msg = msg;
         this.data = data;

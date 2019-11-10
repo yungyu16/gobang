@@ -101,7 +101,6 @@ public class WebConfig implements WebMvcConfigurer {
             String requestURI = request.getRequestURI();
             log.info(">>>>>>>>>>>>>>>> processing req:{}", requestURI);
             filterChain.doFilter(request, response);
-            response.addHeader("traceId", uuid);
             log.info("<<<<<<<<<<<<<<<< processed req:{}", requestURI);
         }
     }

@@ -41,6 +41,7 @@
                     msgType: 'ping',
                     data: this.getSessionToken() || ''
                 };
+                this.userWebSocket.send(JSON.stringify(pingMsg));
                 this.pingInterval = setInterval(() => {
                     console.log("开始发送心跳消息...");
                     this.userWebSocket.send(JSON.stringify(pingMsg));

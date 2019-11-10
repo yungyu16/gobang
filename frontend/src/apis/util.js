@@ -35,7 +35,8 @@ service.interceptors
             router.push('/sign-in');
             return;
         }
-        return Promise.reject(errorMsg)
+        return new Promise((l, f) => {
+        });
     }, error => {
         console.log('接口错误', error);
         Toast('接口错误');
