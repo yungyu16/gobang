@@ -51,10 +51,8 @@ public class OnlineUserContext extends SessionOperationBase implements Initializ
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        //eventLoops.get(0)
-        //        .scheduleAtFixedRate(this::refreshActiveUser, 0, 10, TimeUnit.SECONDS);
-        //eventLoops.get(1).scheduleAtFixedRate(//.filter(it -> !Objects.equals(it.getInteger("userId"), value.getId()))
-        //        this::pushOnlineUserList, 0, 10, TimeUnit.SECONDS);
+        eventLoops.get(0)
+                .scheduleAtFixedRate(this::refreshActiveUser, 0, 10, TimeUnit.SECONDS);
     }
 
     private void refreshActiveUser() {
@@ -76,7 +74,7 @@ public class OnlineUserContext extends SessionOperationBase implements Initializ
         });
     }
 
-    public void pushOnlineUserList() {
+    private void pushOnlineUserList(WebSocketSession webSocketSession) {
         List<JSONObject> userList = sessionMappings.values()
                 .stream()
                 .map(it -> {
@@ -89,12 +87,10 @@ public class OnlineUserContext extends SessionOperationBase implements Initializ
                     return userInfo;
                 }).collect(Collectors.toList());
         log.info("开始推送在线用户列表...{}", userList.size());
-        latestTimeMappings.forEach((session, value) -> {
-            List<JSONObject> thisUserList = userList.stream()
-                    //.filter(it -> !Objects.equals(it.getInteger("userId"), value.getId()))
-                    .collect(Collectors.toList());
-            sendMsg(session, WsOutputMsg.of(BaseWsHandler.TYPE_USER_LIST, thisUserList));
-        });
+        List<JSONObject> thisUserList = userList.stream()
+                //.filter(it -> !Objects.equals(it.getInteger("userId"), value.getId()))
+                .collect(Collectors.toList());
+        sendMsg(webSocketSession, WsOutputMsg.of(BaseWsHandler.TYPE_USER_LIST, thisUserList));
     }
 
     public void touch(WebSocketSession webSocketSession) {
@@ -107,6 +103,7 @@ public class OnlineUserContext extends SessionOperationBase implements Initializ
 
     public void ping(String sessionToken, WebSocketSession webSocketSession) {
         touch(webSocketSession);
+        pushOnlineUserList(webSocketSession);
         if (StringTools.isBlank(sessionToken)) {
             return;
         }
@@ -125,7 +122,6 @@ public class OnlineUserContext extends SessionOperationBase implements Initializ
                     }
                     sessionMappings.put(webSocketSession, userDomainById);
                     latestTimeMappings.put(webSocketSession, LocalDateTime.now());
-                    pushOnlineUserList();
                     return it;
                 });
     }

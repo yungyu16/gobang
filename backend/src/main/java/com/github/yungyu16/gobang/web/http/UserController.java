@@ -110,7 +110,7 @@ public class UserController extends BaseController {
     }
 
     @GetMapping("sign-out")
-    public ReqResult signOut(HttpServletResponse response) {
+    public ReqResult signOut() {
         getSessionToken()
                 .ifPresent(it -> {
                     log.info("删除会话...");
@@ -120,7 +120,7 @@ public class UserController extends BaseController {
     }
 
     @GetMapping("history")
-    public ReqResult history(HttpServletResponse response) {
+    public ReqResult history() {
         return ReqResult.success();
     }
 
