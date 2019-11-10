@@ -5,8 +5,8 @@ import router from '../router'
 
 const service = axios.create({
     timeout: 5000,
-    baseURL: 'http://47.102.103.194:8099/'
-    // baseURL: 'http://localhost:8099/'
+    // baseURL: 'http://47.102.103.194:8099/'
+    baseURL: 'http://localhost:8099/'
 });
 service.interceptors
     .request
@@ -19,6 +19,7 @@ service.interceptors
 service.interceptors
     .response
     .use(resp => {
+        console.log(resp);
         let data = resp.data;
         let code = data.code;
 
@@ -33,7 +34,6 @@ service.interceptors
         Toast(errorMsg);
         if (code === 401) {
             router.push('/sign-in');
-            return;
         }
         return new Promise((l, f) => {
         });

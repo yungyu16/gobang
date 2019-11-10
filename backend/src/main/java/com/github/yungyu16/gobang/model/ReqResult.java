@@ -46,6 +46,6 @@ public class ReqResult<T> {
     }
 
     public static <T> ReqResult<T> sessionTimeout() {
-        return new ReqResult<>(401, "会话过期", null);
+        return new ReqResult<>(401, "会话过期,请重新登陆", null);
     }
 }

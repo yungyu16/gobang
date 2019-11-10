@@ -51,27 +51,29 @@ public class OnlineUserContext extends SessionOperationBase implements Initializ
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        eventLoops.get(0)
-                .scheduleAtFixedRate(() -> {
-                    log.info("开始刷新连接列表...{}", latestTimeMappings.size());
-                    LocalDateTime now = LocalDateTime.now();
-                    latestTimeMappings.forEach((session, value) -> {
-                        long seconds = Duration.between(now, value)
-                                .abs()
-                                .getSeconds();
-                        if (seconds >= 20) {
-                            sendMsg(session, WsOutputMsg.of("error", "会话过期..."));
-                            doInEventLoop(session, () -> {
-                                log.info("会话过期,移除当前会话....");
-                                sessionMappings.remove(session);
-                                latestTimeMappings.remove(session);
-                            });
-                            close(session);
-                        }
-                    });
-                }, 0, 10, TimeUnit.SECONDS);
-        eventLoops.get(1).scheduleAtFixedRate(//.filter(it -> !Objects.equals(it.getInteger("userId"), value.getId()))
-                this::pushOnlineUserList, 0, 10, TimeUnit.SECONDS);
+        //eventLoops.get(0)
+        //        .scheduleAtFixedRate(this::refreshActiveUser, 0, 10, TimeUnit.SECONDS);
+        //eventLoops.get(1).scheduleAtFixedRate(//.filter(it -> !Objects.equals(it.getInteger("userId"), value.getId()))
+        //        this::pushOnlineUserList, 0, 10, TimeUnit.SECONDS);
+    }
+
+    private void refreshActiveUser() {
+        log.info("开始刷新连接列表...{}", latestTimeMappings.size());
+        LocalDateTime now = LocalDateTime.now();
+        latestTimeMappings.forEach((session, value) -> {
+            long seconds = Duration.between(now, value)
+                    .abs()
+                    .getSeconds();
+            if (seconds >= 20) {
+                sendMsg(session, WsOutputMsg.of("error", "会话过期..."));
+                doInEventLoop(session, () -> {
+                    log.info("会话过期,移除当前会话....");
+                    sessionMappings.remove(session);
+                    latestTimeMappings.remove(session);
+                });
+                close(session);
+            }
+        });
     }
 
     public void pushOnlineUserList() {

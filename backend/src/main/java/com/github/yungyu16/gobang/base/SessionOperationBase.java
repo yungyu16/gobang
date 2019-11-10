@@ -66,8 +66,6 @@ public abstract class SessionOperationBase extends RedisOperationBase {
             return false;
         }
         token = token.trim();
-        Map<String, String> entries = getRedisHashOperations().entries(token);
-        log.info("{}", entries);
         Boolean hasKey = redisTemplate.hasKey(token);
         if (hasKey == null) {
             hasKey = false;

@@ -69,6 +69,7 @@ public class WebConfig implements WebMvcConfigurer {
 
         @Override
         public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+
             if (!(handler instanceof HandlerMethod)) {
                 return true;
             }
@@ -82,8 +83,8 @@ public class WebConfig implements WebMvcConfigurer {
             }
             String sessionToken = getSessionToken().orElseThrow(BizSessionTimeOutException::new);
             boolean flag = checkSessionToken(sessionToken);
-            log.info("登陆检查结果：{} {}", sessionToken, flag);
             if (!flag) {
+                log.info("会话失效，跳转登陆...");
                 throw new BizSessionTimeOutException();
             }
             return true;
@@ -96,6 +97,11 @@ public class WebConfig implements WebMvcConfigurer {
 
         @Override
         protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+            String httpMethod = request.getMethod();
+            if (StringTools.equalsIgnoreCase("options", httpMethod)) {
+                filterChain.doFilter(request, response);
+                return;
+            }
             String uuid = StringTools.timestampUUID();
             MDC.put("traceId", uuid);
             String requestURI = request.getRequestURI();

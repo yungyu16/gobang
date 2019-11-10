@@ -22,6 +22,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
+
 /**
  * @author Yungyu
  * @description Created by Yungyu on 2019/11/7.
@@ -34,8 +36,8 @@ public class UserController extends BaseController {
     private UserDomain userDomain;
 
     @GetMapping("validate")
-    public void validate() {
-
+    public ReqResult validate() {
+        return ReqResult.success();
     }
 
     @WithoutLogin
@@ -65,7 +67,7 @@ public class UserController extends BaseController {
 
     @WithoutLogin
     @PostMapping("sign-up")
-    public synchronized void signUp(@RequestBody UserForm userForm) {
+    public synchronized ReqResult signUp(@RequestBody UserForm userForm) {
         String userName = userForm.getUserName();
         String mobile = userForm.getMobile();
         String password = userForm.getPassword();
@@ -93,6 +95,7 @@ public class UserController extends BaseController {
         entity.setMobile(mobile);
         entity.setPwd(getDigestPwd(password));
         userDomain.save(entity);
+        return ReqResult.success();
     }
 
     @GetMapping("detail")
@@ -102,20 +105,23 @@ public class UserController extends BaseController {
                 .map(it -> {
                     UserRecord userRecord = userDomain.getById(it);
                     return BeanTools.map(userRecord, UserVO.class);
-                }).map(ReqResult::success).orElseThrow(() -> new BizException("用户不存在"));
+                }).map(ReqResult::success)
+                .orElseThrow(() -> new BizException("用户不存在"));
     }
 
     @GetMapping("sign-out")
-    public void signOut() {
+    public ReqResult signOut(HttpServletResponse response) {
         getSessionToken()
                 .ifPresent(it -> {
                     log.info("删除会话...");
                     removeSession(it);
                 });
+        return ReqResult.success();
     }
 
     @GetMapping("history")
-    public void history() {
+    public ReqResult history(HttpServletResponse response) {
+        return ReqResult.success();
     }
 
     private String getDigestPwd(String password) {
