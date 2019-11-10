@@ -34,6 +34,13 @@ public abstract class SessionOperationBase extends RedisOperationBase {
         return Optional.ofNullable(getRedisHashOperations().get(token, attrKey));
     }
 
+    protected Optional<String> getSessionAttr(String sessionToken, String attrKey) {
+        if (StringTools.isAnyBlank(sessionToken, attrKey)) {
+            return Optional.empty();
+        }
+        return Optional.ofNullable(getRedisHashOperations().get(sessionToken, attrKey));
+    }
+
     protected void setSessionAttr(String attrKey, String attrValue) {
         String token = getSessionToken().orElseThrow(BizSessionTimeOutException::new);
         if (StringTools.isAnyBlank(token, attrKey, attrValue)) {
@@ -47,6 +54,11 @@ public abstract class SessionOperationBase extends RedisOperationBase {
         getRedisHashOperations().put(token, USER_ID, JSON.toJSONString(userId));
         touchSession(token);
         return token;
+    }
+
+    protected void removeSession(String sessionToken) {
+        ConditionTools.checkNotNull(sessionToken);
+        redisTemplate.delete(sessionToken);
     }
 
     protected boolean checkSessionToken(String token) {

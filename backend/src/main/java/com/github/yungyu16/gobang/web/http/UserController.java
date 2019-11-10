@@ -105,6 +105,15 @@ public class UserController extends BaseController {
                 }).map(ReqResult::success).orElseThrow(() -> new BizException("用户不存在"));
     }
 
+    @GetMapping("sign-out")
+    public void signOut() {
+        getSessionToken()
+                .ifPresent(it -> {
+                    log.info("删除会话...");
+                    removeSession(it);
+                });
+    }
+
     @GetMapping("history")
     public void history() {
     }

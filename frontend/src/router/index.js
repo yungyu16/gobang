@@ -75,7 +75,7 @@ const router = new Router({
                             meta: {
                                 showNotice: true,
                                 icon: 'chat-o',
-                                tabName: '聊天'
+                                tabName: '消息'
                             }
                         },
                         {

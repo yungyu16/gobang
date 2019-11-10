@@ -1,0 +1,28 @@
+/*
+ * Copyright (c) 2019 Yungyu  songjialin16@gmail.com. All rights reserved.
+ */
+
+package com.github.yungyu16.gobang.web.websocket;
+
+import com.github.yungyu16.gobang.core.OnlineUserContext;
+import com.github.yungyu16.gobang.web.websocket.entity.WsInputMsg;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.socket.WebSocketSession;
+
+public class UserMsgHandler extends BaseWsHandler {
+
+    @Autowired
+    private OnlineUserContext userContext;
+
+    @Override
+    protected void handlerMsg(WebSocketSession session, WsInputMsg inputMsg) {
+        String msgType = inputMsg.getMsgType();
+        userContext.touch(session);
+        switch (msgType) {
+            case TYPE_AUTH:
+                String sessionToken = inputMsg.getData();
+                userContext.auth(sessionToken, session);
+                log.info("连接认证成功");
+        }
+    }
+}

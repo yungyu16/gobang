@@ -7,4 +7,4 @@
  * @description Created by Yungyu on 2019/11/8.
  */
 
-package com.github.yungyu16.gobang.service;
+package com.github.yungyu16.gobang.core;

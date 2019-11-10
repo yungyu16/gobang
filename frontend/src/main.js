@@ -11,6 +11,7 @@ Vue.config.productionTip = false;
 
 Vue.prototype.getSessionToken = util.getSessionToken;
 Vue.prototype.setSessionToken = util.setSessionToken;
+Vue.prototype.removeSessionToken = util.removeSessionToken;
 
 new Vue({
     router,
