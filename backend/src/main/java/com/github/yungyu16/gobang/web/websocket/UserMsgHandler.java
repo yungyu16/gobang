@@ -19,10 +19,14 @@ public class UserMsgHandler extends BaseWsHandler {
         String msgType = inputMsg.getMsgType();
         userContext.touch(session);
         switch (msgType) {
-            case TYPE_AUTH:
+            case TYPE_PING:
+                log.info("开始处理心跳消息...");
                 String sessionToken = inputMsg.getData();
-                userContext.auth(sessionToken, session);
-                log.info("连接认证成功");
+                userContext.ping(sessionToken, session);
+                log.info("ping成功");
+                break;
+            default:
+                log.info("不支持的消息类型：{}", msgType);
         }
     }
 }

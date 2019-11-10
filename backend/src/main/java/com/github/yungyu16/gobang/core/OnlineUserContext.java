@@ -1,7 +1,7 @@
 package com.github.yungyu16.gobang.core;
 
 import cn.xiaoshidai.common.toolkit.base.ConditionTools;
-import cn.xiaoshidai.common.toolkit.exception.BizException;
+import cn.xiaoshidai.common.toolkit.base.StringTools;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.github.yungyu16.gobang.base.SessionOperationBase;
@@ -20,7 +20,6 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -54,15 +53,16 @@ public class OnlineUserContext extends SessionOperationBase implements Initializ
     public void afterPropertiesSet() throws Exception {
         eventLoops.get(0)
                 .scheduleAtFixedRate(() -> {
-                    log.info("开始刷新连接列表...");
+                    log.info("开始刷新连接列表...{}", latestTimeMappings.size());
                     LocalDateTime now = LocalDateTime.now();
                     latestTimeMappings.forEach((session, value) -> {
                         long seconds = Duration.between(now, value)
                                 .abs()
                                 .getSeconds();
                         if (seconds >= 20) {
-                            sendMsg(session, WsOutputMsg.of("error", "连接超时..."));
+                            sendMsg(session, WsOutputMsg.of("error", "会话过期..."));
                             doInEventLoop(session, () -> {
+                                log.info("会话过期,移除当前会话....");
                                 sessionMappings.remove(session);
                                 latestTimeMappings.remove(session);
                             });
@@ -70,57 +70,62 @@ public class OnlineUserContext extends SessionOperationBase implements Initializ
                         }
                     });
                 }, 0, 10, TimeUnit.SECONDS);
-        eventLoops.get(1)
-                .scheduleAtFixedRate(() -> {
-                    List<JSONObject> userList = sessionMappings.values()
-                            .stream()
-                            .map(it -> {
-                                JSONObject userInfo = new JSONObject();
-                                String userName = it.getUserName();
-                                String status = "空闲";
-                                userInfo.put("userId", it.getId());
-                                userInfo.put("userName", userName);
-                                userInfo.put("status", status);
-                                return userInfo;
-                            }).collect(Collectors.toList());
-                    log.info("开始推送在线用户列表...");
-                    sessionMappings.forEach((key, value) -> {
-                        List<JSONObject> thisUserList = userList.stream()
-                                .filter(it -> !Objects.equals(it.getInteger("userId"), value.getId()))
-                                .collect(Collectors.toList());
-                        sendMsg(key, WsOutputMsg.of(BaseWsHandler.TYPE_USER_LIST, thisUserList));
-                    });
+        eventLoops.get(1).scheduleAtFixedRate(//.filter(it -> !Objects.equals(it.getInteger("userId"), value.getId()))
+                this::pushOnlineUserList, 0, 10, TimeUnit.SECONDS);
+    }
 
-
-                }, 0, 20, TimeUnit.SECONDS);
+    public void pushOnlineUserList() {
+        List<JSONObject> userList = sessionMappings.values()
+                .stream()
+                .map(it -> {
+                    JSONObject userInfo = new JSONObject();
+                    String userName = it.getUserName();
+                    String status = "空闲";
+                    userInfo.put("userId", it.getId());
+                    userInfo.put("userName", userName);
+                    userInfo.put("status", status);
+                    return userInfo;
+                }).collect(Collectors.toList());
+        log.info("开始推送在线用户列表...{}", userList.size());
+        latestTimeMappings.forEach((session, value) -> {
+            List<JSONObject> thisUserList = userList.stream()
+                    //.filter(it -> !Objects.equals(it.getInteger("userId"), value.getId()))
+                    .collect(Collectors.toList());
+            sendMsg(session, WsOutputMsg.of(BaseWsHandler.TYPE_USER_LIST, thisUserList));
+        });
     }
 
     public void touch(WebSocketSession webSocketSession) {
         if (webSocketSession == null) {
             return;
         }
-        latestTimeMappings.computeIfPresent(webSocketSession, (k, ov) -> LocalDateTime.now());
+        latestTimeMappings.put(webSocketSession, LocalDateTime.now());
+        log.info("更新最近访问时间成功");
     }
 
-    public void auth(String sessionToken, WebSocketSession webSocketSession) {
+    public void ping(String sessionToken, WebSocketSession webSocketSession) {
+        touch(webSocketSession);
+        if (StringTools.isBlank(sessionToken)) {
+            return;
+        }
+        UserRecord userRecord = sessionMappings.get(webSocketSession);
+        if (userRecord != null) {
+            log.info("收到 {} 用户的心跳...", userRecord.getUserName());
+            return;
+        }
         getSessionAttr(sessionToken, USER_ID)
                 .map(it -> {
-                    UserRecord userDomainById = userDomain.getById(JSON.parseObject(it, Integer.class));
+                    Integer userId = JSON.parseObject(it, Integer.class);
+                    UserRecord userDomainById = userDomain.getById(userId);
                     if (userDomainById == null) {
-                        throw new BizException("用户不存在");
+                        log.info("用户不存在...{} {}", userId, sessionToken);
+                        return it;
                     }
                     sessionMappings.put(webSocketSession, userDomainById);
                     latestTimeMappings.put(webSocketSession, LocalDateTime.now());
+                    pushOnlineUserList();
                     return it;
-                }).orElseThrow(() -> new BizException("用户不存在"));
-    }
-
-    public boolean hasAuth(WebSocketSession webSocketSession) {
-
-        if (webSocketSession == null) {
-            return false;
-        }
-        return sessionMappings.get(webSocketSession) != null;
+                });
     }
 
     public void sendMsg(WebSocketSession webSocketSession, WsOutputMsg msg) {
@@ -128,6 +133,7 @@ public class OnlineUserContext extends SessionOperationBase implements Initializ
         ConditionTools.checkNotNull(msg);
         doInEventLoop(webSocketSession, () -> {
             try {
+                log.info("开始发送消息：{}", JSON.toJSONString(msg));
                 webSocketSession.sendMessage(msg.toTextMessage());
             } catch (IOException e) {
                 log.error("发送消息异常", e);

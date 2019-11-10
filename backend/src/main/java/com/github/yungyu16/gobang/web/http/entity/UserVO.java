@@ -9,6 +9,8 @@ import lombok.Data;
 @Data
 public class UserVO {
 
+    private Integer id;
+
     private String sessionToken;
 
     private String userName;

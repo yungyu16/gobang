@@ -19,7 +19,7 @@ public abstract class BaseWsHandler extends TextWebSocketHandler {
 
     protected Logger log = LoggerFactory.getLogger(getClass());
 
-    public static final String TYPE_AUTH = "authInit";
+    public static final String TYPE_WELCOME = "welcome";
 
     public static final String TYPE_PING = "ping";
 
@@ -31,7 +31,7 @@ public abstract class BaseWsHandler extends TextWebSocketHandler {
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
-        session.sendMessage(new TextMessage("Welcome~"));
+        session.sendMessage(WsOutputMsg.of(TYPE_WELCOME, "Welcome~").toTextMessage());
     }
 
     @Override
