@@ -5,8 +5,8 @@ import router from '../router'
 
 const service = axios.create({
     timeout: 5000,
-    // baseURL: 'http://47.102.103.194:8099/'
-    baseURL: 'http://localhost:8099/'
+    baseURL: 'http://47.102.103.194:8099/'
+    // baseURL: 'http://localhost:8099/'
 });
 service.interceptors
     .request
