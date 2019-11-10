@@ -5,6 +5,7 @@ import cn.xiaoshidai.common.toolkit.base.StringTools;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.github.yungyu16.gobang.base.SessionOperationBase;
+import com.github.yungyu16.gobang.core.entity.UserInfo;
 import com.github.yungyu16.gobang.dao.entity.UserRecord;
 import com.github.yungyu16.gobang.domain.UserDomain;
 import com.github.yungyu16.gobang.web.websocket.BaseWsHandler;
@@ -20,6 +21,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -41,9 +43,11 @@ public class OnlineUserContext extends SessionOperationBase implements Initializ
 
     private AtomicInteger eventLoopIndex = new AtomicInteger();
 
-    private Map<WebSocketSession, UserRecord> sessionMappings = Maps.newConcurrentMap();
+    private Map<String, UserInfo> sessionMappings = Maps.newConcurrentMap();
 
-    private Map<WebSocketSession, LocalDateTime> latestTimeMappings = Maps.newConcurrentMap();
+    private Map<Integer, String> userIdMappings = Maps.newConcurrentMap();
+
+    private Map<String, LocalDateTime> activeTokenMappings = Maps.newConcurrentMap();
 
     private List<ScheduledExecutorService> eventLoops = IntStream.range(0, 10)
             .mapToObj(it -> Executors.newScheduledThreadPool(1))
@@ -56,60 +60,68 @@ public class OnlineUserContext extends SessionOperationBase implements Initializ
     }
 
     private void refreshActiveUser() {
-        log.info("开始刷新连接列表...{}", latestTimeMappings.size());
+        log.info("开始刷新连接列表...");
         LocalDateTime now = LocalDateTime.now();
-        latestTimeMappings.forEach((session, value) -> {
+        activeTokenMappings.forEach((token, value) -> {
             long seconds = Duration.between(now, value)
                     .abs()
                     .getSeconds();
-            if (seconds >= 20) {
-                sendMsg(session, WsOutputMsg.of("error", "会话过期..."));
-                doInEventLoop(session, () -> {
-                    log.info("会话过期,移除当前会话....");
-                    sessionMappings.remove(session);
-                    latestTimeMappings.remove(session);
-                });
-                close(session);
+            if (seconds >= 10) {
+                UserInfo userInfo = sessionMappings.get(token);
+                if (userInfo != null) {
+                    WebSocketSession session = userInfo.getSocketSession();
+                    sendMsg(session, WsOutputMsg.of("error", "会话过期..."));
+                    doInEventLoop(session, () -> {
+                        log.info("会话过期,移除当前会话....");
+                        sessionMappings.remove(token);
+                        activeTokenMappings.remove(token);
+                    });
+                    close(session);
+                }
             }
         });
     }
 
-    private void pushOnlineUserList(WebSocketSession webSocketSession) {
+    private void pushOnlineUserList(String sessionToken, WebSocketSession webSocketSession) {
         List<JSONObject> userList = sessionMappings.values()
                 .stream()
                 .map(it -> {
                     JSONObject userInfo = new JSONObject();
-                    String userName = it.getUserName();
+                    UserRecord userRecord = it.getUserRecord();
+                    String userName = userRecord.getUserName();
                     String status = "空闲";
-                    userInfo.put("userId", it.getId());
+                    userInfo.put("userId", userRecord.getId());
                     userInfo.put("userName", userName);
                     userInfo.put("status", status);
                     return userInfo;
                 }).collect(Collectors.toList());
         log.info("开始推送在线用户列表...{}", userList.size());
-        List<JSONObject> thisUserList = userList.stream()
-                //.filter(it -> !Objects.equals(it.getInteger("userId"), value.getId()))
-                .collect(Collectors.toList());
-        sendMsg(webSocketSession, WsOutputMsg.of(BaseWsHandler.TYPE_USER_LIST, thisUserList));
-    }
-
-    public void touch(WebSocketSession webSocketSession) {
-        if (webSocketSession == null) {
-            return;
+        UserInfo userInfo = sessionMappings.get(sessionToken);
+        if (userInfo != null) {
+            userList = userList.stream()
+                    .filter(it -> !Objects.equals(it.getInteger("userId"), userInfo.getUserRecord().getId()))
+                    .collect(Collectors.toList());
         }
-        latestTimeMappings.put(webSocketSession, LocalDateTime.now());
-        log.info("更新最近访问时间成功");
+        sendMsg(webSocketSession, WsOutputMsg.of(BaseWsHandler.TYPE_USER_LIST, userList));
     }
 
-    public void ping(String sessionToken, WebSocketSession webSocketSession) {
-        touch(webSocketSession);
-        pushOnlineUserList(webSocketSession);
+    public void touch(String sessionToken) {
         if (StringTools.isBlank(sessionToken)) {
             return;
         }
-        UserRecord userRecord = sessionMappings.get(webSocketSession);
-        if (userRecord != null) {
-            log.info("收到 {} 用户的心跳...", userRecord.getUserName());
+        activeTokenMappings.put(sessionToken, LocalDateTime.now());
+        log.info("touch token:{}", sessionToken);
+    }
+
+    public void ping(String sessionToken, WebSocketSession webSocketSession) {
+        touch(sessionToken);
+        pushOnlineUserList(sessionToken, webSocketSession);
+        if (StringTools.isBlank(sessionToken)) {
+            return;
+        }
+        UserInfo userInfo = sessionMappings.get(sessionToken);
+        if (userInfo != null) {
+            log.info("收到 {} 用户的心跳...", userInfo.getUserRecord().getUserName());
             return;
         }
         getSessionAttr(sessionToken, USER_ID)
@@ -120,9 +132,10 @@ public class OnlineUserContext extends SessionOperationBase implements Initializ
                         log.info("用户不存在...{} {}", userId, sessionToken);
                         return it;
                     }
-                    sessionMappings.put(webSocketSession, userDomainById);
-                    latestTimeMappings.put(webSocketSession, LocalDateTime.now());
-                    pushOnlineUserList(webSocketSession);
+                    UserInfo newUserInfo = new UserInfo(webSocketSession, userDomainById);
+                    sessionMappings.put(sessionToken, newUserInfo);
+                    activeTokenMappings.put(sessionToken, LocalDateTime.now());
+                    pushOnlineUserList(sessionToken, webSocketSession);
                     return it;
                 });
     }
