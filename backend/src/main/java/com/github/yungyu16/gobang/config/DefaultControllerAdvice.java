@@ -17,6 +17,12 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Slf4j
 @Aspect
 @ControllerAdvice
@@ -33,7 +39,11 @@ public class DefaultControllerAdvice {
     @Around("(controller() || restController())")
     public Object aroundApi(ProceedingJoinPoint joinPoint) throws Throwable {
         Object[] args = joinPoint.getArgs();
-        log.info("请求内容：{}", JSON.toJSONString(args, true));
+        List<Object> collectedArgs = Arrays.stream(args)
+                .filter(it -> !(it instanceof ServletRequest))
+                .filter(it -> !(it instanceof ServletResponse))
+                .collect(Collectors.toList());
+        log.info("请求内容：{}", JSON.toJSONString(collectedArgs, true));
         Object body = joinPoint.proceed();
         log.info("响应内容：{}", JSON.toJSONString(body, true));
         return body;

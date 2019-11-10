@@ -122,6 +122,7 @@ public class OnlineUserContext extends SessionOperationBase implements Initializ
                     }
                     sessionMappings.put(webSocketSession, userDomainById);
                     latestTimeMappings.put(webSocketSession, LocalDateTime.now());
+                    pushOnlineUserList(webSocketSession);
                     return it;
                 });
     }
