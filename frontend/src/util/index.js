@@ -1,4 +1,4 @@
-const getSessionToken = () => localStorage.getItem('sessionToken');
+const getSessionToken = () => localStorage.getItem('sessionToken') || '';
 const setSessionToken = userToken => localStorage.setItem('sessionToken', userToken);
 const removeSessionToken = () => localStorage.removeItem('sessionToken');
 
