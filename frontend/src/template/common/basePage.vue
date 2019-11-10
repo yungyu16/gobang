@@ -18,7 +18,7 @@
             };
         },
         created() {
-            let wsUri = "ws://localhost:8099/ws/user";
+            let wsUri = "ws://47.102.103.194:8099/ws/user";
             this.userWebSocket = new WebSocket(wsUri);
             this.userWebSocket.onmessage = this.onWsMessage;
             this.userWebSocket.onopen = this.onWsOpen;
