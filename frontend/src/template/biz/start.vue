@@ -29,9 +29,6 @@
             onlineUserList() {
                 return this.$store.state.onlineUserList;
             },
-            onlineGameList() {
-                return this.$store.state.onlineGameList;
-            }
         },
         created() {
         },
