@@ -38,7 +38,7 @@ public class OnlineGameContext extends WebSockOperationBase implements Initializ
     private ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1, new ThreadFactoryBuilder().setNameFormat("refresh-game-th-%s").build());
 
     @Override
-    public void afterPropertiesSet() throws Exception {
+    public void afterPropertiesSet() {
         executorService.scheduleAtFixedRate(this::refreshActiveGame, 0, 1, TimeUnit.MINUTES);
     }
 
