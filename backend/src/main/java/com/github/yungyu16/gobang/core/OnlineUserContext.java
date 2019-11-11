@@ -190,20 +190,20 @@ public class OnlineUserContext extends WebSockOperationBase implements Initializ
         Integer finalCurrentUserId = currentUserId;
         userDomain.list()
                 .stream()
-                .filter(it -> finalCurrentUserId != null && Objects.equals(it.getId(), finalCurrentUserId))
+                .filter(it -> finalCurrentUserId == null || !Objects.equals(it.getId(), finalCurrentUserId))
                 .forEach(it -> {
                     Map<String, Object> userInfo = new JSONObject();
                     String userName = it.getUserName();
                     Integer userId = it.getId();
                     userInfo.put("userId", userId);
                     userInfo.put("userName", userName);
-                    userInfo.put("status", -1);
+                    userInfo.put("status", 0);
                     finalUserMap.put(it.getId(), userInfo);
                 });
 
         sessionUserMappings.values()
                 .stream()
-                .filter(it -> finalCurrentUserId != null && Objects.equals(it.getUserRecord().getId(), finalCurrentUserId))
+                .filter(it -> finalCurrentUserId == null || !Objects.equals(it.getUserRecord().getId(), finalCurrentUserId))
                 .forEach(it -> {
                     Map<String, Object> userInfo = new JSONObject();
                     UserRecord userRecord = it.getUserRecord();

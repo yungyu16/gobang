@@ -35,13 +35,16 @@
         components: {floatBtn},
         methods: {
             statusStr(status) {
-                if (status === -1) {
-                    return '空闲';
+                if (status <= 0) {
+                    return '离线';
                 }
-                if (status === 0) {
+                if (status === 1) {
                     return '观战中';
                 }
-                return '对局中';
+                if (status === 1) {
+                    return '对局中';
+                }
+                return '空闲';
             },
             inviteUser(user) {
                 Dialog.confirm({
