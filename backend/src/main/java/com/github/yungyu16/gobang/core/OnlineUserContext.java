@@ -19,10 +19,7 @@ import org.springframework.web.socket.WebSocketSession;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -181,40 +178,57 @@ public class OnlineUserContext extends WebSockOperationBase implements Initializ
         });
     }
 
-    public List<JSONObject> getOnlineUsers(String sessionToken) {
-        List<JSONObject> userList = sessionUserMappings.values()
+    public List<Map<String, Object>> getOnlineUsers(String sessionToken) {
+        Integer currentUserId = null;
+        if (StringTools.isNotBlank(sessionToken)) {
+            UserInfo userInfo = sessionUserMappings.get(sessionToken);
+            currentUserId = userInfo.getUserRecord().getId();
+        }
+
+        Map<Integer, Map<String, Object>> finalUserMap = Maps.newHashMap();
+
+        Integer finalCurrentUserId = currentUserId;
+        userDomain.list()
                 .stream()
-                .map(it -> {
-                    JSONObject userInfo = new JSONObject();
+                .filter(it -> finalCurrentUserId != null && Objects.equals(it.getId(), finalCurrentUserId))
+                .forEach(it -> {
+                    Map<String, Object> userInfo = new JSONObject();
+                    String userName = it.getUserName();
+                    Integer userId = it.getId();
+                    userInfo.put("userId", userId);
+                    userInfo.put("userName", userName);
+                    userInfo.put("status", -1);
+                    finalUserMap.put(it.getId(), userInfo);
+                });
+
+        sessionUserMappings.values()
+                .stream()
+                .filter(it -> finalCurrentUserId != null && Objects.equals(it.getUserRecord().getId(), finalCurrentUserId))
+                .forEach(it -> {
+                    Map<String, Object> userInfo = new JSONObject();
                     UserRecord userRecord = it.getUserRecord();
                     String userName = userRecord.getUserName();
                     Integer userId = userRecord.getId();
                     userInfo.put("userId", userId);
                     userInfo.put("userName", userName);
-                    userInfo.put("status", -1);
+                    userInfo.put("status", 3);
                     onlineGameContext.userGame(userId)
                             .ifPresent(partaker -> {
                                 userInfo.put("gameId", partaker.getGameId());
                                 Integer gameRole = partaker.getGameRole();
                                 if (gameRole == 3) {
-                                    userInfo.put("status", 0);
-                                } else {
                                     userInfo.put("status", 1);
+                                } else {
+                                    userInfo.put("status", 2);
                                 }
                             });
-                    return userInfo;
-                }).collect(Collectors.toList());
-        //log.info("开始推送在线用户列表...{}", userList.size());
-        if (StringTools.isNotBlank(sessionToken)) {
-            UserInfo userInfo = sessionUserMappings.get(sessionToken);
-            if (userInfo != null) {
-                userList = userList.stream()
-                        .filter(it -> !Objects.equals(it.getInteger("userId"), userInfo.getUserRecord().getId()))
-                        .collect(Collectors.toList());
-            }
-        }
-        //log.info("当前用户列表：{}", JSON.toJSONString(userList));
-        return userList;
+                    finalUserMap.put(userId, userInfo);
+                });
+        return finalUserMap
+                .values()
+                .stream()
+                .sorted(Comparator.comparing(it -> (Integer) it.get("status")))
+                .collect(Collectors.toList());
     }
 
     public void ping(WebSocketSession webSocketSession, String sessionToken) {
@@ -232,7 +246,7 @@ public class OnlineUserContext extends WebSockOperationBase implements Initializ
     }
 
     public void pushOnlineUsers(WebSocketSession webSocketSession, String sessionToken) {
-        List<JSONObject> onlineUsers = getOnlineUsers(sessionToken);
+        List<Map<String, Object>> onlineUsers = getOnlineUsers(sessionToken);
         //log.info("当前用户列表：{}", JSON.toJSONString(onlineUsers));
         sendMsg(webSocketSession, OutputMsg.of(MsgTypes.USER_MSG_USER_LIST, onlineUsers).toTextMessage());
     }

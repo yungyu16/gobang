@@ -35,7 +35,7 @@
         components: {floatBtn},
         methods: {
             statusStr(status) {
-                if (!status) {
+                if (status === -1) {
                     return '空闲';
                 }
                 if (status === 0) {

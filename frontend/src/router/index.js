@@ -120,7 +120,7 @@ router.beforeEach((to, from, next) => {
         }
     }
     let toTitle = to.meta.title;
-    document.title = '五子棋';
+    document.title = '欢乐五子棋';
     if (toTitle) {
         document.title = `${toTitle} | 五子棋`;
     }

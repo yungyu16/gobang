@@ -166,6 +166,14 @@
         },
         created() {
             apis.user.validate({});
+            if (this.$route.query.gameId === -1) {
+                Dialog.confirm({
+                    title: '紧张开发中...',
+                }).finally(() => {
+                    this.$router.push({path: '/tab/start'});
+                });
+                return;
+            }
 
             let that = this;
 
@@ -276,7 +284,7 @@
                         break;
                     case 'error':
                         if (data) {
-                            this.$notify(data);
+                            this.$notify('连接异常,请刷新重试');
                         }
                         setTimeout(() => {
                             window.location.reload();

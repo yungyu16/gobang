@@ -33,7 +33,7 @@
         <div style="margin-top:50px">
             <van-cell-group>
                 <van-cell title="对战记录" :is-link="true" to="/history"/>
-                <van-cell title="人机对战" :is-link="true"  to="/game"/>
+                <van-cell title="人机对战" :is-link="true" :to="{path:'/game',query:{gameId:-1}}"/>
             </van-cell-group>
         </div>
         <div style="margin-top:250px">

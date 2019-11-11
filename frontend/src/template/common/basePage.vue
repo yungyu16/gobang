@@ -70,11 +70,8 @@
                         break;
                     case 'error':
                         if (data) {
-                            this.$notify(data);
+                            this.$notify('连接异常,请刷新重试');
                         }
-                        setTimeout(() => {
-                            window.location.reload();
-                        }, 1000);
                         break;
                     case 'userList':
                         // console.log("收到用户列表", data);
