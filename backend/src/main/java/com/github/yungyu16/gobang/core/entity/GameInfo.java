@@ -65,7 +65,7 @@ public class GameInfo {
         return true;
     }
 
-    public List<CheckPointInfo> getCheckedPionts() {
+    public List<CheckPointInfo> getCheckedPoints() {
         return checkPoints.values().stream().filter(it -> it.getColor() > 0).collect(Collectors.toList());
     }
 
@@ -79,7 +79,7 @@ public class GameInfo {
         if (gamePartakerOpt.isPresent()) {
             return gamePartakerOpt.get();
         }
-        GamePartaker newGamePartaker = new GamePartaker(userRecord.getId(), userRecord.getUserName());
+        GamePartaker newGamePartaker = new GamePartaker(userRecord.getId(), userRecord.getUserName(), this.gameId);
 
         if (blackUser == null && whiteUser == null) {
             boolean flag = RandomUtils.nextBoolean();

@@ -10,17 +10,25 @@ import org.springframework.web.socket.WebSocketSession;
  */
 @Data
 public class GamePartaker {
+
+
+    private Integer gameId;
+
+    private Integer userId;
+
     /**
      * 1 黑 2 白 3 观战
      */
     private Integer gameRole;
-    private Integer userId;
+
     private String userName;
+
     private WebSocketSession session;
 
-    public GamePartaker(Integer userId, String userName) {
+    public GamePartaker(Integer userId, String userName, Integer gameId) {
         this.userId = userId;
         this.userName = userName;
+        this.gameId = gameId;
     }
 
     public boolean isGameWatcher() {

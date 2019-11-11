@@ -1,29 +1,19 @@
 <template>
     <div>
-        <van-tabs title-active-color="#1989fa"
-                  color="#1989fa">
-            <van-tab name="user" title="在线用户">
-                <div v-if="!onlineUserList || onlineUserList.length==0">
-                    <van-divider>暂时没有用户哦~</van-divider>
-                </div>
-                <div v-if="onlineUserList">
-                    <van-divider/>
-                    <van-row justify="center" type="flex" v-for="it in onlineUserList">
-                        <van-col offset='4' span="3"><strong>{{it.userName}}</strong></van-col>
-                        <van-col offset='4' span="3">{{it.status}}</van-col>
-                        <van-col offset='4' span="8">
-                            <a @click="inviteUser(it)" href="#" v-if="it.status !=='对战中'">邀请</a>
-                            <a @click="watchGame(it)" href="#" v-else>观战</a>
-                        </van-col>
-                    </van-row>
-                </div>
-            </van-tab>
-            <van-tab name="game" title="在线对局">
-                <div v-if="!onlineGameList || onlineGameList.length==0">
-                    <van-divider> 暂时没有对局哦~</van-divider>
-                </div>
-            </van-tab>
-        </van-tabs>
+        <div v-if="!onlineUserList || onlineUserList.length==0">
+            <van-divider>暂时没有用户哦~</van-divider>
+        </div>
+        <div v-if="onlineUserList">
+            <van-divider/>
+            <van-row justify="center" type="flex" v-for="it in onlineUserList">
+                <van-col offset='4' span="3"><strong>{{it.userName}}</strong></van-col>
+                <van-col offset='4' span="3">{{it.status}}</van-col>
+                <van-col offset='4' span="8">
+                    <a @click="inviteUser(it)" href="#" v-if="it.status !==1">邀请</a>
+                    <a @click="watchGame(it)" href="#" v-if="it.status !==-1">观战</a>
+                </van-col>
+            </van-row>
+        </div>
     </div>
 </template>
 <script>
@@ -47,22 +37,47 @@
         },
         components: {floatBtn},
         methods: {
+            statusStr(status) {
+                if (!status) {
+                    return '空闲';
+                }
+                if (status === 0) {
+                    return '观战中';
+                }
+                return '对局中';
+            },
             inviteUser(user) {
-                apis.game.createAndInvite({userId: user.userId})
-                    .then(gameId => {
-                        this.$router.push({
-                            path: '/game',
-                            query: {
-                                gameId: gameId
-                            }
-                        })
-                    });
-                console.log(user)
+                Dialog.confirm({
+                    title: '确认邀请',
+                    message: '确认邀请' + user.userName + '与您对局？'
+                }).then(() => {
+                    apis.game.createAndInvite({userId: user.userId})
+                        .then(gameId => {
+                            this.$router.push({
+                                path: '/game',
+                                query: {
+                                    gameId: gameId
+                                }
+                            })
+                        });
+                });
             },
             watchGame(user) {
-                console.log(user)
+                Dialog.confirm({
+                    title: '确认围观比赛',
+                }).then(() => {
+                    apis.game.createAndInvite({userId: user.userId})
+                        .then(gameId => {
+                            this.$router.push({
+                                path: '/game',
+                                query: {
+                                    gameId: gameId
+                                }
+                            })
+                        });
+                });
             }
-        }
+        },
     }
 </script>
 <style scoped>

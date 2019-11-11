@@ -28,7 +28,7 @@ public class UserMsgHandler extends TextWebSocketHandler {
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
-        //session.sendMessage(OutputMsg.of(MsgTypes.USER_MSG_WELCOME, "Welcome~").toTextMessage());
+        session.sendMessage(OutputMsg.of(MsgTypes.USER_MSG_WELCOME, "Welcome~").toTextMessage());
     }
 
     @Override

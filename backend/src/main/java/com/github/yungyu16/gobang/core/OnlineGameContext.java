@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -39,6 +40,8 @@ public class OnlineGameContext extends WebSockOperationBase implements Initializ
     private Map<Integer, GameInfo> onlineGames = Maps.newConcurrentMap();
 
     private Map<Integer, LocalDateTime> activeGames = Maps.newConcurrentMap();
+
+    private Map<Integer, GamePartaker> userGames = Maps.newConcurrentMap();
 
     private ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1, new ThreadFactoryBuilder().setNameFormat("refresh-game-th-%s").build());
 
@@ -64,6 +67,17 @@ public class OnlineGameContext extends WebSockOperationBase implements Initializ
         onlineGames.computeIfAbsent(gameId, key -> new GameInfo(gameId));
     }
 
+    /**
+     * @return -1 无对战 0 观战中 1 对战中
+     */
+    public Optional<GamePartaker> userGame(Integer userId) {
+        if (userId == null) {
+            return Optional.empty();
+        }
+        GamePartaker gamePartaker = userGames.get(userId);
+        return Optional.ofNullable(gamePartaker);
+    }
+
     public synchronized void enterGame(WebSocketSession session, String sessionToken, Integer gameId) throws IOException {
         GameInfo gameInfo = onlineGames.get(gameId);
         if (gameInfo == null) {
@@ -81,6 +95,9 @@ public class OnlineGameContext extends WebSockOperationBase implements Initializ
         log.info("当前用户角色为：{}", gamePartaker.getGameRole());
         gamePartaker.setSession(session);
 
+        Integer userId = userRecord.getId();
+        userGames.put(userId, gamePartaker);
+
         boolean isGameWatcher = gamePartaker.isGameWatcher();
 
         GamePartaker blackUser = gameInfo.getBlackUser();
@@ -91,7 +108,7 @@ public class OnlineGameContext extends WebSockOperationBase implements Initializ
             OutputMsg<JSONObject> initMsg = newGameInitMsg(gamePartaker, blackUser, whiteUser, true);
             WebSocketSession gamePartakerSession = gamePartaker.getSession();
             sendMsg(gamePartakerSession, initMsg.toTextMessage());
-            gameInfo.getCheckedPionts()
+            gameInfo.getCheckedPoints()
                     .forEach(it -> {
                         JSONObject checkPoint = new JSONObject();
                         checkPoint.put("color", it.getColor());

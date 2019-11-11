@@ -37,11 +37,18 @@ public class OnlineUserContext extends WebSockOperationBase implements Initializ
 
     @Autowired
     private UserDomain userDomain;
+
+    @Autowired
+    private OnlineGameContext onlineGameContext;
+
     private ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1, new ThreadFactoryBuilder().setNameFormat("refresh-user-th-%s").build());
 
     private Map<Integer, String> userIdTokenMappings = Maps.newConcurrentMap();
+
     private Map<String, UserInfo> sessionUserMappings = Maps.newConcurrentMap();
+
     private Map<String, LocalDateTime> activeTokenMappings = Maps.newConcurrentMap();
+
     private Map<WebSocketSession, String> sessionTokenMappings = Maps.newConcurrentMap();
 
     public void sendMsg2User(Integer userId, OutputMsg msg) {
@@ -181,10 +188,20 @@ public class OnlineUserContext extends WebSockOperationBase implements Initializ
                     JSONObject userInfo = new JSONObject();
                     UserRecord userRecord = it.getUserRecord();
                     String userName = userRecord.getUserName();
-                    String status = "空闲";
-                    userInfo.put("userId", userRecord.getId());
+                    Integer userId = userRecord.getId();
+                    userInfo.put("userId", userId);
                     userInfo.put("userName", userName);
-                    userInfo.put("status", status);
+                    userInfo.put("status", -1);
+                    onlineGameContext.userGame(userId)
+                            .ifPresent(partaker -> {
+                                userInfo.put("gameId", partaker.getGameId());
+                                Integer gameRole = partaker.getGameRole();
+                                if (gameRole == 3) {
+                                    userInfo.put("status", 0);
+                                } else {
+                                    userInfo.put("status", 1);
+                                }
+                            });
                     return userInfo;
                 }).collect(Collectors.toList());
         //log.info("开始推送在线用户列表...{}", userList.size());
