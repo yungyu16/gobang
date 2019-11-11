@@ -20,7 +20,7 @@
             <van-col span="6">
                 <strong>{{thatUser.userName}}</strong>
                 <br/>
-                <strong>{{thisUserColor}}</strong>
+                <strong>{{thatUserColor}}</strong>
             </van-col>
         </van-row>
         <van-divider/>
@@ -280,12 +280,16 @@ export default {
         },
         checkBoard(data) {
             let boardCell = this.findClickedCellByIndex(data.x, data.y);
+            if (!boardCell) {
+                console.log("没有找到坐标:", data)
+                return;
+            }
             boardCell.drawCheck(data.color);
         },
         whenClickBoard(e) {
-            // if (!this.notifyGameStartFlag || this.isGameWatcher) {
-            //     return;
-            // }
+            if (!this.notifyGameStartFlag || this.isGameWatcher) {
+                return;
+            }
             let x = e.offsetX;
             let y = e.offsetY;
             let thisCell = this.findClickedCellByOffset(x, y);
@@ -352,11 +356,11 @@ export default {
                 }
             }
         },
-        findClickedCellByIndex(x, y) {
+        findClickedCellByIndex(xIndex, yIndex) {
             let box = this.gobangPointList;
             for (let idx_i in box) {
                 let cell = box[idx_i];
-                if (cell.status < 1 && cell.aroundHere(x, y)) {
+                if (cell.id === 'x' + xIndex + ':y' + yIndex) {
                     return cell;
                 }
             }

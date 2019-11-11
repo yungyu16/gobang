@@ -64,10 +64,10 @@ public class GameMsgHandler extends TextWebSocketHandler {
             }
         } catch (BizException e) {
             log.info("消息处理异常 {}", e.getMessage());
-            onlineGameContext.sendMsg(session, OutputMsg.of(MsgTypes.USER_MSG_TOAST, e.getMessage()));
+            onlineGameContext.sendMsg(session, OutputMsg.of(MsgTypes.USER_MSG_TOAST, e.getMessage()).toTextMessage());
         } catch (Exception e) {
             log.info("消息处理异常", e);
-            onlineGameContext.sendMsg(session, OutputMsg.of(MsgTypes.USER_MSG_ERROR, e.getMessage()));
+            onlineGameContext.sendMsg(session, OutputMsg.of(MsgTypes.USER_MSG_ERROR, e.getMessage()).toTextMessage());
         }
     }
 }

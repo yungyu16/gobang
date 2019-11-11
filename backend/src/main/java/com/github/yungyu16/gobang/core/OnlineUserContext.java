@@ -56,7 +56,7 @@ public class OnlineUserContext extends WebSockOperationBase implements Initializ
                     UserRecord userRecord = it.getUserRecord();
                     WebSocketSession socketSession = it.getSocketSession();
                     log.info("开始发送消息给 {}", userRecord.getUserName());
-                    sendMsg(socketSession, msg);
+                    sendMsg(socketSession, msg.toTextMessage());
                     return 1;
                 })
                 .orElseGet(() -> {
@@ -137,7 +137,7 @@ public class OnlineUserContext extends WebSockOperationBase implements Initializ
             return;
         }
         WebSocketSession session = userInfo.getSocketSession();
-        sendMsg(session, OutputMsg.of("error", "会话过期..."));
+        sendMsg(session, OutputMsg.of("error", "会话过期...").toTextMessage());
         doInEventLoop(session, () -> {
             UserRecord userRecord = userInfo.getUserRecord();
             log.info("会话过期,移除当前会话....{}", userRecord.getUserName());
@@ -217,7 +217,7 @@ public class OnlineUserContext extends WebSockOperationBase implements Initializ
     public void pushOnlineUsers(WebSocketSession webSocketSession, String sessionToken) {
         List<JSONObject> onlineUsers = getOnlineUsers(sessionToken);
         //log.info("当前用户列表：{}", JSON.toJSONString(onlineUsers));
-        sendMsg(webSocketSession, OutputMsg.of(MsgTypes.USER_MSG_USER_LIST, onlineUsers));
+        sendMsg(webSocketSession, OutputMsg.of(MsgTypes.USER_MSG_USER_LIST, onlineUsers).toTextMessage());
     }
 
     private void touch(String sessionToken) {
