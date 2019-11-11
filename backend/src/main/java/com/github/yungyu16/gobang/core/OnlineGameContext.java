@@ -15,8 +15,10 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
+import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Map;
@@ -59,7 +61,7 @@ public class OnlineGameContext extends WebSockOperationBase implements Initializ
         onlineGames.computeIfAbsent(gameId, key -> new GameInfo(gameId));
     }
 
-    public synchronized void enterGame(WebSocketSession session, String sessionToken, Integer gameId) {
+    public synchronized void enterGame(WebSocketSession session, String sessionToken, Integer gameId) throws IOException {
         GameInfo gameInfo = onlineGames.get(gameId);
         if (gameInfo == null) {
             throw new BizException("对局不存在...");
@@ -86,17 +88,23 @@ public class OnlineGameContext extends WebSockOperationBase implements Initializ
             if (blackUser != null) {
                 log.info("当前黑方已经有人：{}", blackUser.getUserName());
                 OutputMsg<JSONObject> initMsg = newGameInitMsg(blackUser, blackUser, whiteUser, false);
-                sendMsg(blackUser.getSession(), initMsg);
+                blackUser.getSession().sendMessage(initMsg.toTextMessage());
+                //sendMsg(blackUser.getSession(), initMsg);
             }
             if (whiteUser != null) {
                 log.info("当前白方已经有人：{}", whiteUser.getUserName());
                 OutputMsg<JSONObject> initMsg = newGameInitMsg(whiteUser, blackUser, whiteUser, false);
-                sendMsg(whiteUser.getSession(), initMsg);
+                whiteUser.getSession().sendMessage(initMsg.toTextMessage());
+                //sendMsg(whiteUser.getSession(), initMsg);
+
             }
             if (blackUser != null && whiteUser != null) {
                 log.info("当前双方都已就绪：{}", blackUser.getUserName());
-                sendMsg(blackUser.getSession(), OutputMsg.of(MsgTypes.GAME_MSG_START_GAME, ""));
-                sendMsg(whiteUser.getSession(), OutputMsg.of(MsgTypes.GAME_MSG_START_GAME, ""));
+                TextMessage startGameMsg = OutputMsg.of(MsgTypes.GAME_MSG_START_GAME, "").toTextMessage();
+                blackUser.getSession().sendMessage(startGameMsg);
+                whiteUser.getSession().sendMessage(startGameMsg);
+                //sendMsg(blackUser.getSession(), OutputMsg.of(MsgTypes.GAME_MSG_START_GAME, ""));
+                //sendMsg(whiteUser.getSession(), OutputMsg.of(MsgTypes.GAME_MSG_START_GAME, ""));
             }
             if (blackUser == null && whiteUser == null) {
                 log.info("错误的状态...当前用户为：{}", gamePartaker.getUserName());

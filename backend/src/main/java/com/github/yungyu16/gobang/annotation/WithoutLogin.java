@@ -6,6 +6,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
+ * The interface Without login.
+ *
  * @author Yungyu
  * @description Created by Yungyu on 2019/11/10.
  */
