@@ -15,7 +15,6 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.io.IOException;
@@ -100,7 +99,7 @@ public class OnlineGameContext extends WebSockOperationBase implements Initializ
             }
             if (blackUser != null && whiteUser != null) {
                 log.info("当前双方都已就绪：{}", blackUser.getUserName());
-                TextMessage startGameMsg = OutputMsg.of(MsgTypes.GAME_MSG_START_GAME, "").toTextMessage();
+                //TextMessage startGameMsg = OutputMsg.of(MsgTypes.GAME_MSG_START_GAME, "");
                 //blackUser.getSession().sendMessage(startGameMsg);
                 //whiteUser.getSession().sendMessage(startGameMsg);
                 sendMsg(blackUser.getSession(), OutputMsg.of(MsgTypes.GAME_MSG_START_GAME, ""));
@@ -153,11 +152,15 @@ public class OnlineGameContext extends WebSockOperationBase implements Initializ
         initMsg.put("isGameWatcher", isGameWatcher);
 
         JSONObject blackUserObj = new JSONObject();
-        blackUserObj.put("userName", blackUser.getUserName());
-        blackUserObj.put("color", blackUser.getGameRole());
+        if (blackUser != null) {
+            blackUserObj.put("userName", blackUser.getUserName());
+            blackUserObj.put("color", blackUser.getGameRole());
+        }
         JSONObject whiteUserObj = new JSONObject();
-        blackUserObj.put("userName", whiteUser.getUserName());
-        blackUserObj.put("color", whiteUser.getGameRole());
+        if (whiteUser != null) {
+            whiteUserObj.put("userName", whiteUser.getUserName());
+            whiteUserObj.put("color", whiteUser.getGameRole());
+        }
 
         if (currentUser == blackUser) {
             initMsg.put("thisUser", blackUserObj);
