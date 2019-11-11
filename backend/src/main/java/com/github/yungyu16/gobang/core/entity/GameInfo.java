@@ -49,6 +49,10 @@ public class GameInfo {
         }
     }
 
+    public boolean isGameOver() {
+        return this.gameStatus == 1;
+    }
+
     public boolean checkBoardPoint(int color, int x, int y) {
         if (color != 1 && color != 2) {
             return false;

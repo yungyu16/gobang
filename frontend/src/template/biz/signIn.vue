@@ -32,7 +32,7 @@
         </div>
         <van-divider/>
         <van-row type="flex" justify="center">
-            <van-col span="4">
+            <van-col span="6">
                 <router-link to="/sign-up">前往注册</router-link>
             </van-col>
         </van-row>

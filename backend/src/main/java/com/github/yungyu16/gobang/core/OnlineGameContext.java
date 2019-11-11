@@ -75,7 +75,15 @@ public class OnlineGameContext extends WebSockOperationBase implements Initializ
             return Optional.empty();
         }
         GamePartaker gamePartaker = userGames.get(userId);
-        return Optional.ofNullable(gamePartaker);
+        Integer gameId = gamePartaker.getGameId();
+        if (gameId == null) {
+            return Optional.empty();
+        }
+        GameInfo gameInfo = onlineGames.get(gameId);
+        if (gameInfo.isGameOver()) {
+            return Optional.empty();
+        }
+        return Optional.of(gamePartaker);
     }
 
     public synchronized void enterGame(WebSocketSession session, String sessionToken, Integer gameId) throws IOException {
@@ -83,7 +91,7 @@ public class OnlineGameContext extends WebSockOperationBase implements Initializ
         if (gameInfo == null) {
             throw new BizException("对局不存在...");
         }
-        if (gameInfo.getGameStatus() == 1) {
+        if (gameInfo.isGameOver()) {
             throw new BizException("对局已结束...");
         }
         UserRecord userRecord = getCurrentUserRecord(sessionToken).orElseThrow(() -> new BizException("用户未登录"));
@@ -103,19 +111,21 @@ public class OnlineGameContext extends WebSockOperationBase implements Initializ
         GamePartaker blackUser = gameInfo.getBlackUser();
         GamePartaker whiteUser = gameInfo.getWhiteUser();
 
+        WebSocketSession gamePartakerSession = gamePartaker.getSession();
+        gameInfo.getCheckedPoints()
+                .forEach(it -> {
+                    JSONObject checkPoint = new JSONObject();
+                    checkPoint.put("color", it.getColor());
+                    checkPoint.put("x", it.getX());
+                    checkPoint.put("y", it.getY());
+                    sendMsg(gamePartakerSession, OutputMsg.of(MsgTypes.GAME_MSG_CHECK_BOARD, checkPoint).toTextMessage());
+                });
+
         if (isGameWatcher) {
             log.info("当前用户为观战用户：{}", gamePartaker.getUserName());
             OutputMsg<JSONObject> initMsg = newGameInitMsg(gamePartaker, blackUser, whiteUser, true);
-            WebSocketSession gamePartakerSession = gamePartaker.getSession();
             sendMsg(gamePartakerSession, initMsg.toTextMessage());
-            gameInfo.getCheckedPoints()
-                    .forEach(it -> {
-                        JSONObject checkPoint = new JSONObject();
-                        checkPoint.put("color", it.getColor());
-                        checkPoint.put("x", it.getX());
-                        checkPoint.put("y", it.getY());
-                        sendMsg(gamePartakerSession, OutputMsg.of(MsgTypes.GAME_MSG_CHECK_BOARD, checkPoint).toTextMessage());
-                    });
+
         } else {
             if (blackUser != null) {
                 log.info("当前黑方已经有人：{}", blackUser.getUserName());
@@ -130,6 +140,7 @@ public class OnlineGameContext extends WebSockOperationBase implements Initializ
             }
             if (blackUser != null && whiteUser != null) {
                 log.info("当前双方都已就绪：{}", blackUser.getUserName());
+                gameInfo.setGameStatus(1);
                 TextMessage msg = OutputMsg.of(MsgTypes.GAME_MSG_START_GAME, "").toTextMessage();
                 sendMsg(blackUser.getSession(), msg);
                 sendMsg(whiteUser.getSession(), msg);
@@ -165,7 +176,9 @@ public class OnlineGameContext extends WebSockOperationBase implements Initializ
             return;
         }
         boolean isWinner = gameInfo.isWinner(gameRole, x, y);
-
+        if (isWinner) {
+            gameInfo.setGameStatus(1);
+        }
         gameInfo.getGameWatchers()
                 .forEach(it -> {
                     JSONObject checkPoint = new JSONObject();
