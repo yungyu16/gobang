@@ -2,11 +2,11 @@ import axios from 'axios';
 import {Toast} from 'vant';
 import util from '../util'
 import router from '../router'
+import config from '../config'
 
 const service = axios.create({
     timeout: 5000,
-    baseURL: 'http://47.102.103.194:8099/'
-    // baseURL: 'http://localhost:8099/'
+    baseURL: `http://${config.apiHost}`
 });
 service.interceptors
     .request

@@ -20,7 +20,13 @@ const user = {
     detail: getRequest("user/detail"),
     history: getRequest("user/history"),
 };
+const game = {
+    create: getRequest("game/create"),
+    invite: getRequest("game/invite"),
+    createAndInvite: getRequest("game/create-and-invite"),
+};
 
 export default {
-    user
+    user,
+    game
 }

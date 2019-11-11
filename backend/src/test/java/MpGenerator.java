@@ -79,7 +79,7 @@ public class MpGenerator {
         gen.setPackageInfo(new PackageConfig()
                 .setParent(BASE_PACKAGE)// 自定义包路径
                 .setController("web.http")// 这里是控制器包名，默认 web
-                .setEntity("dao.entity")
+                .setEntity("dao.msg")
                 .setMapper("dao.mapper")
                 .setService("domain")
                 .setServiceImpl("domain.impl")

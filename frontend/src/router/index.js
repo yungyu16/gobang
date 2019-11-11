@@ -10,7 +10,7 @@ import game from '../template/biz/game'
 import start from '../template/biz/start'
 import history from '../template/biz/history'
 import mine from '../template/biz/mine'
-import chat from '../template/biz/chat'
+// import chat from '../template/biz/chat'
 import notFound from '../template/biz/notFound'
 
 Vue.use(Router);
@@ -69,15 +69,15 @@ const router = new Router({
                                 ignoreLogin: true
                             }
                         },
-                        {
-                            path: 'chat',
-                            component: chat,
-                            meta: {
-                                showNotice: true,
-                                icon: 'chat-o',
-                                tabName: '消息'
-                            }
-                        },
+                        // {
+                        //     path: 'chat',
+                        //     component: chat,
+                        //     meta: {
+                        //         showNotice: true,
+                        //         icon: 'chat-o',
+                        //         tabName: '消息'
+                        //     }
+                        // },
                         {
                             path: 'mine',
                             component: mine,

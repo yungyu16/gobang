@@ -1,5 +1,5 @@
 <template>
-    <div>紧张开发中...</div>
+    <van-divider>紧张开发中...</van-divider>
 </template>
 <script>
 </script>

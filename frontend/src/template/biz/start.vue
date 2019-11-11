@@ -4,27 +4,24 @@
                   color="#1989fa">
             <van-tab name="user" title="在线用户">
                 <div v-if="!onlineUserList || onlineUserList.length==0">
-                    暂时没有用户哦~
+                    <van-divider>暂时没有用户哦~</van-divider>
                 </div>
                 <div v-if="onlineUserList">
-                    <van-swipe-cell v-for="it in onlineUserList">
-                        <van-cell :border="false" :title="it.userName" :value='it.status'/>
-                        <template slot="right" scope="user">
-                            <van-button square type="primary" text="聊天"/>
-                            <van-button square type="primary" text="邀请"/>
-                            <van-button square type="primary" text="围观"/>
-                        </template>
-                    </van-swipe-cell>
+                    <van-divider/>
+                    <van-row justify="center" type="flex" v-for="it in onlineUserList">
+                        <van-col offset='4' span="3"><strong>{{it.userName}}</strong></van-col>
+                        <van-col offset='4' span="3">{{it.status}}</van-col>
+                        <van-col offset='4' span="8">
+                            <a @click="inviteUser(it)" href="#" v-if="it.status !=='对战中'">邀请</a>
+                            <a @click="watchGame(it)" href="#" v-else>观战</a>
+                        </van-col>
+                    </van-row>
                 </div>
             </van-tab>
             <van-tab name="game" title="在线对局">
-                <van-swipe-cell v-for="it in onlineGameList">
-                    <van-cell :border="false" title="单元格" value="内容"/>
-                    <template slot="right" scope="game">
-                        <van-button square type="primary" text="加入"/>
-                        <van-button square type="primary" text="围观"/>
-                    </template>
-                </van-swipe-cell>
+                <div v-if="!onlineGameList || onlineGameList.length==0">
+                    <van-divider> 暂时没有对局哦~</van-divider>
+                </div>
             </van-tab>
         </van-tabs>
     </div>
@@ -32,6 +29,7 @@
 <script>
     import floatBtn from '../common/floatBtn'
     import {Notify, Toast} from 'vant';
+    import apis from '../../apis'
 
     export default {
         data() {
@@ -48,7 +46,23 @@
         created() {
         },
         components: {floatBtn},
-        methods: {}
+        methods: {
+            inviteUser(user) {
+                apis.game.createAndInvite({userId: user.userId})
+                    .then(gameId => {
+                        this.$router.push({
+                            path: '/game',
+                            query: {
+                                gameId: gameId
+                            }
+                        })
+                    });
+                console.log(user)
+            },
+            watchGame(user) {
+                console.log(user)
+            }
+        }
     }
 </script>
 <style scoped>

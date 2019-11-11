@@ -1,4 +1,4 @@
-package com.github.yungyu16.gobang.web.websocket.entity;
+package com.github.yungyu16.gobang.web.websocket.msg;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
@@ -10,12 +10,9 @@ import lombok.Data;
  * @description Created by Yungyu on 2019/11/10.
  */
 @Data
-public class WsInputMsg {
+public class UserInputMsg extends WsMsg {
 
     private String sessionToken;
-
-    private String msgType;
-
     private String data;
 
     public JSONArray getJsonArrayData() {

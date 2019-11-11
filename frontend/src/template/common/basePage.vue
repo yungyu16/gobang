@@ -9,6 +9,9 @@
     </div>
 </template>
 <script>
+    import {Dialog} from 'vant';
+    import config from '../../config'
+
     export default {
         name: "basePage.vue",
         data() {
@@ -18,7 +21,7 @@
             };
         },
         created() {
-            let wsUri = "ws://47.102.103.194:8099/ws/user";
+            let wsUri = `ws://${config.apiHost}/ws/user`;
             this.userWebSocket = new WebSocket(wsUri);
             this.userWebSocket.onmessage = this.onWsMessage;
             this.userWebSocket.onopen = this.onWsOpen;
@@ -39,29 +42,57 @@
                 console.log('ws 连接完毕...');
                 let pingMsg = {
                     msgType: 'ping',
-                    data: this.getSessionToken()
+                    sessionToken: this.getSessionToken()
                 };
                 this.userWebSocket.send(JSON.stringify(pingMsg));
                 this.pingInterval = setInterval(() => {
-                    console.log("开始发送心跳消息...");
+                    console.log("开始发送登录心跳消息...");
                     pingMsg = {
                         msgType: 'ping',
-                        data: this.getSessionToken()
+                        sessionToken: this.getSessionToken()
                     };
                     this.userWebSocket.send(JSON.stringify(pingMsg));
                 }, 5000);
             },
             onWsMessage(msg) {
-                console.log('收到ws消息', msg);
                 let msgData = JSON.parse(msg.data);
+                console.log("收到消息：", msgData);
                 let msgType = msgData.msgType;
+                let data = msgData.data;
                 switch (msgType) {
                     case 'welcome':
-                        console.log("连接成功：", msgData.data);
+                        console.log("连接成功：", data);
+                        break;
+                    case 'toast':
+                        if (data) {
+                            this.$toast(data);
+                        }
+                        break;
+                    case 'error':
+                        if (data) {
+                            this.$notify(data);
+                        }
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1000);
                         break;
                     case 'userList':
-                        console.log("收到用户列表", msgData.data);
-                        this.$store.state.onlineUserList = msgData.data;
+                        console.log("收到用户列表", data);
+                        this.$store.state.onlineUserList = data;
+                        break;
+                    case 'inviteGame':
+                        Dialog.confirm({
+                            title: '邀请对战',
+                            message: `${data.userName} 邀您对战`
+                        }).then(() => {
+                            this.$router.push({
+                                path: '/game',
+                                query: {
+                                    gameId: data.gameId
+                                }
+                            })
+                        });
+                        break;
                 }
             },
             onClickLeft() {

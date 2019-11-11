@@ -9,20 +9,19 @@ import cn.xiaoshidai.common.toolkit.base.DigestTools;
 import cn.xiaoshidai.common.toolkit.base.MobileTools;
 import cn.xiaoshidai.common.toolkit.base.StringTools;
 import cn.xiaoshidai.common.toolkit.exception.BizException;
-import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.github.yungyu16.gobang.annotation.WithoutLogin;
 import com.github.yungyu16.gobang.dao.entity.UserRecord;
 import com.github.yungyu16.gobang.domain.UserDomain;
+import com.github.yungyu16.gobang.event.SessionTokenEvent;
 import com.github.yungyu16.gobang.model.ReqResult;
 import com.github.yungyu16.gobang.web.http.entity.UserForm;
 import com.github.yungyu16.gobang.web.http.entity.UserVO;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.web.bind.annotation.*;
-
-import javax.servlet.http.HttpServletResponse;
 
 /**
  * @author Yungyu
@@ -34,6 +33,8 @@ public class UserController extends BaseController {
 
     @Autowired
     private UserDomain userDomain;
+    @Autowired
+    private ApplicationContext applicationContext;
 
     @GetMapping("validate")
     public ReqResult validate() {
@@ -58,7 +59,10 @@ public class UserController extends BaseController {
         UserRecord user = userDomain.getOne(queryWrapper);
         String digestPwd = getDigestPwd(password);
         if (StringTools.equalsIgnoreCase(digestPwd, user.getPwd())) {
-            String sessionToken = newSession(user.getId());
+            //删除旧会话
+            deleteOldSession(mobile);
+            //新建会话
+            String sessionToken = newSession(user.getId(), mobile);
             return ReqResult.success(sessionToken);
         } else {
             throw new BizException("密码错误");
@@ -100,8 +104,7 @@ public class UserController extends BaseController {
 
     @GetMapping("detail")
     public ReqResult<UserVO> detail() {
-        return getSessionAttr(USER_ID)
-                .map(it -> JSON.parseObject(it, Integer.class))
+        return getSessionUserId()
                 .map(it -> {
                     UserRecord userRecord = userDomain.getById(it);
                     return BeanTools.map(userRecord, UserVO.class);
@@ -115,6 +118,7 @@ public class UserController extends BaseController {
                 .ifPresent(it -> {
                     log.info("删除会话...");
                     removeSession(it);
+                    applicationContext.publishEvent(new SessionTokenEvent(SessionTokenEvent.TYPE_REMOVE, it));
                 });
         return ReqResult.success();
     }

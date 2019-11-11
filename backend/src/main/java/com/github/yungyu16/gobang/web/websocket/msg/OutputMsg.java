@@ -1,4 +1,4 @@
-package com.github.yungyu16.gobang.web.websocket.entity;
+package com.github.yungyu16.gobang.web.websocket.msg;
 
 import cn.xiaoshidai.common.toolkit.base.ConditionTools;
 import com.alibaba.fastjson.JSON;
@@ -10,20 +10,20 @@ import org.springframework.web.socket.TextMessage;
  * @description Created by Yungyu on 2019/11/10.
  */
 @Data
-public class WsOutputMsg<T> {
+public class OutputMsg<T> extends WsMsg {
 
     private String msgType;
 
     private T data;
 
-    private WsOutputMsg(String msgType, T data) {
+    private OutputMsg(String msgType, T data) {
         this.msgType = msgType;
         this.data = data;
     }
 
-    public static <T> WsOutputMsg<T> of(String msgType, T data) {
+    public static <T> OutputMsg<T> of(String msgType, T data) {
         ConditionTools.checkNotNull(msgType);
-        return new WsOutputMsg<>(msgType, data);
+        return new OutputMsg<>(msgType, data);
     }
 
     public TextMessage toTextMessage() {
