@@ -3,14 +3,16 @@
         <div v-if="!onlineUserList || onlineUserList.length==0">
             <van-divider>暂时没有在线用户哦~</van-divider>
         </div>
-        <div v-if="onlineUserList">
+        <div v-if="onlineUserList" v-for="it in onlineUserList">
             <van-divider/>
-            <van-row justify="center" type="flex" v-for="it in onlineUserList">
+            <van-row justify="center" type="flex">
                 <van-col offset='2' span="8"><strong>{{it.userName}}</strong></van-col>
-                <van-col span="4">{{statusStr(it.status)}}</van-col>
+                <van-col span="4" v-bind:class="{'text-green': it.status === -1 || it.status === -3 }">
+                    {{statusStr(it.status)}}
+                </van-col>
                 <van-col offset='4' span="6">
-                    <a @click="inviteUser(it)" href="#" v-if="it.status !==1">邀请</a>
-                    <a @click="watchGame(it)" href="#" v-if="it.status !==-1">观战</a>
+                    <a @click="inviteUser(it)" href="#" v-if="it.status == -1 || it.status == -3">邀请</a>
+                    <a @click="watchGame(it)" href="#" v-if="it.status === -1 || it.status == -2">观战</a>
                 </van-col>
             </van-row>
         </div>
@@ -35,13 +37,13 @@
         components: {floatBtn},
         methods: {
             statusStr(status) {
-                if (status <= 0) {
+                if (status === 0) {
                     return '离线';
                 }
-                if (status === 1) {
+                if (status === -1) {
                     return '观战中';
                 }
-                if (status === 1) {
+                if (status === -2) {
                     return '对局中';
                 }
                 return '空闲';
@@ -81,4 +83,7 @@
     }
 </script>
 <style scoped>
+    .text-green{
+        color:green;
+    }
 </style>

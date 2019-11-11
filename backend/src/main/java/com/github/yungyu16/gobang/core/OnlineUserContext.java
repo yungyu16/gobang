@@ -211,15 +211,15 @@ public class OnlineUserContext extends WebSockOperationBase implements Initializ
                     Integer userId = userRecord.getId();
                     userInfo.put("userId", userId);
                     userInfo.put("userName", userName);
-                    userInfo.put("status", 3);
+                    userInfo.put("status", -3);
                     onlineGameContext.userGame(userId)
                             .ifPresent(partaker -> {
                                 userInfo.put("gameId", partaker.getGameId());
                                 Integer gameRole = partaker.getGameRole();
                                 if (gameRole == 3) {
-                                    userInfo.put("status", 1);
+                                    userInfo.put("status", -1);
                                 } else {
-                                    userInfo.put("status", 2);
+                                    userInfo.put("status", -2);
                                 }
                             });
                     finalUserMap.put(userId, userInfo);

@@ -270,11 +270,10 @@
                                 msg = msg + '很遗憾您输掉了比赛,下次继续努力~';
                             }
                         }
+                        this.notifyGameStartFlag = false;
                         Dialog.confirm({
                             title: '对局结束',
                             message: msg
-                        }).finally(() => {
-                            this.$router.push({path: '/tab/start'});
                         });
                         break;
                     case 'toast':
