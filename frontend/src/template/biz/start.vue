@@ -6,9 +6,9 @@
         <div v-if="onlineUserList">
             <van-divider/>
             <van-row justify="center" type="flex" v-for="it in onlineUserList">
-                <van-col offset='4' span="3"><strong>{{it.userName}}</strong></van-col>
-                <van-col offset='4' span="4">{{statusStr(it.status)}}</van-col>
-                <van-col offset='4' span="8">
+                <van-col offset='2' span="8"><strong>{{it.userName}}</strong></van-col>
+                <van-col span="4">{{statusStr(it.status)}}</van-col>
+                <van-col offset='4' span="6">
                     <a @click="inviteUser(it)" href="#" v-if="it.status !==1">邀请</a>
                     <a @click="watchGame(it)" href="#" v-if="it.status !==-1">观战</a>
                 </van-col>
@@ -18,7 +18,7 @@
 </template>
 <script>
     import floatBtn from '../common/floatBtn'
-    import {Notify, Toast} from 'vant';
+    import {Dialog, Notify, Toast} from 'vant';
     import apis from '../../apis'
 
     export default {

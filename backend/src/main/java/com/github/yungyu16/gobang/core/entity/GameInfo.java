@@ -28,7 +28,7 @@ public class GameInfo {
     private GamePartaker whiteUser;
 
     //0 空 1 黑 2 白
-    private CheckPointInfo[][] board;
+    private CheckPointInfo[][] board = new CheckPointInfo[15][15];
 
     private Map<String, CheckPointInfo> checkPoints = Maps.newHashMap();
 
