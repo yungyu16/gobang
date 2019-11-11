@@ -10,7 +10,7 @@
                                 required
                                 clearable
                                 label="用户名"
-                                placeholder="请输入用户名"/>
+                                placeholder="6位长度内汉字字母数字组合"/>
                         <van-field
                                 v-model="mobile"
                                 required
@@ -21,13 +21,13 @@
                                 v-model="password"
                                 type="password"
                                 label="密码"
-                                placeholder="请输入密码"
+                                placeholder="5到10位字母数字组合"
                                 required/>
                         <van-field
                                 v-model="rePassword"
                                 type="password"
                                 label="确认密码"
-                                placeholder="请输入密码"
+                                placeholder="5到10位字母数字组合"
                                 required
                                 v-on:keyup.13="handleSignUp"
                         />

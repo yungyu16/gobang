@@ -1,13 +1,13 @@
 <template>
     <div>
         <div v-if="!onlineUserList || onlineUserList.length==0">
-            <van-divider>暂时没有用户哦~</van-divider>
+            <van-divider>暂时没有在线用户哦~</van-divider>
         </div>
         <div v-if="onlineUserList">
             <van-divider/>
             <van-row justify="center" type="flex" v-for="it in onlineUserList">
                 <van-col offset='4' span="3"><strong>{{it.userName}}</strong></van-col>
-                <van-col offset='4' span="3">{{it.status}}</van-col>
+                <van-col offset='4' span="4">{{statusStr(it.status)}}</van-col>
                 <van-col offset='4' span="8">
                     <a @click="inviteUser(it)" href="#" v-if="it.status !==1">邀请</a>
                     <a @click="watchGame(it)" href="#" v-if="it.status !==-1">观战</a>

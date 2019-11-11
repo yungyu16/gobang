@@ -4,10 +4,7 @@
 
 package com.github.yungyu16.gobang.web.http;
 
-import cn.xiaoshidai.common.toolkit.base.BeanTools;
-import cn.xiaoshidai.common.toolkit.base.DigestTools;
-import cn.xiaoshidai.common.toolkit.base.MobileTools;
-import cn.xiaoshidai.common.toolkit.base.StringTools;
+import cn.xiaoshidai.common.toolkit.base.*;
 import cn.xiaoshidai.common.toolkit.exception.BizException;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
@@ -23,6 +20,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.function.Predicate;
+
 /**
  * @author Yungyu
  * @description Created by Yungyu on 2019/11/7.
@@ -33,8 +32,12 @@ public class UserController extends BaseController {
 
     @Autowired
     private UserDomain userDomain;
+
     @Autowired
     private ApplicationContext applicationContext;
+
+    private Predicate<Character> userNameMatcher = CharTools.chineseCharMatcher()
+            .or(Character::isLetterOrDigit);
 
     @GetMapping("validate")
     public ReqResult validate() {
@@ -137,14 +140,19 @@ public class UserController extends BaseController {
         if (length < 5 || length > 10) {
             throw new BizException("密码不合法");
         }
+        if (!StringUtils.isAlphanumeric(password)) {
+            throw new BizException("密码仅支持字母数字");
+        }
     }
 
     private void checkUserName(String userName) {
-        if (userName.length() > 20) {
+        if (userName.length() > 6) {
             throw new BizException("用户名太长");
         }
-        if (!StringUtils.isAlphanumeric(userName)) {
-            throw new BizException("用户名仅支持字母数字");
+        for (char ch : userName.toCharArray()) {
+            if (!userNameMatcher.test(ch)) {
+                throw new BizException("用户名仅支持汉字、字母、数字组合");
+            }
         }
     }
 }

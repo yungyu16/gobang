@@ -20,13 +20,15 @@ import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 public class GameMsgHandler extends TextWebSocketHandler {
+
     protected Logger log = LoggerFactory.getLogger(getClass());
+
     @Autowired
     private OnlineGameContext onlineGameContext;
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
-        //onlineGameContext.sendMsg(session, OutputMsg.of(MsgTypes.USER_MSG_WELCOME, "Welcome~"));
+        onlineGameContext.sendMsg(session, OutputMsg.of(MsgTypes.USER_MSG_WELCOME, "Welcome~").toTextMessage());
     }
 
     @Override
