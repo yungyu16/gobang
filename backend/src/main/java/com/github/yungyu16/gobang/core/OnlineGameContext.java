@@ -88,23 +88,23 @@ public class OnlineGameContext extends WebSockOperationBase implements Initializ
             if (blackUser != null) {
                 log.info("当前黑方已经有人：{}", blackUser.getUserName());
                 OutputMsg<JSONObject> initMsg = newGameInitMsg(blackUser, blackUser, whiteUser, false);
-                blackUser.getSession().sendMessage(initMsg.toTextMessage());
-                //sendMsg(blackUser.getSession(), initMsg);
+                //blackUser.getSession().sendMessage(initMsg.toTextMessage());
+                sendMsg(blackUser.getSession(), initMsg);
             }
             if (whiteUser != null) {
                 log.info("当前白方已经有人：{}", whiteUser.getUserName());
                 OutputMsg<JSONObject> initMsg = newGameInitMsg(whiteUser, blackUser, whiteUser, false);
-                whiteUser.getSession().sendMessage(initMsg.toTextMessage());
-                //sendMsg(whiteUser.getSession(), initMsg);
+                //whiteUser.getSession().sendMessage(initMsg.toTextMessage());
+                sendMsg(whiteUser.getSession(), initMsg);
 
             }
             if (blackUser != null && whiteUser != null) {
                 log.info("当前双方都已就绪：{}", blackUser.getUserName());
                 TextMessage startGameMsg = OutputMsg.of(MsgTypes.GAME_MSG_START_GAME, "").toTextMessage();
-                blackUser.getSession().sendMessage(startGameMsg);
-                whiteUser.getSession().sendMessage(startGameMsg);
-                //sendMsg(blackUser.getSession(), OutputMsg.of(MsgTypes.GAME_MSG_START_GAME, ""));
-                //sendMsg(whiteUser.getSession(), OutputMsg.of(MsgTypes.GAME_MSG_START_GAME, ""));
+                //blackUser.getSession().sendMessage(startGameMsg);
+                //whiteUser.getSession().sendMessage(startGameMsg);
+                sendMsg(blackUser.getSession(), OutputMsg.of(MsgTypes.GAME_MSG_START_GAME, ""));
+                sendMsg(whiteUser.getSession(), OutputMsg.of(MsgTypes.GAME_MSG_START_GAME, ""));
             }
             if (blackUser == null && whiteUser == null) {
                 log.info("错误的状态...当前用户为：{}", gamePartaker.getUserName());
@@ -152,12 +152,19 @@ public class OnlineGameContext extends WebSockOperationBase implements Initializ
         JSONObject initMsg = new JSONObject();
         initMsg.put("isGameWatcher", isGameWatcher);
 
+        JSONObject blackUserObj = new JSONObject();
+        blackUserObj.put("userName", blackUser.getUserName());
+        blackUserObj.put("color", blackUser.getGameRole());
+        JSONObject whiteUserObj = new JSONObject();
+        blackUserObj.put("userName", whiteUser.getUserName());
+        blackUserObj.put("color", whiteUser.getGameRole());
+
         if (currentUser == blackUser) {
-            initMsg.put("thisUser", blackUser);
-            initMsg.put("thatUser", whiteUser);
+            initMsg.put("thisUser", blackUserObj);
+            initMsg.put("thatUser", whiteUserObj);
         } else {
-            initMsg.put("thisUser", whiteUser);
-            initMsg.put("thatUser", blackUser);
+            initMsg.put("thisUser", whiteUserObj);
+            initMsg.put("thatUser", blackUserObj);
         }
         return OutputMsg.of(MsgTypes.GAME_MSG_INIT_GAME, initMsg);
     }
