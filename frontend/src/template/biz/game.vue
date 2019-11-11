@@ -147,12 +147,11 @@ export default {
             latestClickCell: null,
             latestBoardSnapshot: null,
             //1黑 2白
-            currentUserColor: 1,
             checkAudio: new Audio("https://www.cosumi.net/sound/stone.ogg"),
-            gameWebSocket: '',
+            gameWebSocket: null,
             gameStartFlag: false,
             notifyGameStartFlag: false,
-            // gameStartTime:
+            isGameWatcher: false,
             thisUser: {
                 userName: '等待中...',
                 color: 0
@@ -172,7 +171,7 @@ export default {
             console.log("预选", this.xIndex, this.yIndex);
             that.boardContext.beginPath();
             that.boardContext.arc(this.x, this.y, scale(13), 0, 2 * Math.PI);
-            that.boardContext.fillStyle = that.currentUserColor === 1 ? "#0A0A0A" : "#D1D1D1";
+            that.boardContext.fillStyle = that.thisUser.color === 1 ? "#0A0A0A" : "#D1D1D1";
             that.boardContext.stroke();
             that.boardContext.closePath();
             this.status = 0;
@@ -208,40 +207,46 @@ export default {
     },
     methods: {
         initWebSocket() {
+            console.log("开始新建game ws连接...");
             let wsUri = `ws://${config.apiHost}/ws/game`;
             this.gameWebSocket = new WebSocket(wsUri);
             this.gameWebSocket.onmessage = this.onWsMessage;
             this.gameWebSocket.onopen = this.onWsOpen;
             this.gameWebSocket.onerror = e => {
-                console.log('ws 连接错误...', wsUri, e);
-                clearInterval(this.pingInterval)
+                console.log('game ws 连接错误...', wsUri, e);
             };
             this.gameWebSocket.onclose = () => {
-                console.log('ws 连接关闭...', wsUri);
-                clearInterval(this.pingInterval)
+                console.log('game ws 连接关闭...', wsUri);
             }
         },
         onWsOpen() {
-            console.log('ws 连接完毕...');
+            console.log('game ws 连接完毕...');
             let pingMsg = {
                 msgType: 'enterGame',
+                gameId: this.$route.query.gameId,
                 sessionToken: this.getSessionToken(),
                 data: this.$route.query.gameId
             };
+            console.log("game ws发送 enterGame消息：", pingMsg);
             this.gameWebSocket.send(JSON.stringify(pingMsg));
-
         },
         onWsMessage(msg) {
             let msgData = JSON.parse(msg.data);
-            console.log("收到消息：", msgData);
+            console.log("game ws收到消息：", msgData);
             let msgType = msgData.msgType;
             let data = msgData.data;
             switch (msgType) {
+                case 'welcome':
+                    console.log("game ws连接成功：", data);
+                    break;
                 case 'initGame':
                     this.initGame(data);
                     break;
                 case 'startGame':
                     this.gameStartFlag = true;
+                    break;
+                case 'checkBoard':
+                    this.checkBoard(data);
                     break;
                 case 'gameOver':
                     Dialog.confirm({
@@ -251,26 +256,36 @@ export default {
                         this.notifyGameStartFlag = true;
                     });
                     break;
-                case 'checkBoard':
-                    console.log("收到用户列表", data);
-                    this.$store.state.onlineUserList = data;
+                case 'toast':
+                    if (data) {
+                        this.$toast(data);
+                    }
+                    break;
+                case 'error':
+                    if (data) {
+                        this.$notify(data);
+                    }
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1000);
                     break;
             }
         },
         initGame(data) {
+            this.isGameWatcher = data.isGameWatcher;
             this.thisUser.userName = data.thisUser.userName;
             this.thisUser.color = data.thisUser.color;
             this.thatUser.userName = data.thatUser.userName;
-            this.thatUser.color = data.color;
+            this.thatUser.color = data.thatUser.color;
         },
         checkBoard(data) {
             let boardCell = this.findClickedCellByIndex(data.x, data.y);
             boardCell.drawCheck(data.color);
         },
         whenClickBoard(e) {
-            if (!this.notifyGameStartFlag) {
-                return;
-            }
+            // if (!this.notifyGameStartFlag || this.isGameWatcher) {
+            //     return;
+            // }
             let x = e.offsetX;
             let y = e.offsetY;
             let thisCell = this.findClickedCellByOffset(x, y);
@@ -298,12 +313,11 @@ export default {
                         sessionToken: this.getSessionToken(),
                         gameId: this.$route.query.gameId,
                         data: {
-                            color: this.thisUser.color,
                             x: thisCell.xIndex,
                             y: thisCell.yIndex
                         }
                     };
-                    this.gameWebSocket.send(pointMsg);
+                    this.gameWebSocket.send(JSON.stringify(pointMsg));
                     this.latestClickCell = null;
                 } else {
                     console.log("重选");

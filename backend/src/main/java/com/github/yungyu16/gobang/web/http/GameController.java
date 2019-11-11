@@ -6,6 +6,7 @@ package com.github.yungyu16.gobang.web.http;
 
 import cn.xiaoshidai.common.toolkit.exception.BizSessionTimeOutException;
 import com.alibaba.fastjson.JSONObject;
+import com.github.yungyu16.gobang.core.OnlineGameContext;
 import com.github.yungyu16.gobang.core.OnlineUserContext;
 import com.github.yungyu16.gobang.dao.entity.GameRecord;
 import com.github.yungyu16.gobang.dao.entity.UserRecord;
@@ -28,7 +29,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class GameController extends BaseController {
     @Autowired
     private GameDomain gameDomain;
-
+    @Autowired
+    private OnlineGameContext onlineGameContext;
     @Autowired
     private OnlineUserContext onlineUserContext;
 
@@ -36,7 +38,9 @@ public class GameController extends BaseController {
     public ReqResult create() {
         GameRecord entity = new GameRecord();
         gameDomain.save(entity);
-        return ReqResult.success(entity.getId());
+        Integer id = entity.getId();
+        onlineGameContext.newGame(id);
+        return ReqResult.success(id);
     }
 
     @GetMapping("invite")
@@ -50,6 +54,7 @@ public class GameController extends BaseController {
         GameRecord entity = new GameRecord();
         gameDomain.save(entity);
         Integer gameId = entity.getId();
+        onlineGameContext.newGame(gameId);
         sendInviteMsg(userId, gameId);
         return ReqResult.success(gameId);
     }

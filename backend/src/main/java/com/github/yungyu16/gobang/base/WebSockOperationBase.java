@@ -1,7 +1,9 @@
 package com.github.yungyu16.gobang.base;
 
 import cn.xiaoshidai.common.toolkit.base.ConditionTools;
+import cn.xiaoshidai.common.toolkit.base.StringTools;
 import com.alibaba.fastjson.JSON;
+import com.github.yungyu16.gobang.web.websocket.msg.MsgTypes;
 import com.github.yungyu16.gobang.web.websocket.msg.OutputMsg;
 import org.springframework.web.socket.WebSocketSession;
 
@@ -29,7 +31,10 @@ public abstract class WebSockOperationBase extends SessionOperationBase {
         ConditionTools.checkNotNull(msg);
         doInEventLoop(webSocketSession, () -> {
             try {
-                log.info("开始发送ws消息：{}", JSON.toJSONString(msg));
+                Object sessionToken = webSocketSession.getAttributes().get("sessionToken");
+                if (!StringTools.equalsIgnoreCase(msg.getMsgType(), MsgTypes.USER_MSG_USER_LIST)) {
+                    log.info("开始发送ws消息：{} {}", JSON.toJSONString(msg), sessionToken);
+                }
                 webSocketSession.sendMessage(msg.toTextMessage());
             } catch (IOException e) {
                 log.error("发送消息异常", e);
@@ -74,4 +79,5 @@ public abstract class WebSockOperationBase extends SessionOperationBase {
         }
         return eventLoopIndex.getAndIncrement();
     }
+
 }

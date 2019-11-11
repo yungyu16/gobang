@@ -30,7 +30,15 @@ public abstract class SessionOperationBase extends RedisOperationBase {
     public final String USER_ID = "userId";
 
     protected Optional<UserRecord> getCurrentUserRecord() {
-        return getSessionAttr(USER_ID).map(it -> {
+        String token = getSessionToken().orElseThrow(BizSessionTimeOutException::new);
+        return getCurrentUserRecord(token);
+    }
+
+    protected Optional<UserRecord> getCurrentUserRecord(String sessionToken) {
+        if (StringTools.isBlank(sessionToken)) {
+            return Optional.empty();
+        }
+        return getSessionAttr(sessionToken, USER_ID).map(it -> {
             UserRecord byId = userDomain.getById(it);
             if (byId.getIsDeleted()) {
                 return null;

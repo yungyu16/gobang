@@ -13,6 +13,7 @@ import com.github.yungyu16.gobang.web.websocket.msg.OutputMsg;
 import com.github.yungyu16.gobang.web.websocket.msg.UserInputMsg;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
@@ -27,13 +28,13 @@ public class UserMsgHandler extends TextWebSocketHandler {
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
-        session.sendMessage(OutputMsg.of(MsgTypes.USER_MSG_WELCOME, "Welcome~").toTextMessage());
+        //session.sendMessage(OutputMsg.of(MsgTypes.USER_MSG_WELCOME, "Welcome~").toTextMessage());
     }
 
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
+        MDC.put("traceId", StringTools.UUID());
         String payload = message.getPayload();
-        System.out.println(">>>>>>>接受到ws消息" + payload);
         UserInputMsg wsInputMsg = JSON.parseObject(payload, UserInputMsg.class);
         try {
             String msgType = wsInputMsg.getMsgType();
@@ -42,11 +43,11 @@ public class UserMsgHandler extends TextWebSocketHandler {
             }
             switch (msgType) {
                 case MsgTypes.USER_MSG_PING:
-                    log.info("开始处理心跳消息...");
+                    //log.info("开始处理心跳消息...");
                     String sessionToken = wsInputMsg.getSessionToken();
                     onlineUserContext.ping(session, sessionToken);
                     onlineUserContext.pushOnlineUsers(session, sessionToken);
-                    log.info("ping成功");
+                    //log.info("ping成功");
                     break;
                 default:
                     log.info("不支持的消息类型：{}", msgType);

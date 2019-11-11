@@ -39,14 +39,14 @@
         },
         methods: {
             onWsOpen() {
-                console.log('ws 连接完毕...');
+                console.log('user ws连接完毕...');
                 let pingMsg = {
                     msgType: 'ping',
                     sessionToken: this.getSessionToken()
                 };
                 this.userWebSocket.send(JSON.stringify(pingMsg));
                 this.pingInterval = setInterval(() => {
-                    console.log("开始发送登录心跳消息...");
+                    console.log("user ws 发送心跳消息...");
                     pingMsg = {
                         msgType: 'ping',
                         sessionToken: this.getSessionToken()
@@ -56,12 +56,12 @@
             },
             onWsMessage(msg) {
                 let msgData = JSON.parse(msg.data);
-                console.log("收到消息：", msgData);
+                // console.log("user ws收到消息：", msgData);
                 let msgType = msgData.msgType;
                 let data = msgData.data;
                 switch (msgType) {
                     case 'welcome':
-                        console.log("连接成功：", data);
+                        console.log("user ws连接成功：", data);
                         break;
                     case 'toast':
                         if (data) {
@@ -77,7 +77,7 @@
                         }, 1000);
                         break;
                     case 'userList':
-                        console.log("收到用户列表", data);
+                        // console.log("收到用户列表", data);
                         this.$store.state.onlineUserList = data;
                         break;
                     case 'inviteGame':

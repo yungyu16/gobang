@@ -1,7 +1,6 @@
 package com.github.yungyu16.gobang.core;
 
 import cn.xiaoshidai.common.toolkit.base.StringTools;
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.github.yungyu16.gobang.base.WebSockOperationBase;
 import com.github.yungyu16.gobang.core.entity.UserInfo;
@@ -11,6 +10,7 @@ import com.github.yungyu16.gobang.event.SessionTokenEvent;
 import com.github.yungyu16.gobang.web.websocket.msg.MsgTypes;
 import com.github.yungyu16.gobang.web.websocket.msg.OutputMsg;
 import com.google.common.collect.Maps;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
@@ -37,7 +37,7 @@ public class OnlineUserContext extends WebSockOperationBase implements Initializ
 
     @Autowired
     private UserDomain userDomain;
-    private ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
+    private ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1, new ThreadFactoryBuilder().setNameFormat("refresh-user-thread-%s").build());
 
     private Map<Integer, String> userIdTokenMappings = Maps.newConcurrentMap();
     private Map<String, UserInfo> sessionUserMappings = Maps.newConcurrentMap();
@@ -115,7 +115,7 @@ public class OnlineUserContext extends WebSockOperationBase implements Initializ
                         log.info("用户不存在...{} {}", userId, sessionToken);
                         return 1;
                     }
-                    log.info("收到 {} 用户的心跳...", userDomainById.getUserName());
+                    //log.info("收到 {} 用户的心跳...", userDomainById.getUserName());
                     UserInfo newUserInfo = new UserInfo(session, userDomainById);
                     sessionUserMappings.put(sessionToken, newUserInfo);
                     activeTokenMappings.put(sessionToken, LocalDateTime.now());
@@ -164,7 +164,7 @@ public class OnlineUserContext extends WebSockOperationBase implements Initializ
     }
 
     private void refreshActiveUser() {
-        log.info("开始刷新连接列表...");
+        //log.info("开始刷新连接列表...");
         LocalDateTime now = LocalDateTime.now();
         activeTokenMappings.forEach((token, value) -> {
             long seconds = Duration.between(now, value).abs().getSeconds();
@@ -187,7 +187,7 @@ public class OnlineUserContext extends WebSockOperationBase implements Initializ
                     userInfo.put("status", status);
                     return userInfo;
                 }).collect(Collectors.toList());
-        log.info("开始推送在线用户列表...{}", userList.size());
+        //log.info("开始推送在线用户列表...{}", userList.size());
         if (StringTools.isNotBlank(sessionToken)) {
             UserInfo userInfo = sessionUserMappings.get(sessionToken);
             if (userInfo != null) {
@@ -196,7 +196,7 @@ public class OnlineUserContext extends WebSockOperationBase implements Initializ
                         .collect(Collectors.toList());
             }
         }
-        log.info("当前用户列表：{}", JSON.toJSONString(userList));
+        //log.info("当前用户列表：{}", JSON.toJSONString(userList));
         return userList;
     }
 
@@ -208,7 +208,7 @@ public class OnlineUserContext extends WebSockOperationBase implements Initializ
         touch(sessionToken);
         UserInfo userInfo = sessionUserMappings.get(sessionToken);
         if (userInfo != null) {
-            log.info("收到 {} 用户的心跳...", userInfo.getUserRecord().getUserName());
+            //log.info("收到 {} 用户的心跳...", userInfo.getUserRecord().getUserName());
             return;
         }
         newUserInfo(webSocketSession, sessionToken);
@@ -216,7 +216,7 @@ public class OnlineUserContext extends WebSockOperationBase implements Initializ
 
     public void pushOnlineUsers(WebSocketSession webSocketSession, String sessionToken) {
         List<JSONObject> onlineUsers = getOnlineUsers(sessionToken);
-        log.info("当前用户列表：{}", JSON.toJSONString(onlineUsers));
+        //log.info("当前用户列表：{}", JSON.toJSONString(onlineUsers));
         sendMsg(webSocketSession, OutputMsg.of(MsgTypes.USER_MSG_USER_LIST, onlineUsers));
     }
 
@@ -225,6 +225,5 @@ public class OnlineUserContext extends WebSockOperationBase implements Initializ
             return;
         }
         activeTokenMappings.put(sessionToken, LocalDateTime.now());
-        log.info("touch token:{}", sessionToken);
     }
 }
