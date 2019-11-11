@@ -5,6 +5,7 @@ import cn.xiaoshidai.common.toolkit.base.StringTools;
 import com.alibaba.fastjson.JSON;
 import com.github.yungyu16.gobang.web.websocket.msg.MsgTypes;
 import com.github.yungyu16.gobang.web.websocket.msg.OutputMsg;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.io.IOException;
@@ -23,7 +24,7 @@ import java.util.stream.IntStream;
 public abstract class WebSockOperationBase extends SessionOperationBase {
     private static AtomicInteger eventLoopIndex = new AtomicInteger();
     private static List<ScheduledExecutorService> eventLoops = IntStream.range(0, 10)
-            .mapToObj(it -> Executors.newScheduledThreadPool(1))
+            .mapToObj(it -> Executors.newScheduledThreadPool(1, new ThreadFactoryBuilder().setNameFormat("message-" + it + "-th-%s").build()))
             .collect(Collectors.toList());
 
     public void sendMsg(WebSocketSession webSocketSession, OutputMsg msg) {

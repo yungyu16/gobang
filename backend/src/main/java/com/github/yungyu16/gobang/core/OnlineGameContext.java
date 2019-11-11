@@ -35,7 +35,7 @@ public class OnlineGameContext extends WebSockOperationBase implements Initializ
     private GameDomain gameDomain;
     private Map<Integer, GameInfo> onlineGames = Maps.newConcurrentMap();
     private Map<Integer, LocalDateTime> activeGames = Maps.newConcurrentMap();
-    private ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1, new ThreadFactoryBuilder().setNameFormat("refresh-game-thread-%s").build());
+    private ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1, new ThreadFactoryBuilder().setNameFormat("refresh-game-th-%s").build());
 
     @Override
     public void afterPropertiesSet() throws Exception {
@@ -79,6 +79,7 @@ public class OnlineGameContext extends WebSockOperationBase implements Initializ
         GamePartaker whiteUser = gameInfo.getWhiteUser();
 
         if (isGameWatcher) {
+            log.info("当前用户为观战用户：{}", gamePartaker.getUserName());
             OutputMsg<JSONObject> initMsg = newGameInitMsg(gamePartaker, blackUser, whiteUser, true);
             sendMsg(gamePartaker.getSession(), initMsg);
         } else {

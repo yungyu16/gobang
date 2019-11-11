@@ -37,7 +37,7 @@ public class OnlineUserContext extends WebSockOperationBase implements Initializ
 
     @Autowired
     private UserDomain userDomain;
-    private ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1, new ThreadFactoryBuilder().setNameFormat("refresh-user-thread-%s").build());
+    private ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1, new ThreadFactoryBuilder().setNameFormat("refresh-user-th-%s").build());
 
     private Map<Integer, String> userIdTokenMappings = Maps.newConcurrentMap();
     private Map<String, UserInfo> sessionUserMappings = Maps.newConcurrentMap();
