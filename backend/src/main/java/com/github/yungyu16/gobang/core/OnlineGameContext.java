@@ -34,8 +34,11 @@ public class OnlineGameContext extends WebSockOperationBase implements Initializ
 
     @Autowired
     private GameDomain gameDomain;
+
     private Map<Integer, GameInfo> onlineGames = Maps.newConcurrentMap();
+
     private Map<Integer, LocalDateTime> activeGames = Maps.newConcurrentMap();
+
     private ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1, new ThreadFactoryBuilder().setNameFormat("refresh-game-th-%s").build());
 
     @Override
@@ -121,20 +124,33 @@ public class OnlineGameContext extends WebSockOperationBase implements Initializ
         if (gameInfo == null) {
             throw new BizException("对局不存在...");
         }
-        String x = point.getString("x");
-        String y = point.getString("y");
 
-        int userColor = gameInfo.userColor(userId);
-        if (userColor <= 0) {
-            throw new BizException("非法操作");
+        GamePartaker gamePartaker = gameInfo.getGamePartaker(userId).orElseThrow(() -> new BizException("啥情况啊,你怕不是一个黑客吧？？？"));
+
+        int x = point.getIntValue("x");
+        int y = point.getIntValue("y");
+
+        Integer gameRole = gamePartaker.getGameRole();
+        ConditionTools.checkNotNull(gameRole);
+        if (gameRole != 1 && gameRole != 2) {
+            return;
         }
+        if (!gameInfo.checkBoardPoint(gameRole, x, y)) {
+            return;
+        }
+        boolean isWinner = gameInfo.isWinner(gameRole, x, y);
+
         gameInfo.getGameWatchers()
                 .forEach(it -> {
                     JSONObject checkPoint = new JSONObject();
-                    checkPoint.put("color", userColor);
+                    checkPoint.put("color", gameRole);
                     checkPoint.put("x", x);
                     checkPoint.put("y", y);
                     sendMsg(it.getSession(), OutputMsg.of(MsgTypes.GAME_MSG_CHECK_BOARD, checkPoint).toTextMessage());
+                    if (isWinner) {
+                        sendMsg(gameInfo.getBlackUser().getSession(), OutputMsg.of(MsgTypes.GAME_MSG_GAME_OVER, gameRole).toTextMessage());
+                        sendMsg(gameInfo.getWhiteUser().getSession(), OutputMsg.of(MsgTypes.GAME_MSG_GAME_OVER, gameRole).toTextMessage());
+                    }
                 });
     }
 
