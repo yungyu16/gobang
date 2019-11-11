@@ -245,7 +245,9 @@
                         this.initGame(data);
                         break;
                     case 'startGame':
-                        this.gameStartFlag = true;
+                        if (!this.isGameWatcher) {
+                            this.gameStartFlag = true;
+                        }
                         break;
                     case 'checkBoard':
                         this.checkBoard(data);
@@ -303,7 +305,7 @@
                 console.log(this.latestCheckCell.color)
             },
             whenClickBoard(e) {
-                if (!this.notifyGameStartFlag || this.isGameWatcher) {
+                if (!this.notifyGameStartFlag) {
                     return;
                 }
 
@@ -437,9 +439,6 @@
         },
         watch: {
             gameStartFlag: function (newFlag, oldFlag) {
-                if (this.isGameWatcher) {
-                    return;
-                }
                 util.mobileShock();
                 let msg = '对局开始喽~';
                 if (this.thisUser.color === 1) {

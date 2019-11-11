@@ -32,7 +32,10 @@ public class GameInfo {
 
     private Map<String, CheckPointInfo> checkPoints = Maps.newHashMap();
 
-    private boolean startedFlag;
+    //-1 未开始 0 已开始 1 已经结束
+    private int gameStatus = -1;
+
+    private int checkBoardCount = 0;
 
     private int latestCheckColor = 2;
 
@@ -58,6 +61,7 @@ public class GameInfo {
             return false;
         }
         pointInfo.setColor(color);
+        checkBoardCount = checkBoardCount + 1;
         return true;
     }
 

@@ -15,6 +15,7 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.io.IOException;
@@ -68,6 +69,9 @@ public class OnlineGameContext extends WebSockOperationBase implements Initializ
         if (gameInfo == null) {
             throw new BizException("对局不存在...");
         }
+        if (gameInfo.getGameStatus() == 1) {
+            throw new BizException("对局已结束...");
+        }
         UserRecord userRecord = getCurrentUserRecord(sessionToken).orElseThrow(() -> new BizException("用户未登录"));
         if (gameId == null) {
             throw new BizException("对局不存在...");
@@ -85,28 +89,33 @@ public class OnlineGameContext extends WebSockOperationBase implements Initializ
         if (isGameWatcher) {
             log.info("当前用户为观战用户：{}", gamePartaker.getUserName());
             OutputMsg<JSONObject> initMsg = newGameInitMsg(gamePartaker, blackUser, whiteUser, true);
-            sendMsg(gamePartaker.getSession(), initMsg.toTextMessage());
+            WebSocketSession gamePartakerSession = gamePartaker.getSession();
+            sendMsg(gamePartakerSession, initMsg.toTextMessage());
+            gameInfo.getCheckedPionts()
+                    .forEach(it -> {
+                        JSONObject checkPoint = new JSONObject();
+                        checkPoint.put("color", it.getColor());
+                        checkPoint.put("x", it.getX());
+                        checkPoint.put("y", it.getY());
+                        sendMsg(gamePartakerSession, OutputMsg.of(MsgTypes.GAME_MSG_CHECK_BOARD, checkPoint).toTextMessage());
+                    });
         } else {
             if (blackUser != null) {
                 log.info("当前黑方已经有人：{}", blackUser.getUserName());
                 OutputMsg<JSONObject> initMsg = newGameInitMsg(blackUser, blackUser, whiteUser, false);
-                //blackUser.getSession().sendMessage(initMsg.toTextMessage());
                 sendMsg(blackUser.getSession(), initMsg.toTextMessage());
             }
             if (whiteUser != null) {
                 log.info("当前白方已经有人：{}", whiteUser.getUserName());
                 OutputMsg<JSONObject> initMsg = newGameInitMsg(whiteUser, blackUser, whiteUser, false);
-                //whiteUser.getSession().sendMessage(initMsg.toTextMessage());
                 sendMsg(whiteUser.getSession(), initMsg.toTextMessage());
 
             }
             if (blackUser != null && whiteUser != null) {
                 log.info("当前双方都已就绪：{}", blackUser.getUserName());
-                //TextMessage startGameMsg = OutputMsg.of(MsgTypes.GAME_MSG_START_GAME, "");
-                //blackUser.getSession().sendMessage(startGameMsg);
-                //whiteUser.getSession().sendMessage(startGameMsg);
-                sendMsg(blackUser.getSession(), OutputMsg.of(MsgTypes.GAME_MSG_START_GAME, "").toTextMessage());
-                sendMsg(whiteUser.getSession(), OutputMsg.of(MsgTypes.GAME_MSG_START_GAME, "").toTextMessage());
+                TextMessage msg = OutputMsg.of(MsgTypes.GAME_MSG_START_GAME, "").toTextMessage();
+                sendMsg(blackUser.getSession(), msg);
+                sendMsg(whiteUser.getSession(), msg);
             }
             if (blackUser == null && whiteUser == null) {
                 log.info("错误的状态...当前用户为：{}", gamePartaker.getUserName());
@@ -114,7 +123,7 @@ public class OnlineGameContext extends WebSockOperationBase implements Initializ
         }
     }
 
-    public void checkBoardPoint(String sessionToken, Integer gameId, JSONObject point) {
+    public synchronized void checkBoardPoint(String sessionToken, Integer gameId, JSONObject point) {
         UserRecord userRecord = getCurrentUserRecord(sessionToken).orElseThrow(() -> new BizException("用户未登录"));
         if (gameId == null) {
             throw new BizException("对局不存在...");
