@@ -57,6 +57,9 @@ public class GameInfo {
         if (color != 1 && color != 2) {
             return false;
         }
+        if (color == this.latestCheckColor) {
+            return false;
+        }
         CheckPointInfo pointInfo = checkPoints.get(String.format("x%s:y%s", x, y));
         if (pointInfo == null) {
             return false;
@@ -65,7 +68,8 @@ public class GameInfo {
             return false;
         }
         pointInfo.setColor(color);
-        checkBoardCount = checkBoardCount + 1;
+        this.checkBoardCount = checkBoardCount + 1;
+        this.latestCheckColor = color;
         return true;
     }
 

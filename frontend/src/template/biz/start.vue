@@ -13,6 +13,7 @@
                 <van-col offset='4' span="6">
                     <a @click="inviteUser(it)" href="#" v-if="it.status == -1 || it.status == -3">邀请</a>
                     <a @click="watchGame(it)" href="#" v-if="it.status === -1 || it.status == -2">观战</a>
+                    <a href="#" v-if="it.status === 0">-</a>
                 </van-col>
             </van-row>
         </div>
@@ -68,22 +69,19 @@
                 Dialog.confirm({
                     title: '确认围观比赛',
                 }).then(() => {
-                    apis.game.createAndInvite({userId: user.userId})
-                        .then(gameId => {
-                            this.$router.push({
-                                path: '/game',
-                                query: {
-                                    gameId: gameId
-                                }
-                            })
-                        });
+                    this.$router.push({
+                        path: '/game',
+                        query: {
+                            gameId: user.gameId
+                        }
+                    })
                 });
             }
         },
     }
 </script>
 <style scoped>
-    .text-green{
-        color:green;
+    .text-green {
+        color: green;
     }
 </style>

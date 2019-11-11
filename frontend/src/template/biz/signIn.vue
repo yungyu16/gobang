@@ -32,8 +32,8 @@
         </div>
         <van-divider/>
         <van-row type="flex" justify="center">
-            <van-col span="6">
-                <router-link to="/sign-up">前往注册</router-link>
+            <van-col span="4" style="font-size: 12px;">
+                <router-link to="/sign-up">没有账号？前往注册</router-link>
             </van-col>
         </van-row>
     </div>
@@ -76,6 +76,6 @@
 <style scoped>
     img {
         display: block;
-        margin: 0px auto;
+        margin: 0 auto;
     }
 </style>

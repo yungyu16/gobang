@@ -143,8 +143,10 @@ public class OnlineGameContext extends WebSockOperationBase implements Initializ
             }
             if (blackUser != null && whiteUser != null) {
                 log.info("当前双方都已就绪：{}", blackUser.getUserName());
-                gameInfo.setGameStatus(1);
-                TextMessage msg = OutputMsg.of(MsgTypes.GAME_MSG_START_GAME, "").toTextMessage();
+                gameInfo.setGameStatus(0);
+                JSONObject startMsg = new JSONObject();
+                startMsg.put("startColor", gameInfo.getLatestCheckColor());
+                TextMessage msg = OutputMsg.of(MsgTypes.GAME_MSG_START_GAME, startMsg).toTextMessage();
                 sendMsg(blackUser.getSession(), msg);
                 sendMsg(whiteUser.getSession(), msg);
             }

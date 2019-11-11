@@ -255,6 +255,7 @@
                     case 'startGame':
                         if (!this.isGameWatcher) {
                             this.gameStartFlag = true;
+                            this.latestCheckCell.status = data.startColor;
                         }
                         break;
                     case 'checkBoard':
@@ -293,6 +294,11 @@
             },
             initGame(data) {
                 this.isGameWatcher = data.isGameWatcher;
+                if (this.isGameWatcher) {
+                    Dialog.confirm({
+                        title: '开始围观~',
+                    })
+                }
                 this.thisUser.userName = data.thisUser.userName;
                 this.thisUser.color = data.thisUser.color;
                 let thatUser = data.thatUser;
@@ -435,13 +441,13 @@
                 if (this.thisUser.color === 0) {
                     return '未知';
                 }
-                return this.thisUser.color === 1 ? "黑方" : "白方";
+                return this.thisUser.color === 1 ? "黑子" : "白子";
             },
             thatUserColor() {
                 if (this.thatUser.color === 0) {
                     return '未知';
                 }
-                return this.thatUser.color === 1 ? "黑方" : "白方";
+                return this.thatUser.color === 1 ? "黑子" : "白子";
             },
         },
         watch: {
