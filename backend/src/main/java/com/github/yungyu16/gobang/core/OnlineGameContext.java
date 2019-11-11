@@ -75,6 +75,9 @@ public class OnlineGameContext extends WebSockOperationBase implements Initializ
             return Optional.empty();
         }
         GamePartaker gamePartaker = userGames.get(userId);
+        if (gamePartaker == null) {
+            return Optional.empty();
+        }
         Integer gameId = gamePartaker.getGameId();
         if (gameId == null) {
             return Optional.empty();
