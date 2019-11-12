@@ -155,7 +155,7 @@ public class GameInfo {
             return true;
         }
         //左斜
-        if (is5PointLine(color, d -> x - d, d -> y + d, d -> x + d, d -> y + d)) {
+        if (is5PointLine(color, d -> x - d, d -> y - d, d -> x + d, d -> y + d)) {
             return true;
         }
         //右斜
