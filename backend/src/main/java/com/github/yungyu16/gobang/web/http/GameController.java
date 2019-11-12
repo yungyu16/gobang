@@ -10,6 +10,7 @@ import com.github.yungyu16.gobang.core.OnlineUserContext;
 import com.github.yungyu16.gobang.dao.entity.GameRecord;
 import com.github.yungyu16.gobang.dao.entity.UserRecord;
 import com.github.yungyu16.gobang.domain.GameDomain;
+import com.github.yungyu16.gobang.exeception.BizException;
 import com.github.yungyu16.gobang.exeception.BizSessionTimeOutException;
 import com.github.yungyu16.gobang.model.ReqResult;
 import com.github.yungyu16.gobang.web.websocket.msg.MsgTypes;
@@ -39,6 +40,15 @@ public class GameController extends BaseController {
 
     @GetMapping("create")
     public ReqResult create() {
+        UserRecord userRecord = getCurrentUserRecord().orElseThrow(BizSessionTimeOutException::new);
+        onlineGameContext.userGame(userRecord.getId())
+                .ifPresent(it -> {
+                    Integer gameRole = it.getGameRole();
+                    if (gameRole != 3) {
+                        throw new BizException("当前有未完成的比赛...");
+                    }
+                });
+
         GameRecord entity = new GameRecord();
         gameDomain.save(entity);
         Integer id = entity.getId();
@@ -54,6 +64,14 @@ public class GameController extends BaseController {
 
     @GetMapping("create-and-invite")
     public ReqResult createAndInvite(@RequestParam Integer userId) {
+        UserRecord userRecord = getCurrentUserRecord().orElseThrow(BizSessionTimeOutException::new);
+        onlineGameContext.userGame(userRecord.getId())
+                .ifPresent(it -> {
+                    Integer gameRole = it.getGameRole();
+                    if (gameRole != 3) {
+                        throw new BizException("当前有未完成的比赛...");
+                    }
+                });
         GameRecord entity = new GameRecord();
         gameDomain.save(entity);
         Integer gameId = entity.getId();

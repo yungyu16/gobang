@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.github.yungyu16.gobang.base.WebSockOperationBase;
 import com.github.yungyu16.gobang.core.entity.GameInfo;
 import com.github.yungyu16.gobang.core.entity.GamePartaker;
+import com.github.yungyu16.gobang.dao.entity.GameRecord;
 import com.github.yungyu16.gobang.dao.entity.UserRecord;
 import com.github.yungyu16.gobang.domain.GameDomain;
 import com.github.yungyu16.gobang.exeception.BizException;
@@ -47,7 +48,7 @@ public class OnlineGameContext extends WebSockOperationBase implements Initializ
 
     @Override
     public void afterPropertiesSet() {
-        executorService.scheduleAtFixedRate(this::refreshActiveGame, 0, 1, TimeUnit.MINUTES);
+        executorService.scheduleAtFixedRate(this::refreshActiveGame, 0, 5, TimeUnit.MINUTES);
     }
 
     private void refreshActiveGame() {
@@ -55,9 +56,8 @@ public class OnlineGameContext extends WebSockOperationBase implements Initializ
         LocalDateTime now = LocalDateTime.now();
         activeGames.forEach((gameId, value) -> {
             long minutes = Duration.between(now, value).abs().toMinutes();
-            if (minutes >= 10) {
-                onlineGames.remove(gameId);
-                activeGames.remove(gameId);
+            if (minutes >= 5) {
+                clearGame(gameId);
             }
         });
     }
@@ -94,6 +94,7 @@ public class OnlineGameContext extends WebSockOperationBase implements Initializ
         if (gameInfo == null) {
             throw new BizException("对局不存在...");
         }
+        touchGame(gameId);
         if (gameInfo.isGameOver()) {
             throw new BizException("对局已结束...");
         }
@@ -143,7 +144,16 @@ public class OnlineGameContext extends WebSockOperationBase implements Initializ
             }
             if (blackUser != null && whiteUser != null) {
                 log.info("当前双方都已就绪：{}", blackUser.getUserName());
-                gameInfo.setGameStatus(0);
+                int gameStatus = gameInfo.getGameStatus();
+                if (gameStatus == -1) {
+                    gameInfo.setGameStatus(0);
+                    GameRecord entity = new GameRecord();
+                    entity.setId(gameId);
+                    entity.setGameStartTime(LocalDateTime.now());
+                    entity.setBlackUserId(blackUser.getUserId());
+                    entity.setWhiteUserId(whiteUser.getUserId());
+                    gameDomain.updateById(entity);
+                }
                 JSONObject startMsg = new JSONObject();
                 startMsg.put("startColor", gameInfo.getLatestCheckColor());
                 TextMessage msg = OutputMsg.of(MsgTypes.GAME_MSG_START_GAME, startMsg).toTextMessage();
@@ -161,6 +171,7 @@ public class OnlineGameContext extends WebSockOperationBase implements Initializ
         if (gameId == null) {
             throw new BizException("对局不存在...");
         }
+        touchGame(gameId);
         Integer userId = userRecord.getId();
         GameInfo gameInfo = onlineGames.get(gameId);
         if (gameInfo == null) {
@@ -183,6 +194,11 @@ public class OnlineGameContext extends WebSockOperationBase implements Initializ
         boolean isWinner = gameInfo.isWinner(gameRole);
         if (isWinner) {
             gameInfo.setGameStatus(1);
+            GameRecord entity = new GameRecord();
+            entity.setId(gameId);
+            entity.setWinnerId(gamePartaker.getUserId());
+            entity.setGameEndTime(LocalDateTime.now());
+            gameDomain.updateById(entity);
         }
         gameInfo.getGameWatchers()
                 .forEach(it -> {
@@ -194,18 +210,33 @@ public class OnlineGameContext extends WebSockOperationBase implements Initializ
                     if (isWinner) {
                         sendMsg(gameInfo.getBlackUser().getSession(), OutputMsg.of(MsgTypes.GAME_MSG_GAME_OVER, gameRole).toTextMessage());
                         sendMsg(gameInfo.getWhiteUser().getSession(), OutputMsg.of(MsgTypes.GAME_MSG_GAME_OVER, gameRole).toTextMessage());
+                        clearGame(gameId);
                     }
                 });
     }
 
 
-    public void touchGame(Integer gameId) {
+    private void touchGame(Integer gameId) {
         if (gameId == null) {
             return;
         }
         activeGames.put(gameId, LocalDateTime.now());
     }
 
+
+    private void clearGame(Integer gameId) {
+        if (gameId == null) {
+            return;
+        }
+        GameInfo removedGame = onlineGames.remove(gameId);
+        if (removedGame != null) {
+            removedGame.getGameWatchers()
+                    .forEach(it -> {
+                        userGames.remove(it.getUserId());
+                    });
+        }
+        activeGames.remove(gameId);
+    }
 
     private OutputMsg<JSONObject> newGameInitMsg(GamePartaker currentUser, GamePartaker blackUser, GamePartaker whiteUser, boolean isGameWatcher) {
         JSONObject initMsg = new JSONObject();
