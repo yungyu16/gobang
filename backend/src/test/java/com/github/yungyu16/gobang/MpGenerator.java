@@ -1,6 +1,5 @@
 package com.github.yungyu16.gobang;
 
-import cn.xiaoshidai.common.toolkit.system.SystemProperiesTools;
 import com.baomidou.mybatisplus.annotation.DbType;
 import com.baomidou.mybatisplus.generator.AutoGenerator;
 import com.baomidou.mybatisplus.generator.InjectionConfig;
@@ -9,6 +8,7 @@ import com.baomidou.mybatisplus.generator.config.po.TableInfo;
 import com.baomidou.mybatisplus.generator.config.rules.NamingStrategy;
 import com.baomidou.mybatisplus.generator.engine.FreemarkerTemplateEngine;
 import com.google.common.collect.Maps;
+import org.apache.commons.lang3.SystemUtils;
 import org.junit.Test;
 import org.springframework.core.io.ClassPathResource;
 import org.yaml.snakeyaml.Yaml;
@@ -29,8 +29,6 @@ import java.util.Map;
 public class MpGenerator {
 
     private static final String BASE_PACKAGE = "com.github.yungyu16.gobang";
-
-    private static Map<String, DataSourceConfig> dataSourceConfigMap = Maps.newHashMap();
 
     public static DataSourceConfig datasource() {
         try {
@@ -62,7 +60,7 @@ public class MpGenerator {
 
         String baseProjectPath = Paths.get(".").toAbsolutePath().toString();
 
-        String currentSystemUserName = SystemProperiesTools.getCurrentSystemUserName();
+        String currentSystemUserName = SystemUtils.USER_NAME;
 
         gen.setGlobalConfig(new GlobalConfig()
                 .setOutputDir(Paths.get(baseProjectPath, "./src/main/java").toAbsolutePath().toString())

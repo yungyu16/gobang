@@ -15,10 +15,15 @@
     <version>1.0.0</version>
     <packaging>pom</packaging>
 
+    <properties>
+        <maven.test.skip>true</maven.test.skip>
+    </properties>
+
     <modules>
         <module>backend</module>
         <module>frontend</module>
     </modules>
+
     <dependencyManagement>
         <dependencies>
             <dependency>
