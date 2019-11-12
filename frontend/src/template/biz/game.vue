@@ -333,7 +333,9 @@
                     console.log("没有找到坐标:", data);
                     return;
                 }
-                this.latestCheckCell.drawCheck();
+                if(this.latestCheckCell.drawCheck){
+                    this.latestCheckCell.drawCheck();
+                }
                 boardCell.drawCheck(data.color);
                 this.latestCheckCell = boardCell;
                 console.log(this.latestCheckCell.color)
