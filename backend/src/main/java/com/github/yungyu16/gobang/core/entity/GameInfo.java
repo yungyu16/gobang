@@ -10,6 +10,7 @@ import org.apache.commons.lang3.RandomUtils;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.IntFunction;
 import java.util.stream.Collectors;
 
 /**
@@ -18,6 +19,12 @@ import java.util.stream.Collectors;
  */
 @Data
 public class GameInfo {
+
+    public static final int GAME_ROLE_BLACK = 1;
+
+    public static final int GAME_ROLE_WHITE = 2;
+
+    public static final int GAME_ROLE_WATCHER = 3;
 
     private Integer gameId;
 
@@ -44,7 +51,7 @@ public class GameInfo {
             for (int j = 0; j < 15; j++) {
                 CheckPointInfo pointInfo = new CheckPointInfo(i, j);
                 board[i][j] = pointInfo;
-                checkPoints.put(String.format("x%s:y%s", i, j), pointInfo);
+                checkPoints.put(pointId(i, j), pointInfo);
             }
         }
     }
@@ -64,7 +71,7 @@ public class GameInfo {
         if (color == this.latestCheckColor) {
             return false;
         }
-        CheckPointInfo pointInfo = checkPoints.get(String.format("x%s:y%s", x, y));
+        CheckPointInfo pointInfo = checkPoints.get(pointId(x, y));
         if (pointInfo == null) {
             return false;
         }
@@ -100,14 +107,14 @@ public class GameInfo {
             }
         } else if (blackUser == null || whiteUser == null) {
             if (blackUser == null) {
-                newGamePartaker.setGameRole(1);
+                newGamePartaker.setGameRole(GAME_ROLE_BLACK);
                 this.blackUser = newGamePartaker;
             } else {
-                newGamePartaker.setGameRole(2);
+                newGamePartaker.setGameRole(GAME_ROLE_WHITE);
                 this.whiteUser = newGamePartaker;
             }
         } else {
-            newGamePartaker.setGameRole(3);
+            newGamePartaker.setGameRole(GAME_ROLE_WATCHER);
         }
         gameWatchers.add(newGamePartaker);
         return newGamePartaker;
@@ -139,107 +146,60 @@ public class GameInfo {
      * @return 0 无胜负 1 黑胜 2 白胜
      */
     public boolean isWinner(int color, int x, int y) {
-        int count = 1;      //本身一点为 1
-        int posX = 0;
-        int posY = 0;
-        /**判断水平方向上的胜负
-         /* 将水平方向以传入的点x上的y轴作为分隔线分为两部分
-         * 先向左边遍历，判断到的相同的连续的点  count++
-         */
-        for (posX = x - 1; posX > 0; posX--) {
-            if (board[posX][y].getColor() == color) {
-                count++;
-                if (count >= 5) {
-                    return true;
-                }
-            } else {
-                break;
-            }
-        }    //向右边遍历
-        for (posX = x + 1; posX <= 15; posX++) {
-            if (board[posX][y].getColor() == color) {
-                count++;
-                if (count >= 5) {
-                    return true;
-                }
-            } else {
-                break;
+        //横
+        if (is5PointLine(color, d -> x - d, d -> y, d -> x + d, d -> y)) {
+            return true;
+        }
+        //竖
+        if (is5PointLine(color, d -> x, d -> y - d, d -> x, d -> y + d)) {
+            return true;
+        }
+        //左斜
+        if (is5PointLine(color, d -> x - d, d -> y + d, d -> x + d, d -> y + d)) {
+            return true;
+        }
+        //右斜
+        return is5PointLine(color, d -> x - d, d -> y + d, d -> x + d, d -> y - d);
+    }
+
+    private boolean is5PointLine(int color, IntFunction<Integer> leftXMapper, IntFunction<Integer> leftYMapper,
+                                 IntFunction<Integer> rightXMapper, IntFunction<Integer> rightYMapper) {
+        //左
+        int leftLineCount = lineCount(color, leftXMapper, leftYMapper);
+        if (leftLineCount == 4) {
+            return true;
+        }
+        //右
+        int rightLineCount = lineCount(color, rightXMapper, rightYMapper);
+        if (rightLineCount == 4) {
+            return true;
+        }
+        return leftLineCount + rightLineCount + 1 == 5;
+    }
+
+    private int lineCount(int targetColor, IntFunction<Integer> xMapper, IntFunction<Integer> yMapper) {
+        int maxDistance = 4;
+        for (int i = 1; i <= maxDistance; i++) {
+            Integer thisX = xMapper.apply(i);
+            Integer thisY = yMapper.apply(i);
+            Preconditions.checkNotNull(thisX);
+            Preconditions.checkNotNull(thisY);
+            CheckPointInfo checkedPoint = getCheckedPoint(thisX, thisY);
+            if (checkedPoint == null
+                    || checkedPoint.getColor() != targetColor) {
+                return i - 1;
             }
         }
-        /**判断垂直方向上的胜负
-         /* 将垂直方向以传入的点y上的x轴作为分隔线分为两部分
-         * 先向上遍历，判断到的相同的连续的点  count++
-         */
-        for (posY = y - 1; posY > 0; posY--) {
-            if (board[x][posY].getColor() == color) {
-                count++;
-                if (count >= 5) {
-                    return true;
-                }
-            } else {
-                break;
-            }
-        }//向下遍历
-        for (posY = y + 1; posY <= 15; posY++) {
-            if (board[x][posY].getColor() == color) {
-                count++;
-                if (count >= 5) {
-                    return true;
-                }
-            } else {
-                break;
-            }
-        }
-        /**判断左上右下方向上的胜负
-         * 以坐标点为分割线，将棋盘分为左右两个等腰三角形
-         * 先判断左边的
-         */
-        for (posX = x - 1, posY = y - 1; posX > 0 && posY > 0; posX--, posY--) {
-            if (board[posX][posY].getColor() == color) {
-                count++;
-                if (count >= 5) {
-                    count = 1;
-                    return true;
-                }
-            } else {
-                break;
-            }
-        }//判断右边的
-        for (posX = x + 1, posY = y + 1; posX <= 15 && posY <= 15; posX++, posY++) {
-            if (board[posX][posY].getColor() == color) {
-                count++;
-                if (count >= 5) {
-                    count = 1;
-                    return true;
-                }
-            } else {
-                break;
-            }
-        }
-        /**判断右下左下方向上的胜负
-         * 以坐标点为分割线，将棋盘分为左右两个等腰三角形
-         * 先判断左边的
-         */
-        for (posX = x + 1, posY = y - 1; posX <= 15 && posY > 0; posX++, posY--) {
-            if (board[posX][posY].getColor() == color) {
-                count++;
-                if (count >= 5) {
-                    return true;
-                }
-            } else {
-                break;
-            }
-        }//判断右边的
-        for (posX = x - 1, posY = y + 1; posX > 0 && posY <= 15; posX--, posY++) {
-            if (board[posX][posY].getColor() == color) {
-                count++;
-                if (count >= 5) {
-                    return true;
-                }
-            } else {
-                break;
-            }
-        }
-        return false;
+        return 4;
+    }
+
+    private CheckPointInfo getCheckedPoint(int x, int y) {
+        String pointId = pointId(x, y);
+        return checkPoints.get(pointId);
+    }
+
+    private String pointId(int x, int y) {
+        return String.format("x%s:y%s", x, y);
     }
 }
+
