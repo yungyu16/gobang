@@ -92,7 +92,7 @@ public class OnlineGameContext extends WebSockOperationBase implements Initializ
     public synchronized void enterGame(WebSocketSession session, String sessionToken, Integer gameId) throws IOException {
         GameInfo gameInfo = onlineGames.get(gameId);
         if (gameInfo == null) {
-            throw new BizException("对局不存在...");
+            throw new BizException("对局已结束或不存在...");
         }
         touchGame(gameId);
         if (gameInfo.isGameOver()) {
@@ -100,7 +100,7 @@ public class OnlineGameContext extends WebSockOperationBase implements Initializ
         }
         UserRecord userRecord = getCurrentUserRecord(sessionToken).orElseThrow(() -> new BizException("用户未登录"));
         if (gameId == null) {
-            throw new BizException("对局不存在...");
+            throw new BizException("对局已结束或不存在...");
         }
 
         GamePartaker gamePartaker = gameInfo.enterGame(userRecord);
@@ -169,13 +169,13 @@ public class OnlineGameContext extends WebSockOperationBase implements Initializ
     public synchronized void checkBoardPoint(String sessionToken, Integer gameId, JSONObject point) {
         UserRecord userRecord = getCurrentUserRecord(sessionToken).orElseThrow(() -> new BizException("用户未登录"));
         if (gameId == null) {
-            throw new BizException("对局不存在...");
+            throw new BizException("对局已结束或不存在...");
         }
         touchGame(gameId);
         Integer userId = userRecord.getId();
         GameInfo gameInfo = onlineGames.get(gameId);
         if (gameInfo == null) {
-            throw new BizException("对局不存在...");
+            throw new BizException("对局已结束或不存在...");
         }
 
         GamePartaker gamePartaker = gameInfo.getGamePartaker(userId).orElseThrow(() -> new BizException("啥情况啊,你怕不是一个黑客吧？？？"));
