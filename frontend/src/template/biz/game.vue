@@ -206,18 +206,17 @@
                 }
                 that.boardContext.fillStyle = style;
                 that.boardContext.fill();
+                that.boardContext.closePath();
 
-                if (this.status === 0) {
+                if (this.status <= 0) {
+                    that.boardContext.beginPath();
                     that.boardContext.arc(this.x, this.y, scale(4), 0, 2 * Math.PI);
-                    style = that.boardContext.createRadialGradient(this.x, this.y, scale(4), this.x, this.y, 0);
                     switch (color) {
                         case 2:
-                            style.addColorStop(0, '#0A0A0A');
-                            style.addColorStop(1, '#636766');
+                            style = '#000000';
                             break;
                         case 1:
-                            style.addColorStop(0, '#D1D1D1');
-                            style.addColorStop(1, '#F9F9F9');
+                            style = '#FFFFFF';
                             break;
                     }
                     that.boardContext.fillStyle = style;
@@ -333,7 +332,7 @@
                     console.log("没有找到坐标:", data);
                     return;
                 }
-                if(this.latestCheckCell.drawCheck){
+                if (this.latestCheckCell.drawCheck) {
                     this.latestCheckCell.drawCheck();
                 }
                 boardCell.drawCheck(data.color);
