@@ -32,6 +32,25 @@ public class MpGenerator {
 
     private static Map<String, DataSourceConfig> dataSourceConfigMap = Maps.newHashMap();
 
+    public static DataSourceConfig datasource() {
+        try {
+            Yaml yaml = new Yaml();
+            Map result = yaml.loadAs(new ClassPathResource("application.yml").getInputStream(), Map.class);
+            Map spring = (Map) result.get("spring");
+            Map<String, String> datasource = (Map<String, String>) spring.get("datasource");
+            System.out.println(datasource);
+            DataSourceConfig appConfig = new DataSourceConfig();
+            appConfig.setDbType(DbType.MYSQL);
+            appConfig.setDriverName("com.mysql.jdbc.Driver");
+            appConfig.setUsername(datasource.get("username"));
+            appConfig.setPassword(datasource.get("password"));
+            appConfig.setUrl(datasource.get("url"));
+            return appConfig;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     @Test
     public void appGenerate() {
         generate("t_user");
@@ -110,24 +129,5 @@ public class MpGenerator {
         gen.setTemplate(templateConfig);
 
         gen.execute();
-    }
-
-    public static DataSourceConfig datasource() {
-        try {
-            Yaml yaml = new Yaml();
-            Map result = yaml.loadAs(new ClassPathResource("application.yml").getInputStream(), Map.class);
-            Map spring = (Map) result.get("spring");
-            Map<String, String> datasource = (Map<String, String>) spring.get("datasource");
-            System.out.println(datasource);
-            DataSourceConfig appConfig = new DataSourceConfig();
-            appConfig.setDbType(DbType.MYSQL);
-            appConfig.setDriverName("com.mysql.jdbc.Driver");
-            appConfig.setUsername(datasource.get("username"));
-            appConfig.setPassword(datasource.get("password"));
-            appConfig.setUrl(datasource.get("url"));
-            return appConfig;
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
     }
 }

@@ -5,6 +5,7 @@ package com.github.yungyu16.gobang.web.websocket.msg;
  * Author: songjialin
  */
 public interface MsgTypes {
+
     String GAME_MSG_ENTER_GAME = "enterGame";
     String GAME_MSG_PREPARE_GAME = "prepareGame";
     String GAME_MSG_CHECK_BOARD = "checkBoard";

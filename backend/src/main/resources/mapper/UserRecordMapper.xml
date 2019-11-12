@@ -4,14 +4,14 @@
 
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="com.github.yungyu16.gobang.dao.entity.UserRecord">
-        <id column="id" property="id" />
-        <result column="mobile" property="mobile" />
-        <result column="user_name" property="userName" />
-        <result column="pwd" property="pwd" />
-        <result column="is_deleted" property="isDeleted" />
-        <result column="create_time" property="createTime" />
-        <result column="modify_time" property="modifyTime" />
-        <result column="remark" property="remark" />
+        <id column="id" property="id"/>
+        <result column="mobile" property="mobile"/>
+        <result column="user_name" property="userName"/>
+        <result column="pwd" property="pwd"/>
+        <result column="is_deleted" property="isDeleted"/>
+        <result column="create_time" property="createTime"/>
+        <result column="modify_time" property="modifyTime"/>
+        <result column="remark" property="remark"/>
     </resultMap>
 
     <!-- 通用查询结果列 -->

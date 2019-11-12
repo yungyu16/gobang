@@ -1,6 +1,5 @@
 package com.github.yungyu16.gobang.core;
 
-import cn.xiaoshidai.common.toolkit.base.StringTools;
 import com.alibaba.fastjson.JSONObject;
 import com.github.yungyu16.gobang.base.WebSockOperationBase;
 import com.github.yungyu16.gobang.core.entity.UserInfo;
@@ -11,6 +10,7 @@ import com.github.yungyu16.gobang.web.websocket.msg.MsgTypes;
 import com.github.yungyu16.gobang.web.websocket.msg.OutputMsg;
 import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
@@ -91,7 +91,7 @@ public class OnlineUserContext extends WebSockOperationBase implements Initializ
     }
 
     public Optional<UserInfo> getUserInfoBySessionToken(String token) {
-        if (StringTools.isBlank(token)) {
+        if (StringUtils.isBlank(token)) {
             return Optional.empty();
         }
         UserInfo userInfo = sessionUserMappings.get(token);
@@ -158,9 +158,9 @@ public class OnlineUserContext extends WebSockOperationBase implements Initializ
     public void onApplicationEvent(SessionTokenEvent event) {
         log.info("用户退出,删除失效session...");
         String type = event.getType();
-        if (StringTools.equalsIgnoreCase(SessionTokenEvent.TYPE_REMOVE, type)) {
+        if (StringUtils.equalsIgnoreCase(SessionTokenEvent.TYPE_REMOVE, type)) {
             String token = event.getToken();
-            if (StringTools.isBlank(token)) {
+            if (StringUtils.isBlank(token)) {
                 return;
             }
             discardUserInfo(token);
@@ -180,7 +180,7 @@ public class OnlineUserContext extends WebSockOperationBase implements Initializ
 
     public List<Map<String, Object>> getOnlineUsers(String sessionToken) {
         Integer currentUserId = null;
-        if (StringTools.isNotBlank(sessionToken)) {
+        if (StringUtils.isNotBlank(sessionToken)) {
             UserInfo userInfo = sessionUserMappings.get(sessionToken);
             currentUserId = userInfo.getUserRecord().getId();
         }
@@ -232,7 +232,7 @@ public class OnlineUserContext extends WebSockOperationBase implements Initializ
     }
 
     public void ping(WebSocketSession webSocketSession, String sessionToken) {
-        if (StringTools.isBlank(sessionToken)) {
+        if (StringUtils.isBlank(sessionToken)) {
             log.info("sessionToken为空");
             return;
         }
@@ -252,7 +252,7 @@ public class OnlineUserContext extends WebSockOperationBase implements Initializ
     }
 
     private void touch(String sessionToken) {
-        if (StringTools.isBlank(sessionToken)) {
+        if (StringUtils.isBlank(sessionToken)) {
             return;
         }
         activeTokenMappings.put(sessionToken, LocalDateTime.now());

@@ -4,13 +4,13 @@
 
 package com.github.yungyu16.gobang.web.websocket;
 
-import cn.xiaoshidai.common.toolkit.base.StringTools;
-import cn.xiaoshidai.common.toolkit.exception.BizException;
 import com.alibaba.fastjson.JSON;
 import com.github.yungyu16.gobang.core.OnlineGameContext;
+import com.github.yungyu16.gobang.exeception.BizException;
 import com.github.yungyu16.gobang.web.websocket.msg.GameInputMsg;
 import com.github.yungyu16.gobang.web.websocket.msg.MsgTypes;
 import com.github.yungyu16.gobang.web.websocket.msg.OutputMsg;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -18,6 +18,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
+
+import java.util.UUID;
 
 public class GameMsgHandler extends TextWebSocketHandler {
 
@@ -33,7 +35,7 @@ public class GameMsgHandler extends TextWebSocketHandler {
 
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
-        MDC.put("traceId", StringTools.UUID());
+        MDC.put("traceId", UUID.randomUUID().toString());
         String payload = message.getPayload();
         log.info(">>>>>>>game ws接受到ws消息" + payload);
         GameInputMsg gameInputMsg = JSON.parseObject(payload, GameInputMsg.class);
@@ -42,10 +44,10 @@ public class GameMsgHandler extends TextWebSocketHandler {
             String sessionToken = gameInputMsg.getSessionToken();
             session.getAttributes().put("sessionToken", sessionToken);
             Integer gameId = gameInputMsg.getGameId();
-            if (StringTools.isBlank(msgType)) {
+            if (StringUtils.isBlank(msgType)) {
                 throw new BizException("msgType为空");
             }
-            if (StringTools.isBlank(sessionToken)) {
+            if (StringUtils.isBlank(sessionToken)) {
                 throw new BizException("sessionToken为空");
             }
             if (gameId == null) {

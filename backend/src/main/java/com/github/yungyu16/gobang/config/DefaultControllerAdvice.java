@@ -4,9 +4,10 @@
 
 package com.github.yungyu16.gobang.config;
 
-import cn.xiaoshidai.common.toolkit.exception.BizException;
-import cn.xiaoshidai.common.toolkit.exception.BizSessionTimeOutException;
+
 import com.alibaba.fastjson.JSON;
+import com.github.yungyu16.gobang.exeception.BizException;
+import com.github.yungyu16.gobang.exeception.BizSessionTimeOutException;
 import com.github.yungyu16.gobang.model.ReqResult;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;

@@ -1,7 +1,7 @@
 package com.github.yungyu16.gobang.web.websocket.msg;
 
-import cn.xiaoshidai.common.toolkit.base.ConditionTools;
 import com.alibaba.fastjson.JSON;
+import com.google.common.base.Preconditions;
 import lombok.Data;
 import org.springframework.web.socket.TextMessage;
 
@@ -22,7 +22,7 @@ public class OutputMsg<T> extends WsMsg {
     }
 
     public static <T> OutputMsg<T> of(String msgType, T data) {
-        ConditionTools.checkNotNull(msgType);
+        Preconditions.checkNotNull(msgType);
         return new OutputMsg<>(msgType, data);
     }
 

@@ -4,15 +4,15 @@
 
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="com.github.yungyu16.gobang.dao.entity.HistoryRecord">
-        <id column="id" property="id" />
-        <result column="user_id" property="userId" />
-        <result column="game_id" property="gameId" />
-        <result column="user_color" property="userColor" />
-        <result column="is_winner" property="isWinner" />
-        <result column="is_deleted" property="isDeleted" />
-        <result column="create_time" property="createTime" />
-        <result column="modify_time" property="modifyTime" />
-        <result column="remark" property="remark" />
+        <id column="id" property="id"/>
+        <result column="user_id" property="userId"/>
+        <result column="game_id" property="gameId"/>
+        <result column="user_color" property="userColor"/>
+        <result column="is_winner" property="isWinner"/>
+        <result column="is_deleted" property="isDeleted"/>
+        <result column="create_time" property="createTime"/>
+        <result column="modify_time" property="modifyTime"/>
+        <result column="remark" property="remark"/>
     </resultMap>
 
     <!-- 通用查询结果列 -->

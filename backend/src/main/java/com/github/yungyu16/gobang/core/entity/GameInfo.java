@@ -1,7 +1,7 @@
 package com.github.yungyu16.gobang.core.entity;
 
-import cn.xiaoshidai.common.toolkit.base.ConditionTools;
 import com.github.yungyu16.gobang.dao.entity.UserRecord;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import lombok.Data;
@@ -49,6 +49,10 @@ public class GameInfo {
         }
     }
 
+    public GameInfo(Integer gameId) {
+        this.gameId = gameId;
+    }
+
     public boolean isGameOver() {
         return this.gameStatus == 1;
     }
@@ -77,12 +81,8 @@ public class GameInfo {
         return checkPoints.values().stream().filter(it -> it.getColor() > 0).collect(Collectors.toList());
     }
 
-    public GameInfo(Integer gameId) {
-        this.gameId = gameId;
-    }
-
     public GamePartaker enterGame(UserRecord userRecord) {
-        ConditionTools.checkNotNull(userRecord);
+        Preconditions.checkNotNull(userRecord);
         Optional<GamePartaker> gamePartakerOpt = getGamePartaker(userRecord.getId());
         if (gamePartakerOpt.isPresent()) {
             return gamePartakerOpt.get();
@@ -119,7 +119,7 @@ public class GameInfo {
      * @return
      */
     public Optional<GamePartaker> getGamePartaker(Integer userId) {
-        ConditionTools.checkNotNull(userId);
+        Preconditions.checkNotNull(userId);
         if (blackUser != null && blackUser.is(userId)) {
             return Optional.of(blackUser);
         }
@@ -242,6 +242,4 @@ public class GameInfo {
         }
         return false;
     }
-
-
 }

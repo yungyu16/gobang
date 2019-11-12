@@ -1,15 +1,15 @@
 package com.github.yungyu16.gobang.core;
 
-import cn.xiaoshidai.common.toolkit.base.ConditionTools;
-import cn.xiaoshidai.common.toolkit.exception.BizException;
 import com.alibaba.fastjson.JSONObject;
 import com.github.yungyu16.gobang.base.WebSockOperationBase;
 import com.github.yungyu16.gobang.core.entity.GameInfo;
 import com.github.yungyu16.gobang.core.entity.GamePartaker;
 import com.github.yungyu16.gobang.dao.entity.UserRecord;
 import com.github.yungyu16.gobang.domain.GameDomain;
+import com.github.yungyu16.gobang.exeception.BizException;
 import com.github.yungyu16.gobang.web.websocket.msg.MsgTypes;
 import com.github.yungyu16.gobang.web.websocket.msg.OutputMsg;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.springframework.beans.factory.InitializingBean;
@@ -63,7 +63,7 @@ public class OnlineGameContext extends WebSockOperationBase implements Initializ
     }
 
     public void newGame(Integer gameId) {
-        ConditionTools.checkNotNull(gameId);
+        Preconditions.checkNotNull(gameId);
         onlineGames.computeIfAbsent(gameId, key -> new GameInfo(gameId));
     }
 
@@ -173,7 +173,7 @@ public class OnlineGameContext extends WebSockOperationBase implements Initializ
         int y = point.getIntValue("y");
 
         Integer gameRole = gamePartaker.getGameRole();
-        ConditionTools.checkNotNull(gameRole);
+        Preconditions.checkNotNull(gameRole);
         if (gameRole != 1 && gameRole != 2) {
             return;
         }

@@ -4,22 +4,25 @@
 
 package com.github.yungyu16.gobang.web.http;
 
-import cn.xiaoshidai.common.toolkit.base.*;
-import cn.xiaoshidai.common.toolkit.exception.BizException;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.github.yungyu16.gobang.annotation.WithoutLogin;
 import com.github.yungyu16.gobang.dao.entity.UserRecord;
 import com.github.yungyu16.gobang.domain.UserDomain;
 import com.github.yungyu16.gobang.event.SessionTokenEvent;
+import com.github.yungyu16.gobang.exeception.BizException;
 import com.github.yungyu16.gobang.model.ReqResult;
 import com.github.yungyu16.gobang.web.http.entity.UserForm;
 import com.github.yungyu16.gobang.web.http.entity.UserVO;
+import com.google.common.base.CharMatcher;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.*;
 
+import java.nio.charset.StandardCharsets;
 import java.util.function.Predicate;
 
 /**
@@ -36,7 +39,7 @@ public class UserController extends BaseController {
     @Autowired
     private ApplicationContext applicationContext;
 
-    private Predicate<Character> userNameMatcher = CharTools.chineseCharMatcher()
+    private Predicate<Character> userNameMatcher = CharMatcher.inRange('\u4e00', '\u9fa5')
             .or(Character::isLetterOrDigit);
 
     @GetMapping("validate")
@@ -50,18 +53,18 @@ public class UserController extends BaseController {
         String mobile = userForm.getMobile();
         String password = userForm.getPassword();
 
-        if (StringTools.isAnyBlank(mobile, password)) {
+        if (StringUtils.isAnyBlank(mobile, password)) {
             throw new BizException("缺少必要参数");
         }
         mobile = mobile.trim();
         password = password.trim();
-        MobileTools.checkMobile(mobile);
+        checkMobile(mobile);
         log.info("开始登陆....");
         LambdaQueryWrapper<UserRecord> queryWrapper = Wrappers.lambdaQuery(new UserRecord());
         queryWrapper.eq(UserRecord::getMobile, mobile);
         UserRecord user = userDomain.getOne(queryWrapper);
         String digestPwd = getDigestPwd(password);
-        if (StringTools.equalsIgnoreCase(digestPwd, user.getPwd())) {
+        if (StringUtils.equalsIgnoreCase(digestPwd, user.getPwd())) {
             //删除旧会话
             deleteOldSession(mobile);
             //新建会话
@@ -79,14 +82,14 @@ public class UserController extends BaseController {
         String mobile = userForm.getMobile();
         String password = userForm.getPassword();
 
-        if (StringTools.isAnyBlank(userName, mobile, password)) {
+        if (StringUtils.isAnyBlank(userName, mobile, password)) {
             throw new BizException("缺少必要参数");
         }
         userName = userName.trim();
         mobile = mobile.trim();
         password = password.trim();
 
-        MobileTools.checkMobile(mobile);
+        checkMobile(mobile);
         checkUserName(userName);
         checkPassword(password);
 
@@ -110,7 +113,9 @@ public class UserController extends BaseController {
         return getSessionUserId()
                 .map(it -> {
                     UserRecord userRecord = userDomain.getById(it);
-                    return BeanTools.map(userRecord, UserVO.class);
+                    UserVO userVO = new UserVO();
+                    BeanUtils.copyProperties(userRecord, userVO);
+                    return userVO;
                 }).map(ReqResult::success)
                 .orElseThrow(() -> new BizException("用户不存在"));
     }
@@ -132,7 +137,17 @@ public class UserController extends BaseController {
     }
 
     private String getDigestPwd(String password) {
-        return DigestTools.md5Hex(password + "gobang");
+        return DigestUtils.md5DigestAsHex((password + "gobang").getBytes(StandardCharsets.UTF_8));
+    }
+
+    private void checkMobile(String mobile) {
+        int length = mobile.length();
+        if (length != 11) {
+            throw new BizException("手机号码不合法");
+        }
+        if (!StringUtils.isNumeric(mobile)) {
+            throw new BizException("手机号码不合法");
+        }
     }
 
     private void checkPassword(String password) {

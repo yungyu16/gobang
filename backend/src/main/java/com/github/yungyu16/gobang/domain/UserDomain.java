@@ -1,11 +1,11 @@
 package com.github.yungyu16.gobang.domain;
 
-import com.github.yungyu16.gobang.dao.entity.UserRecord;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.github.yungyu16.gobang.dao.entity.UserRecord;
 
 /**
  * <p>
- *  服务类
+ * 服务类
  * </p>
  *
  * @author Yungyu

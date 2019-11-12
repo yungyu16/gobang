@@ -11,9 +11,13 @@ import org.springframework.context.ApplicationEvent;
 @Getter
 @Setter
 public class SessionTokenEvent extends ApplicationEvent {
+
     public static final String TYPE_NEW = "new";
+
     public static final String TYPE_REMOVE = "remove";
+
     private String type;
+
     private String token;
 
     public SessionTokenEvent(String type, String token) {

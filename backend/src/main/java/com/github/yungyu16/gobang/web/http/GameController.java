@@ -4,13 +4,13 @@
 
 package com.github.yungyu16.gobang.web.http;
 
-import cn.xiaoshidai.common.toolkit.exception.BizSessionTimeOutException;
 import com.alibaba.fastjson.JSONObject;
 import com.github.yungyu16.gobang.core.OnlineGameContext;
 import com.github.yungyu16.gobang.core.OnlineUserContext;
 import com.github.yungyu16.gobang.dao.entity.GameRecord;
 import com.github.yungyu16.gobang.dao.entity.UserRecord;
 import com.github.yungyu16.gobang.domain.GameDomain;
+import com.github.yungyu16.gobang.exeception.BizSessionTimeOutException;
 import com.github.yungyu16.gobang.model.ReqResult;
 import com.github.yungyu16.gobang.web.websocket.msg.MsgTypes;
 import com.github.yungyu16.gobang.web.websocket.msg.OutputMsg;
@@ -27,10 +27,13 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("game")
 public class GameController extends BaseController {
+
     @Autowired
     private GameDomain gameDomain;
+
     @Autowired
     private OnlineGameContext onlineGameContext;
+
     @Autowired
     private OnlineUserContext onlineUserContext;
 

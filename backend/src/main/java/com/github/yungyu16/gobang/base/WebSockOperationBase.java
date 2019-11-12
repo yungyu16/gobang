@@ -1,6 +1,6 @@
 package com.github.yungyu16.gobang.base;
 
-import cn.xiaoshidai.common.toolkit.base.ConditionTools;
+import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
@@ -19,14 +19,16 @@ import java.util.stream.IntStream;
  * Author: songjialin
  */
 public abstract class WebSockOperationBase extends SessionOperationBase {
+
     private static AtomicInteger eventLoopIndex = new AtomicInteger();
+
     private static List<ScheduledExecutorService> eventLoops = IntStream.range(0, 10)
             .mapToObj(it -> Executors.newScheduledThreadPool(1, new ThreadFactoryBuilder().setNameFormat("message-" + it + "-th-%s").build()))
             .collect(Collectors.toList());
 
     public void sendMsg(WebSocketSession webSocketSession, TextMessage message) {
-        ConditionTools.checkNotNull(webSocketSession);
-        ConditionTools.checkNotNull(message);
+        Preconditions.checkNotNull(webSocketSession);
+        Preconditions.checkNotNull(message);
         doInEventLoop(webSocketSession, () -> {
             try {
                 Object sessionToken = webSocketSession.getAttributes().get("sessionToken");
@@ -39,7 +41,7 @@ public abstract class WebSockOperationBase extends SessionOperationBase {
     }
 
     public void close(WebSocketSession webSocketSession) {
-        ConditionTools.checkNotNull(webSocketSession);
+        Preconditions.checkNotNull(webSocketSession);
         doInEventLoop(webSocketSession, () -> {
             try {
                 webSocketSession.close();
@@ -50,8 +52,8 @@ public abstract class WebSockOperationBase extends SessionOperationBase {
     }
 
     public void doInEventLoop(WebSocketSession webSocketSession, Runnable runnable) {
-        ConditionTools.checkNotNull(webSocketSession);
-        ConditionTools.checkNotNull(runnable);
+        Preconditions.checkNotNull(webSocketSession);
+        Preconditions.checkNotNull(runnable);
         ScheduledExecutorService eventLoop = getEventLoop(webSocketSession);
         eventLoop.execute(runnable);
     }

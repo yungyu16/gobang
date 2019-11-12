@@ -8,6 +8,7 @@ import lombok.Data;
  */
 @Data
 public class GameInputMsg extends UserInputMsg {
+
     /**
      * 进入游戏
      */

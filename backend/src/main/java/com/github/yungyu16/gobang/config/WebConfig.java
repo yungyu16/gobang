@@ -1,10 +1,11 @@
 package com.github.yungyu16.gobang.config;
 
-import cn.xiaoshidai.common.toolkit.base.StringTools;
-import cn.xiaoshidai.common.toolkit.exception.BizSessionTimeOutException;
+
 import com.github.yungyu16.gobang.annotation.WithoutLogin;
 import com.github.yungyu16.gobang.base.SessionOperationBase;
+import com.github.yungyu16.gobang.exeception.BizSessionTimeOutException;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
@@ -26,6 +27,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.lang.reflect.Method;
+import java.util.UUID;
 
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
@@ -98,11 +100,11 @@ public class WebConfig implements WebMvcConfigurer {
         @Override
         protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
             String httpMethod = request.getMethod();
-            if (StringTools.equalsIgnoreCase("options", httpMethod)) {
+            if (StringUtils.equalsIgnoreCase("options", httpMethod)) {
                 filterChain.doFilter(request, response);
                 return;
             }
-            String uuid = StringTools.timestampUUID();
+            String uuid = UUID.randomUUID().toString();
             MDC.put("traceId", uuid);
             String requestURI = request.getRequestURI();
             log.info(">>>>>>>>>>>>>>>> processing req:{}", requestURI);

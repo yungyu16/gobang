@@ -1,6 +1,6 @@
 package com.github.yungyu16.gobang.core.entity;
 
-import cn.xiaoshidai.common.toolkit.base.ConditionTools;
+import com.google.common.base.Preconditions;
 import lombok.Data;
 import org.springframework.web.socket.WebSocketSession;
 
@@ -36,7 +36,7 @@ public class GamePartaker {
     }
 
     public boolean is(Integer userId) {
-        ConditionTools.checkNotNull(userId);
+        Preconditions.checkNotNull(userId);
         return this.userId == userId;
     }
 }

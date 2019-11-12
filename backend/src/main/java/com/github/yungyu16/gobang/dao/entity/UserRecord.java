@@ -22,6 +22,22 @@ import java.time.LocalDateTime;
 @TableName("t_user")
 public class UserRecord implements Serializable {
 
+    public static final String ID = "id";
+
+    public static final String MOBILE = "mobile";
+
+    public static final String USER_NAME = "user_name";
+
+    public static final String PWD = "pwd";
+
+    public static final String IS_DELETED = "is_deleted";
+
+    public static final String CREATE_TIME = "create_time";
+
+    public static final String MODIFY_TIME = "modify_time";
+
+    public static final String REMARK = "remark";
+
     private static final long serialVersionUID = 1L;
 
     @TableId(value = "id", type = IdType.AUTO)
@@ -44,22 +60,5 @@ public class UserRecord implements Serializable {
     private LocalDateTime modifyTime;
 
     private String remark;
-
-
-    public static final String ID = "id";
-
-    public static final String MOBILE = "mobile";
-
-    public static final String USER_NAME = "user_name";
-
-    public static final String PWD = "pwd";
-
-    public static final String IS_DELETED = "is_deleted";
-
-    public static final String CREATE_TIME = "create_time";
-
-    public static final String MODIFY_TIME = "modify_time";
-
-    public static final String REMARK = "remark";
 
 }

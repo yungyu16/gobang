@@ -22,6 +22,24 @@ import java.time.LocalDateTime;
 @TableName("t_history")
 public class HistoryRecord implements Serializable {
 
+    public static final String ID = "id";
+
+    public static final String USER_ID = "user_id";
+
+    public static final String GAME_ID = "game_id";
+
+    public static final String USER_COLOR = "user_color";
+
+    public static final String IS_WINNER = "is_winner";
+
+    public static final String IS_DELETED = "is_deleted";
+
+    public static final String CREATE_TIME = "create_time";
+
+    public static final String MODIFY_TIME = "modify_time";
+
+    public static final String REMARK = "remark";
+
     private static final long serialVersionUID = 1L;
 
     @TableId(value = "id", type = IdType.AUTO)
@@ -46,24 +64,5 @@ public class HistoryRecord implements Serializable {
     private LocalDateTime modifyTime;
 
     private String remark;
-
-
-    public static final String ID = "id";
-
-    public static final String USER_ID = "user_id";
-
-    public static final String GAME_ID = "game_id";
-
-    public static final String USER_COLOR = "user_color";
-
-    public static final String IS_WINNER = "is_winner";
-
-    public static final String IS_DELETED = "is_deleted";
-
-    public static final String CREATE_TIME = "create_time";
-
-    public static final String MODIFY_TIME = "modify_time";
-
-    public static final String REMARK = "remark";
 
 }

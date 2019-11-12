@@ -4,13 +4,14 @@
 
 package com.github.yungyu16.gobang.web.websocket;
 
-import cn.xiaoshidai.common.toolkit.base.StringTools;
-import cn.xiaoshidai.common.toolkit.exception.BizException;
+
 import com.alibaba.fastjson.JSON;
 import com.github.yungyu16.gobang.core.OnlineUserContext;
+import com.github.yungyu16.gobang.exeception.BizException;
 import com.github.yungyu16.gobang.web.websocket.msg.MsgTypes;
 import com.github.yungyu16.gobang.web.websocket.msg.OutputMsg;
 import com.github.yungyu16.gobang.web.websocket.msg.UserInputMsg;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -20,9 +21,12 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
+import java.util.UUID;
+
 public class UserMsgHandler extends TextWebSocketHandler {
 
     protected Logger log = LoggerFactory.getLogger(getClass());
+
     @Autowired
     private OnlineUserContext onlineUserContext;
 
@@ -33,12 +37,12 @@ public class UserMsgHandler extends TextWebSocketHandler {
 
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
-        MDC.put("traceId", StringTools.UUID());
+        MDC.put("traceId", UUID.randomUUID().toString());
         String payload = message.getPayload();
         UserInputMsg wsInputMsg = JSON.parseObject(payload, UserInputMsg.class);
         try {
             String msgType = wsInputMsg.getMsgType();
-            if (StringTools.isBlank(msgType)) {
+            if (StringUtils.isBlank(msgType)) {
                 throw new BizException("msgType为空");
             }
             switch (msgType) {

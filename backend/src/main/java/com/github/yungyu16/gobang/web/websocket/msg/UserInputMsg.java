@@ -13,6 +13,7 @@ import lombok.Data;
 public class UserInputMsg extends WsMsg {
 
     private String sessionToken;
+
     private String data;
 
     public JSONArray getJsonArrayData() {

@@ -1,11 +1,11 @@
 package com.github.yungyu16.gobang.dao.mapper;
 
-import com.github.yungyu16.gobang.dao.entity.GameRecord;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.github.yungyu16.gobang.dao.entity.GameRecord;
 
 /**
  * <p>
- *  Mapper 接口
+ * Mapper 接口
  * </p>
  *
  * @author Yungyu
