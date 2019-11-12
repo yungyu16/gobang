@@ -47,7 +47,7 @@ public class OnlineGameContext extends WebSockOperationBase implements Initializ
 
     @Override
     public void afterPropertiesSet() {
-        executorService.scheduleAtFixedRate(this::refreshActiveGame, 0, 1, TimeUnit.MINUTES);
+        executorService.scheduleAtFixedRate(this::refreshActiveGame, 0, 5, TimeUnit.MINUTES);
     }
 
     private void refreshActiveGame() {
@@ -55,8 +55,14 @@ public class OnlineGameContext extends WebSockOperationBase implements Initializ
         LocalDateTime now = LocalDateTime.now();
         activeGames.forEach((gameId, value) -> {
             long minutes = Duration.between(now, value).abs().toMinutes();
-            if (minutes >= 10) {
-                onlineGames.remove(gameId);
+            if (minutes >= 5) {
+                GameInfo removedGame = onlineGames.remove(gameId);
+                if (removedGame != null) {
+                    removedGame.getGameWatchers()
+                            .forEach(it -> {
+                                userGames.remove(it.getUserId());
+                            });
+                }
                 activeGames.remove(gameId);
             }
         });
@@ -94,6 +100,7 @@ public class OnlineGameContext extends WebSockOperationBase implements Initializ
         if (gameInfo == null) {
             throw new BizException("对局不存在...");
         }
+        touchGame(gameId);
         if (gameInfo.isGameOver()) {
             throw new BizException("对局已结束...");
         }
@@ -161,6 +168,7 @@ public class OnlineGameContext extends WebSockOperationBase implements Initializ
         if (gameId == null) {
             throw new BizException("对局不存在...");
         }
+        touchGame(gameId);
         Integer userId = userRecord.getId();
         GameInfo gameInfo = onlineGames.get(gameId);
         if (gameInfo == null) {
@@ -199,7 +207,7 @@ public class OnlineGameContext extends WebSockOperationBase implements Initializ
     }
 
 
-    public void touchGame(Integer gameId) {
+    private void touchGame(Integer gameId) {
         if (gameId == null) {
             return;
         }
