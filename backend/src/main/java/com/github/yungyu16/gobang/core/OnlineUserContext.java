@@ -182,7 +182,9 @@ public class OnlineUserContext extends WebSockOperationBase implements Initializ
         Integer currentUserId = null;
         if (StringUtils.isNotBlank(sessionToken)) {
             UserInfo userInfo = sessionUserMappings.get(sessionToken);
-            currentUserId = userInfo.getUserRecord().getId();
+            if (userInfo != null) {
+                currentUserId = userInfo.getUserRecord().getId();
+            }
         }
 
         Map<Integer, Map<String, Object>> finalUserMap = Maps.newHashMap();
