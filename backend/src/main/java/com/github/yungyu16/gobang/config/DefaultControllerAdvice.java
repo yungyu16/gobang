@@ -7,8 +7,8 @@ package com.github.yungyu16.gobang.config;
 
 import com.alibaba.fastjson.JSON;
 import com.github.yungyu16.gobang.exeception.BizException;
-import com.github.yungyu16.gobang.exeception.BizSessionTimeOutException;
-import com.github.yungyu16.gobang.model.ReqResult;
+import com.github.yungyu16.gobang.exeception.BizSessionTimeoutException;
+import com.github.yungyu16.gobang.base.WebRespBase;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -52,16 +52,16 @@ public class DefaultControllerAdvice {
 
     @ExceptionHandler
     @ResponseBody
-    public ReqResult handleException(Exception e) {
-        if (e instanceof BizSessionTimeOutException) {
+    public WebRespBase handleException(Exception e) {
+        if (e instanceof BizSessionTimeoutException) {
             log.info("会话过期 {}", e.getMessage());
-            return ReqResult.sessionTimeout();
+            return WebRespBase.sessionTimeout();
         }
         if (e instanceof BizException) {
             log.info("请求错误 {}", e.getMessage());
-            return ReqResult.badRequest(e.getMessage());
+            return WebRespBase.badRequest(e.getMessage());
         }
         log.error("服务端异常", e);
-        return ReqResult.error();
+        return WebRespBase.error();
     }
 }

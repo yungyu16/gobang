@@ -1,13 +1,16 @@
 package com.github.yungyu16.gobang.core;
 
 import com.alibaba.fastjson.JSONObject;
-import com.github.yungyu16.gobang.base.WebSockOperationBase;
-import com.github.yungyu16.gobang.core.entity.UserInfo;
+import com.github.yungyu16.gobang.base.LogOperationsBase;
+import com.github.yungyu16.gobang.core.game.gobang.GobangContext;
+import com.github.yungyu16.gobang.core.game.gobang.entity.UserInfo;
+import com.github.yungyu16.gobang.core.ws.msg.MsgTypes;
+import com.github.yungyu16.gobang.core.ws.msg.OutputMsg;
 import com.github.yungyu16.gobang.dao.entity.UserRecord;
 import com.github.yungyu16.gobang.domain.UserDomain;
 import com.github.yungyu16.gobang.event.SessionTokenEvent;
-import com.github.yungyu16.gobang.web.websocket.msg.MsgTypes;
-import com.github.yungyu16.gobang.web.websocket.msg.OutputMsg;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.apache.commons.lang3.StringUtils;
@@ -15,8 +18,10 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
+import org.springframework.web.socket.WebSocketMessage;
 import org.springframework.web.socket.WebSocketSession;
 
+import javax.validation.constraints.NotNull;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -30,23 +35,93 @@ import java.util.stream.Collectors;
  * @description Created by Yungyu on 2019/11/10.
  */
 @Component
-public class OnlineUserContext extends WebSockOperationBase implements InitializingBean, ApplicationListener<SessionTokenEvent> {
+public class OnlineUserContext extends LogOperationsBase implements InitializingBean, ApplicationListener<SessionTokenEvent> {
+
+    private ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1, new ThreadFactoryBuilder().setNameFormat("refresh-user-th-%s").build());
+
+    private Map<Integer, WebSocketSession> onlineUsers = Maps.newConcurrentMap();
+
+    private Map<Integer, LocalDateTime> activeUsers = Maps.newConcurrentMap();
+
+    private Cache<Integer, UserRecord> userRecordCache = CacheBuilder.newBuilder()
+            .build();
 
     @Autowired
     private UserDomain userDomain;
 
     @Autowired
-    private OnlineGameContext onlineGameContext;
-
-    private ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1, new ThreadFactoryBuilder().setNameFormat("refresh-user-th-%s").build());
-
-    private Map<Integer, String> userIdTokenMappings = Maps.newConcurrentMap();
+    private GobangContext gobangContext;
 
     private Map<String, UserInfo> sessionUserMappings = Maps.newConcurrentMap();
 
-    private Map<String, LocalDateTime> activeTokenMappings = Maps.newConcurrentMap();
-
     private Map<WebSocketSession, String> sessionTokenMappings = Maps.newConcurrentMap();
+
+    /**
+     * 是否在线
+     *
+     * @param userId
+     *
+     * @return
+     */
+    public boolean isOnline(@NotNull Integer userId) {
+        return true;
+    }
+
+    public Optional<UserRecord> getOnlineUser(@NotNull Integer userId) {
+        return null;
+    }
+
+    public List<UserRecord> listOnlineUser() {
+        return null;
+    }
+
+    /**
+     * 新增在线用户
+     *
+     * @param userId
+     * @param wsSession
+     */
+    public void newOnlineUser(@NotNull Integer userId, @NotNull WebSocketSession wsSession) {
+
+    }
+
+    /**
+     * 心跳
+     *
+     * @param wsSession
+     */
+    public void touchUser(@NotNull WebSocketSession wsSession) {
+
+    }
+
+    /**
+     * 淘汰过期用户
+     *
+     * @param userId
+     */
+    public void knickOutUser(@NotNull Integer userId) {
+
+    }
+
+    /**
+     * 发送消息
+     *
+     * @param userId
+     * @param msg
+     */
+    public void sendMsg(@NotNull Integer userId, @NotNull WebSocketMessage<?> msg) {
+
+    }
+
+    /**
+     * 群发消息
+     *
+     * @param userIds
+     * @param msg
+     */
+    public void groupSendMsg(@NotNull Set<Integer> userIds, @NotNull WebSocketMessage<?> msg) {
+
+    }
 
     public void sendMsg2User(Integer userId, OutputMsg msg) {
         if (userId == null) {
@@ -214,7 +289,7 @@ public class OnlineUserContext extends WebSockOperationBase implements Initializ
                     userInfo.put("userId", userId);
                     userInfo.put("userName", userName);
                     userInfo.put("status", -3);
-                    onlineGameContext.userGame(userId)
+                    gobangContext.userGame(userId)
                             .ifPresent(partaker -> {
                                 userInfo.put("gameId", partaker.getGameId());
                                 Integer gameRole = partaker.getGameRole();
