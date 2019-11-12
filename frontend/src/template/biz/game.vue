@@ -207,7 +207,7 @@
                 that.boardContext.closePath();
                 this.status = color;
                 that.checkAudio.play();
-                util.mobileShock();
+                // util.mobileShock();
             }
 
             gobangPointList.forEach(it => {
