@@ -56,14 +56,7 @@ public class OnlineGameContext extends WebSockOperationBase implements Initializ
         activeGames.forEach((gameId, value) -> {
             long minutes = Duration.between(now, value).abs().toMinutes();
             if (minutes >= 5) {
-                GameInfo removedGame = onlineGames.remove(gameId);
-                if (removedGame != null) {
-                    removedGame.getGameWatchers()
-                            .forEach(it -> {
-                                userGames.remove(it.getUserId());
-                            });
-                }
-                activeGames.remove(gameId);
+                clearGame(gameId);
             }
         });
     }
@@ -202,6 +195,7 @@ public class OnlineGameContext extends WebSockOperationBase implements Initializ
                     if (isWinner) {
                         sendMsg(gameInfo.getBlackUser().getSession(), OutputMsg.of(MsgTypes.GAME_MSG_GAME_OVER, gameRole).toTextMessage());
                         sendMsg(gameInfo.getWhiteUser().getSession(), OutputMsg.of(MsgTypes.GAME_MSG_GAME_OVER, gameRole).toTextMessage());
+                        clearGame(gameId);
                     }
                 });
     }
@@ -214,6 +208,20 @@ public class OnlineGameContext extends WebSockOperationBase implements Initializ
         activeGames.put(gameId, LocalDateTime.now());
     }
 
+
+    private void clearGame(Integer gameId) {
+        if (gameId == null) {
+            return;
+        }
+        GameInfo removedGame = onlineGames.remove(gameId);
+        if (removedGame != null) {
+            removedGame.getGameWatchers()
+                    .forEach(it -> {
+                        userGames.remove(it.getUserId());
+                    });
+        }
+        activeGames.remove(gameId);
+    }
 
     private OutputMsg<JSONObject> newGameInitMsg(GamePartaker currentUser, GamePartaker blackUser, GamePartaker whiteUser, boolean isGameWatcher) {
         JSONObject initMsg = new JSONObject();
