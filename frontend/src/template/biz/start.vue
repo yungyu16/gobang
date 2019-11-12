@@ -11,8 +11,8 @@
                     {{statusStr(it.status)}}
                 </van-col>
                 <van-col offset='4' span="6">
-                    <a @click="inviteUser(it)" href="#" v-if="it.status == -1 || it.status == -3">邀请</a>
-                    <a @click="watchGame(it)" href="#" v-if="it.status === -1 || it.status == -2">观战</a>
+                    <a @click="inviteUser(it)" href="#" v-if="it.status == -3">邀请</a>
+                    <a @click="watchGame(it)" href="#" v-if="it.status == -2">观战</a>
                     <a href="#" v-if="it.status === 0">-</a>
                 </van-col>
             </van-row>
