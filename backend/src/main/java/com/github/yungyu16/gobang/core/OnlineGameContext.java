@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.github.yungyu16.gobang.base.WebSockOperationBase;
 import com.github.yungyu16.gobang.core.entity.GameInfo;
 import com.github.yungyu16.gobang.core.entity.GamePartaker;
+import com.github.yungyu16.gobang.dao.entity.GameRecord;
 import com.github.yungyu16.gobang.dao.entity.UserRecord;
 import com.github.yungyu16.gobang.domain.GameDomain;
 import com.github.yungyu16.gobang.exeception.BizException;
@@ -143,7 +144,16 @@ public class OnlineGameContext extends WebSockOperationBase implements Initializ
             }
             if (blackUser != null && whiteUser != null) {
                 log.info("当前双方都已就绪：{}", blackUser.getUserName());
-                gameInfo.setGameStatus(0);
+                int gameStatus = gameInfo.getGameStatus();
+                if (gameStatus == -1) {
+                    gameInfo.setGameStatus(0);
+                    GameRecord entity = new GameRecord();
+                    entity.setId(gameId);
+                    entity.setGameStartTime(LocalDateTime.now());
+                    entity.setBlackUserId(blackUser.getUserId());
+                    entity.setWhiteUserId(whiteUser.getUserId());
+                    gameDomain.updateById(entity);
+                }
                 JSONObject startMsg = new JSONObject();
                 startMsg.put("startColor", gameInfo.getLatestCheckColor());
                 TextMessage msg = OutputMsg.of(MsgTypes.GAME_MSG_START_GAME, startMsg).toTextMessage();
@@ -184,6 +194,11 @@ public class OnlineGameContext extends WebSockOperationBase implements Initializ
         boolean isWinner = gameInfo.isWinner(gameRole, x, y);
         if (isWinner) {
             gameInfo.setGameStatus(1);
+            GameRecord entity = new GameRecord();
+            entity.setId(gameId);
+            entity.setWinnerId(gamePartaker.getUserId());
+            entity.setGameEndTime(LocalDateTime.now());
+            gameDomain.updateById(entity);
         }
         gameInfo.getGameWatchers()
                 .forEach(it -> {
