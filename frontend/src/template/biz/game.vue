@@ -20,7 +20,7 @@
             <van-col span="6">
                 <strong>{{thatUser.userName}}</strong>
                 <br/>
-                <strong>{{thatUserColor}}</strong>
+                <strong :class="{'blink': thatUser.color !== latestCheckCell.status }">{{thatUserColor}}</strong>
             </van-col>
         </van-row>
         <van-divider/>
@@ -39,7 +39,7 @@
                 <van-col span="6">
                     <strong>{{thisUser.userName}}</strong>
                     <br/>
-                    <strong>{{thisUserColor}}</strong>
+                    <strong :class="{'blink': thisUser.color !== latestCheckCell.status}">{{thisUserColor}}</strong>
                 </van-col>
             </van-row>
         </div>
@@ -493,5 +493,38 @@
         display: block;
         margin: auto auto;
         box-shadow: -2px -2px 2px #F3F2F2, 5px 5px 5px #6F6767;
+    }
+
+    /* 定义keyframe动画，命名为blink */
+    @keyframes blink{
+        0%{opacity: 1;}
+        100%{opacity: 0;}
+    }
+    /* 添加兼容性前缀 */
+    @-webkit-keyframes blink {
+        0% { opacity: 1; }
+        100% { opacity: 0; }
+    }
+    @-moz-keyframes blink {
+        0% { opacity: 1; }
+        100% { opacity: 0; }
+    }
+    @-ms-keyframes blink {
+        0% {opacity: 1; }
+        100% { opacity: 0;}
+    }
+    @-o-keyframes blink {
+        0% { opacity: 1; }
+        100% { opacity: 0; }
+    }
+    /* 定义blink类*/
+    .blink{
+        color: #dd4814;
+        animation: blink 1s linear infinite;
+        /* 其它浏览器兼容性前缀 */
+        -webkit-animation: blink 1s linear infinite;
+        -moz-animation: blink 1s linear infinite;
+        -ms-animation: blink 1s linear infinite;
+        -o-animation: blink 1s linear infinite;
     }
 </style>

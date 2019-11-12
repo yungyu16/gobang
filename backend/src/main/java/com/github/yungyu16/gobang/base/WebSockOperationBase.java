@@ -58,7 +58,7 @@ public abstract class WebSockOperationBase extends SessionOperationBase {
         eventLoop.execute(runnable);
     }
 
-    protected ScheduledExecutorService getEventLoop(WebSocketSession webSocketSession) {
+    protected synchronized ScheduledExecutorService getEventLoop(WebSocketSession webSocketSession) {
         Map<String, Object> attributes = webSocketSession.getAttributes();
         String EVENT_LOOP_KEY = "EVENT_LOOP";
         Object eventLoop = attributes.get(EVENT_LOOP_KEY);

@@ -7,7 +7,7 @@
             <van-divider/>
             <van-row justify="center" type="flex">
                 <van-col offset='2' span="8"><strong>{{it.userName}}</strong></van-col>
-                <van-col span="4" v-bind:class="{'text-green': it.status === -1 || it.status === -3 }">
+                <van-col span="4" :class="{'text-green': it.status === -1 || it.status === -3 }">
                     {{statusStr(it.status)}}
                 </van-col>
                 <van-col offset='4' span="6">
