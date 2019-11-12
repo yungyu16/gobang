@@ -1,5 +1,6 @@
 package com.github.yungyu16.gobang.core.entity;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 /**
@@ -7,6 +8,7 @@ import lombok.Data;
  * @description Created by Yungyu on 2019/11/12.
  */
 @Data
+@AllArgsConstructor
 public class CheckPointInfo {
 
     private int x;

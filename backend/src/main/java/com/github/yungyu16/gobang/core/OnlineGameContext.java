@@ -180,7 +180,7 @@ public class OnlineGameContext extends WebSockOperationBase implements Initializ
         if (!gameInfo.checkBoardPoint(gameRole, x, y)) {
             return;
         }
-        boolean isWinner = gameInfo.isWinner(gameRole, x, y);
+        boolean isWinner = gameInfo.isWinner(gameRole);
         if (isWinner) {
             gameInfo.setGameStatus(1);
         }
