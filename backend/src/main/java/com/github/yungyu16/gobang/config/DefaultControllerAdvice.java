@@ -78,7 +78,7 @@ public class DefaultControllerAdvice {
     @AfterReturning(value = "(responseBody() || restController())", returning = "returnValue")
     public void afterApi(Object returnValue) {
         String respStr = "{}";
-        if (returnValue instanceof ResponseEntity) {
+        if (!(returnValue instanceof ResponseEntity)) {
             respStr = JSON.toJSONString(returnValue, base64ValFilter, SerializerFeature.PrettyFormat);
         }
         log.info("响应内容：{}", respStr);
