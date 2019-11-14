@@ -1,22 +1,23 @@
 package com.github.yungyu16.gobang.core;
 
 import com.github.yungyu16.gobang.base.LogOperationsBase;
+import com.github.yungyu16.gobang.constant.SessionConstants;
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.springframework.stereotype.Component;
-import org.springframework.web.socket.TextMessage;
+import org.springframework.web.socket.WebSocketMessage;
 import org.springframework.web.socket.WebSocketSession;
 
+import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-
-import static com.github.yungyu16.gobang.constant.SessionConstants.USER_ID;
 
 /**
  * @author Yungyu
@@ -31,14 +32,12 @@ public class WsSocketOperations extends LogOperationsBase {
             .mapToObj(it -> Executors.newScheduledThreadPool(1, new ThreadFactoryBuilder().setNameFormat("message-" + it + "-th-%s").build()))
             .collect(Collectors.toList());
 
-    public void sendMsg(WebSocketSession webSocketSession, TextMessage message) {
+    public void sendMsg(WebSocketSession webSocketSession, @NotNull WebSocketMessage<?> msg) {
         Preconditions.checkNotNull(webSocketSession);
-        Preconditions.checkNotNull(message);
+        Preconditions.checkNotNull(msg);
         doInEventLoop(webSocketSession, () -> {
             try {
-                Object userId = webSocketSession.getAttributes().get(USER_ID);
-                log.info("开始发送ws消息：userId:{} msg:{}", userId, message.getPayload());
-                webSocketSession.sendMessage(message);
+                webSocketSession.sendMessage(msg);
             } catch (IOException e) {
                 log.error("发送消息异常", e);
             }
@@ -61,6 +60,24 @@ public class WsSocketOperations extends LogOperationsBase {
         Preconditions.checkNotNull(runnable);
         ScheduledExecutorService eventLoop = getEventLoop(webSocketSession);
         eventLoop.execute(runnable);
+    }
+
+    public Optional<Integer> getSessionUserId(WebSocketSession webSocketSession) {
+        if (webSocketSession == null) {
+            return Optional.empty();
+        }
+        Map<String, Object> attributes = webSocketSession.getAttributes();
+        Object USER_ID = attributes.get(SessionConstants.USER_ID);
+        if (USER_ID == null) {
+            return Optional.empty();
+        }
+        return Optional.of(((Integer) USER_ID));
+    }
+
+    public void putSessionUserId(Integer userId, WebSocketSession webSocketSession) {
+        Preconditions.checkNotNull(userId);
+        Preconditions.checkNotNull(webSocketSession);
+        webSocketSession.getAttributes().put(SessionConstants.USER_ID, userId);
     }
 
     private synchronized ScheduledExecutorService getEventLoop(WebSocketSession webSocketSession) {

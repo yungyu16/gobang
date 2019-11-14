@@ -15,18 +15,21 @@ import org.springframework.stereotype.Component;
 public class RedisOperations {
 
     @Autowired
-    protected StringRedisTemplate redisTemplate;
+    private StringRedisTemplate redisTemplate;
 
-    protected ValueOperations<String, String> getRedisValueOperations() {
+    public StringRedisTemplate getRedisTemplate() {
+        return redisTemplate;
+    }
+
+    public ValueOperations<String, String> getRedisValueOperations() {
         return redisTemplate.opsForValue();
     }
 
-    protected SetOperations<String, String> getRedisSetOperations() {
+    public SetOperations<String, String> getRedisSetOperations() {
         return redisTemplate.opsForSet();
     }
 
-    protected HashOperations<String, String, String> getRedisHashOperations() {
+    public HashOperations<String, String, String> getRedisHashOperations() {
         return redisTemplate.opsForHash();
     }
-
 }

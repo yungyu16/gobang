@@ -10,7 +10,7 @@ import com.github.yungyu16.gobang.annotation.WithoutLogin;
 import com.github.yungyu16.gobang.base.WebRespBase;
 import com.github.yungyu16.gobang.dao.entity.UserRecord;
 import com.github.yungyu16.gobang.domain.UserDomain;
-import com.github.yungyu16.gobang.event.SessionTokenEvent;
+import com.github.yungyu16.gobang.event.SignOutEvent;
 import com.github.yungyu16.gobang.exeception.BizException;
 import com.github.yungyu16.gobang.web.entity.UserForm;
 import com.github.yungyu16.gobang.web.entity.UserVO;
@@ -126,7 +126,7 @@ public class UserController extends BaseController {
                 .ifPresent(it -> {
                     log.info("删除会话...");
                     removeSession(it);
-                    applicationContext.publishEvent(new SessionTokenEvent(SessionTokenEvent.TYPE_REMOVE, it));
+                    applicationContext.publishEvent(new SignOutEvent(SignOutEvent.TYPE_REMOVE, it));
                 });
         return WebRespBase.success();
     }

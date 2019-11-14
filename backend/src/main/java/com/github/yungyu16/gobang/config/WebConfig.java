@@ -3,6 +3,7 @@ package com.github.yungyu16.gobang.config;
 
 import com.github.yungyu16.gobang.annotation.WithoutLogin;
 import com.github.yungyu16.gobang.base.LogOperationsBase;
+import com.github.yungyu16.gobang.core.SessionOperations;
 import com.github.yungyu16.gobang.exeception.BizSessionTimeoutException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -38,6 +39,7 @@ public class WebConfig implements WebMvcConfigurer {
     @Autowired
     private TrackFilter trackFilter;
 
+
     @Bean
     public CorsFilter corsFilter() {
         CorsConfiguration config = new CorsConfiguration();
@@ -68,6 +70,8 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Component
     public static class SessionFilter extends LogOperationsBase implements HandlerInterceptor {
+        @Autowired
+        private SessionOperations sessionOperations;
 
         @Override
         public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
@@ -83,8 +87,8 @@ public class WebConfig implements WebMvcConfigurer {
                 log.info("当前接口不需要登陆...");
                 return true;
             }
-            String sessionToken = getSessionToken().orElseThrow(BizSessionTimeoutException::new);
-            boolean flag = checkSessionToken(sessionToken);
+            String sessionToken = sessionOperations.getSessionToken().orElseThrow(BizSessionTimeoutException::new);
+            boolean flag = sessionOperations.checkSessionToken(sessionToken);
             if (!flag) {
                 log.info("会话失效，跳转登陆...");
                 throw new BizSessionTimeoutException();

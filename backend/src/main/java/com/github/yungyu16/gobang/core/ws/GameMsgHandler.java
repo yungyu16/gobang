@@ -6,10 +6,9 @@ package com.github.yungyu16.gobang.core.ws;
 
 import com.alibaba.fastjson.JSON;
 import com.github.yungyu16.gobang.core.game.gobang.GobangContext;
-import com.github.yungyu16.gobang.exeception.BizException;
 import com.github.yungyu16.gobang.core.ws.msg.GameInputMsg;
 import com.github.yungyu16.gobang.core.ws.msg.MsgTypes;
-import com.github.yungyu16.gobang.core.ws.msg.OutputMsg;
+import com.github.yungyu16.gobang.exeception.BizException;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +29,7 @@ public class GameMsgHandler extends TextWebSocketHandler {
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
-        gobangContext.sendMsg(session, OutputMsg.of(MsgTypes.USER_MSG_WELCOME, "Welcome~").toTextMessage());
+        //gobangContext.sendMsg(session, OutputMsg.of(MsgTypes.USER_MSG_WELCOME, "Welcome~").toTextMessage());
     }
 
     @Override
@@ -68,10 +67,10 @@ public class GameMsgHandler extends TextWebSocketHandler {
             }
         } catch (BizException e) {
             log.info("消息处理异常 {}", e.getMessage());
-            gobangContext.sendMsg(session, OutputMsg.of(MsgTypes.USER_MSG_TOAST, e.getMessage()).toTextMessage());
+            //gobangContext.sendMsg(session, OutputMsg.of(MsgTypes.USER_MSG_TOAST, e.getMessage()).toTextMessage());
         } catch (Exception e) {
             log.info("消息处理异常", e);
-            gobangContext.sendMsg(session, OutputMsg.of(MsgTypes.USER_MSG_ERROR, e.getMessage()).toTextMessage());
+            //gobangContext.sendMsg(session, OutputMsg.of(MsgTypes.USER_MSG_ERROR, e.getMessage()).toTextMessage());
         }
     }
 }

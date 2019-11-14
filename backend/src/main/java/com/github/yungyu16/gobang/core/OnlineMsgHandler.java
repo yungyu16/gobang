@@ -1,6 +1,8 @@
 package com.github.yungyu16.gobang.core;
 
 import com.github.yungyu16.gobang.config.WsMsgHandlerBase;
+import org.springframework.web.socket.TextMessage;
+import org.springframework.web.socket.WebSocketSession;
 
 /**
  * @author Yungyu
@@ -8,4 +10,8 @@ import com.github.yungyu16.gobang.config.WsMsgHandlerBase;
  */
 public class OnlineMsgHandler extends WsMsgHandlerBase {
 
+    @Override
+    protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
+        super.handleTextMessage(session, message);
+    }
 }

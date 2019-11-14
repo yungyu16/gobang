@@ -7,7 +7,6 @@ import com.baomidou.mybatisplus.generator.config.*;
 import com.baomidou.mybatisplus.generator.config.po.TableInfo;
 import com.baomidou.mybatisplus.generator.config.rules.NamingStrategy;
 import com.baomidou.mybatisplus.generator.engine.FreemarkerTemplateEngine;
-import com.google.common.collect.Maps;
 import org.apache.commons.lang3.SystemUtils;
 import org.junit.Test;
 import org.springframework.core.io.ClassPathResource;
@@ -85,8 +84,8 @@ public class MpGenerator {
                         .setNaming(NamingStrategy.underline_to_camel)
                         .setInclude(tableName)
                         .setRestControllerStyle(true)
-                        //.setSuperEntityClass("cn.xiaoshidai.web.open.platform.boot.base.dao.BaseEntity")
-                        //.setSuperEntityColumns("id", "remark", "modify_time", "create_time", "is_deleted")
+                        .setSuperEntityClass("com.github.yungyu16.gobang.base.DbRecordBase")
+                        .setSuperEntityColumns("id", "remark", "modify_time", "create_time", "is_deleted")
                         //.setSuperMapperClass("cn.xiaoshidai.web.open.platform.boot.base.dao.BaseMapper")
                         .setEntityColumnConstant(true)
                         .setEntityLombokModel(true)

@@ -1,11 +1,11 @@
 package com.github.yungyu16.gobang.dao.entity;
 
-import com.baomidou.mybatisplus.annotation.*;
+import com.baomidou.mybatisplus.annotation.TableName;
+import com.github.yungyu16.gobang.base.DbRecordBase;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
-import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
@@ -20,9 +20,7 @@ import java.time.LocalDateTime;
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
 @TableName("t_game")
-public class GameRecord implements Serializable {
-
-    public static final String ID = "id";
+public class GameRecord extends DbRecordBase {
 
     public static final String BLACK_USER_ID = "black_user_id";
 
@@ -36,19 +34,6 @@ public class GameRecord implements Serializable {
 
     public static final String GAME_PIC = "game_pic";
 
-    public static final String IS_DELETED = "is_deleted";
-
-    public static final String CREATE_TIME = "create_time";
-
-    public static final String MODIFY_TIME = "modify_time";
-
-    public static final String REMARK = "remark";
-
-    private static final long serialVersionUID = 1L;
-
-    @TableId(value = "id", type = IdType.AUTO)
-    private Integer id;
-
     private Integer blackUserId;
 
     private Integer whiteUserId;
@@ -60,17 +45,4 @@ public class GameRecord implements Serializable {
     private LocalDateTime gameEndTime;
 
     private byte[] gamePic;
-
-    @TableLogic
-    @TableField(fill = FieldFill.INSERT)
-    private Boolean isDeleted;
-
-    @TableField(fill = FieldFill.INSERT)
-    private LocalDateTime createTime;
-
-    @TableField(fill = FieldFill.INSERT_UPDATE)
-    private LocalDateTime modifyTime;
-
-    private String remark;
-
 }
