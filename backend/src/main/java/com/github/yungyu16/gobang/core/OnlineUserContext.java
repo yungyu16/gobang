@@ -68,6 +68,12 @@ public class OnlineUserContext extends LogOperationsBase implements Initializing
         return onlineUsers.containsKey(userId);
     }
 
+    /**
+     * 是否在线
+     *
+     * @param userId
+     * @return
+     */
     public Optional<UserRecord> getOnlineUser(@NotNull Integer userId) {
         if (userId == null) {
             return Optional.empty();
@@ -98,7 +104,7 @@ public class OnlineUserContext extends LogOperationsBase implements Initializing
         if (wsSession == null) {
             return;
         }
-        wsSocketOperations.putSessionUserId(userId, wsSession);
+        wsSocketOperations.setSessionUserId(wsSession, userId);
         onlineUsers.put(userId, wsSession);
         activeUsers.put(userId, LocalDateTime.now());
     }
@@ -110,9 +116,7 @@ public class OnlineUserContext extends LogOperationsBase implements Initializing
      */
     public void touchUser(@NotNull WebSocketSession wsSession) {
         wsSocketOperations.getSessionUserId(wsSession)
-                .ifPresent(it -> {
-                    activeUsers.put(it, LocalDateTime.now());
-                });
+                .ifPresent(it -> activeUsers.put(it, LocalDateTime.now()));
     }
 
     /**
@@ -179,59 +183,4 @@ public class OnlineUserContext extends LogOperationsBase implements Initializing
             }
         });
     }
-
-    //public List<Map<String, Object>> getOnlineUsers(String sessionToken) {
-    //    Integer currentUserId = null;
-    //    if (StringUtils.isNotBlank(sessionToken)) {
-    //        UserInfo userInfo = sessionUserMappings.get(sessionToken);
-    //        if (userInfo != null) {
-    //            currentUserId = userInfo.getUserRecord().getId();
-    //        }
-    //    }
-    //
-    //    Map<Integer, Map<String, Object>> finalUserMap = Maps.newHashMap();
-    //
-    //    Integer finalCurrentUserId = currentUserId;
-    //    userDomain.list()
-    //            .stream()
-    //            .filter(it -> finalCurrentUserId == null || !Objects.equals(it.getId(), finalCurrentUserId))
-    //            .forEach(it -> {
-    //                Map<String, Object> userInfo = new JSONObject();
-    //                String userName = it.getUserName();
-    //                Integer userId = it.getId();
-    //                userInfo.put("userId", userId);
-    //                userInfo.put("userName", userName);
-    //                userInfo.put("status", 0);
-    //                finalUserMap.put(it.getId(), userInfo);
-    //            });
-    //
-    //    sessionUserMappings.values()
-    //            .stream()
-    //            .filter(it -> finalCurrentUserId == null || !Objects.equals(it.getUserRecord().getId(), finalCurrentUserId))
-    //            .forEach(it -> {
-    //                Map<String, Object> userInfo = new JSONObject();
-    //                UserRecord userRecord = it.getUserRecord();
-    //                String userName = userRecord.getUserName();
-    //                Integer userId = userRecord.getId();
-    //                userInfo.put("userId", userId);
-    //                userInfo.put("userName", userName);
-    //                userInfo.put("status", -3);
-    //                gobangContext.userGame(userId)
-    //                        .ifPresent(partaker -> {
-    //                            userInfo.put("gameId", partaker.getGameId());
-    //                            Integer gameRole = partaker.getGameRole();
-    //                            if (gameRole == 3) {
-    //                                userInfo.put("status", -1);
-    //                            } else {
-    //                                userInfo.put("status", -2);
-    //                            }
-    //                        });
-    //                finalUserMap.put(userId, userInfo);
-    //            });
-    //    return finalUserMap
-    //            .values()
-    //            .stream()
-    //            .sorted(Comparator.comparing(it -> (Integer) it.get("status")))
-    //            .collect(Collectors.toList());
-    //}
 }

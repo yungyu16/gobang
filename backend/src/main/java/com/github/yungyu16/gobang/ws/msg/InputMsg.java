@@ -1,4 +1,4 @@
-package com.github.yungyu16.gobang.core.msg;
+package com.github.yungyu16.gobang.ws.msg;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
@@ -10,9 +10,13 @@ import lombok.Data;
  * @description Created by Yungyu on 2019/11/13.
  */
 @Data
-public class InputMsg {
+public class InputMsg extends MsgBase {
 
     private String data;
+
+    public InputMsg() {
+        super(null, null);
+    }
 
     public JSONArray getJsonArrayData() {
         return JSON.parseArray(data);

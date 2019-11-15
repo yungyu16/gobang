@@ -1,4 +1,4 @@
-package com.github.yungyu16.gobang.core.msg;
+package com.github.yungyu16.gobang.ws.msg;
 
 import lombok.Data;
 
@@ -7,11 +7,11 @@ import lombok.Data;
  * @description Created by Yungyu on 2019/11/13.
  */
 @Data
-public class WsMsgBase {
+public class MsgBase {
     private String type;
     private String subType;
 
-    protected WsMsgBase(String type, String subType) {
+    protected MsgBase(String type, String subType) {
         this.type = type;
         this.subType = subType;
     }

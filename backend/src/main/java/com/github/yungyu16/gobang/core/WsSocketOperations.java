@@ -37,6 +37,8 @@ public class WsSocketOperations extends LogOperationsBase {
         Preconditions.checkNotNull(msg);
         doInEventLoop(webSocketSession, () -> {
             try {
+                getSessionUserId(webSocketSession)
+                        .ifPresent(it -> log.info("send msg to userId:{}", it));
                 webSocketSession.sendMessage(msg);
             } catch (IOException e) {
                 log.error("发送消息异常", e);
@@ -74,7 +76,7 @@ public class WsSocketOperations extends LogOperationsBase {
         return Optional.of(((Integer) USER_ID));
     }
 
-    public void putSessionUserId(Integer userId, WebSocketSession webSocketSession) {
+    public void setSessionUserId(WebSocketSession webSocketSession, Integer userId) {
         Preconditions.checkNotNull(userId);
         Preconditions.checkNotNull(webSocketSession);
         webSocketSession.getAttributes().put(SessionConstants.USER_ID, userId);

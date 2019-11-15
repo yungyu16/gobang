@@ -8,6 +8,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.github.yungyu16.gobang.annotation.WithoutLogin;
 import com.github.yungyu16.gobang.base.WebRespBase;
+import com.github.yungyu16.gobang.core.SessionOperations;
 import com.github.yungyu16.gobang.dao.entity.UserRecord;
 import com.github.yungyu16.gobang.domain.UserDomain;
 import com.github.yungyu16.gobang.event.SignOutEvent;
@@ -18,7 +19,6 @@ import com.google.common.base.CharMatcher;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,12 +32,10 @@ import java.util.function.Predicate;
 @RestController
 @RequestMapping("user")
 public class UserController extends BaseController {
-
     @Autowired
     private UserDomain userDomain;
-
     @Autowired
-    private ApplicationContext applicationContext;
+    private SessionOperations sessionOperations;
 
     private Predicate<Character> userNameMatcher = CharMatcher.inRange('\u4e00', '\u9fa5')
             .or(Character::isLetterOrDigit);
@@ -65,10 +63,7 @@ public class UserController extends BaseController {
         UserRecord user = userDomain.getOne(queryWrapper);
         String digestPwd = getDigestPwd(password);
         if (StringUtils.equalsIgnoreCase(digestPwd, user.getPwd())) {
-            //删除旧会话
-            deleteOldSession(mobile);
-            //新建会话
-            String sessionToken = newSession(user.getId(), mobile);
+            String sessionToken = sessionOperations.newSession(user.getId(), mobile);
             return WebRespBase.success(sessionToken);
         } else {
             throw new BizException("密码错误");
@@ -110,7 +105,7 @@ public class UserController extends BaseController {
 
     @GetMapping("detail")
     public WebRespBase<UserVO> detail() {
-        return getSessionUserId()
+        return sessionOperations.getSessionUserId()
                 .map(it -> {
                     UserRecord userRecord = userDomain.getById(it);
                     UserVO userVO = new UserVO();
@@ -122,11 +117,13 @@ public class UserController extends BaseController {
 
     @GetMapping("sign-out")
     public WebRespBase signOut() {
-        getSessionToken()
+        sessionOperations.getSessionToken()
                 .ifPresent(it -> {
                     log.info("删除会话...");
-                    removeSession(it);
-                    applicationContext.publishEvent(new SignOutEvent(SignOutEvent.TYPE_REMOVE, it));
+                    sessionOperations.removeSession(it);
+                    sessionOperations.getSessionUserId().ifPresent(userId -> {
+                        applicationContext.publishEvent(new SignOutEvent(userId));
+                    });
                 });
         return WebRespBase.success();
     }

@@ -2,20 +2,15 @@ package com.github.yungyu16.gobang.base;
 
 import com.alibaba.fastjson.JSON;
 import com.github.yungyu16.gobang.core.WsSocketOperations;
-import com.github.yungyu16.gobang.core.msg.WsMsgBase;
-import com.github.yungyu16.gobang.core.ws.msg.MsgTypes;
-import com.github.yungyu16.gobang.core.ws.msg.OutputMsg;
 import com.github.yungyu16.gobang.exeception.BizException;
+import com.github.yungyu16.gobang.ws.msg.InputMsg;
+import com.github.yungyu16.gobang.ws.msg.OutputMsg;
 import com.google.common.collect.Maps;
-import com.google.common.reflect.TypeToken;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.socket.TextMessage;
-import org.springframework.web.socket.WebSocketHandler;
-import org.springframework.web.socket.WebSocketMessage;
-import org.springframework.web.socket.WebSocketSession;
+import org.springframework.stereotype.Component;
+import org.springframework.web.socket.*;
 
 import java.util.Map;
 import java.util.UUID;
@@ -24,17 +19,15 @@ import java.util.UUID;
  * @author Yungyu
  * @description Created by Yungyu on 2019/11/13.
  */
-@Slf4j
-public abstract class WsMsgHandlerBase<T extends WsMsgBase> extends TypeToken<T> implements WebSocketHandler {
+@Component
+public class WsHandlerBase extends LogOperationsBase implements WebSocketHandler {
 
     @Autowired
     private WsSocketOperations wsSocketOperations;
     private BizException UN_SUPPORT_MSG_TYPE = new BizException("不支持的消息类型");
-    private Class<T> msgType = (Class<T>) getType();
     private Map<String, Object> msgHandlers = Maps.newConcurrentMap();
 
     @Override
-
     public void handleMessage(WebSocketSession session, WebSocketMessage<?> message) throws Exception {
         try {
             MDC.put("traceId", UUID.randomUUID().toString());
@@ -44,7 +37,7 @@ public abstract class WsMsgHandlerBase<T extends WsMsgBase> extends TypeToken<T>
                 if (StringUtils.isBlank(payload)) {
                     throw new BizException("消息为空");
                 }
-                T msg = JSON.parseObject(payload, msgType);
+                InputMsg msg = JSON.parseObject(payload, InputMsg.class);
                 String type = msg.getType();
                 String subType = msg.getSubType();
                 if (StringUtils.isAnyBlank(type, subType)) {
@@ -59,14 +52,27 @@ public abstract class WsMsgHandlerBase<T extends WsMsgBase> extends TypeToken<T>
             }
         } catch (BizException e) {
             log.info("消息处理失败 {}", e.getMessage());
-            wsSocketOperations.sendMsg(session, OutputMsg.of(MsgTypes.USER_MSG_TOAST, e.getMessage()).toTextMessage());
+            wsSocketOperations.sendMsg(session, OutputMsg.ofToast(e.getMessage()).toWsMessage());
         } catch (Exception e) {
             log.info("消息处理异常", e);
-            wsSocketOperations.sendMsg(session, OutputMsg.of(MsgTypes.USER_MSG_ERROR, e.getMessage()).toTextMessage());
+            wsSocketOperations.sendMsg(session, OutputMsg.ofError(e.getMessage()).toWsMessage());
         }
     }
 
-    protected abstract void handleTextMessage(WebSocketSession session, T msg);
+    @Override
+    public void afterConnectionEstablished(WebSocketSession session) throws Exception {
+
+    }
+
+    @Override
+    public void handleTransportError(WebSocketSession session, Throwable exception) throws Exception {
+
+    }
+
+    @Override
+    public void afterConnectionClosed(WebSocketSession session, CloseStatus closeStatus) throws Exception {
+
+    }
 
     @Override
     public boolean supportsPartialMessages() {

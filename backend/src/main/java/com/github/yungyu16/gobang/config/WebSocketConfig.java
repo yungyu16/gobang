@@ -4,8 +4,8 @@
 
 package com.github.yungyu16.gobang.config;
 
-import com.github.yungyu16.gobang.core.ws.GameMsgHandler;
-import com.github.yungyu16.gobang.core.ws.UserMsgHandler;
+import com.github.yungyu16.gobang.ws.GameMsgHandler;
+import com.github.yungyu16.gobang.ws.UserMsgHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

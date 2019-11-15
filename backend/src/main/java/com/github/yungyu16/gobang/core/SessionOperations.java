@@ -88,22 +88,20 @@ public class SessionOperations extends LogOperationsBase {
         redisOperations.getRedisHashOperations().put(token, attrKey, JSON.toJSONString(attrValue));
     }
 
-    public void deleteOldSession(String mobile) {
-        if (StringUtils.isBlank(mobile)) {
-            return;
-        }
-        String oldToken = redisOperations.getRedisValueOperations().get("SESSION_HOLDER_" + mobile);
-        if (StringUtils.isBlank(oldToken)) {
-            return;
-        }
-        redisOperations.getRedisTemplate().delete(oldToken);
-    }
-
     public String newSession(Integer userId, String mobile) {
         Preconditions.checkNotNull(userId);
+        Preconditions.checkNotNull(mobile);
+        mobile = mobile.trim();
+
+        String SESSION_HOLDER_KEY = "SESSION_HOLDER_" + mobile;
+        String oldToken = redisOperations.getRedisValueOperations().get(SESSION_HOLDER_KEY);
+        if (!StringUtils.isBlank(oldToken)) {
+            redisOperations.getRedisTemplate().delete(oldToken);
+        }
+
         String token = UUID.randomUUID().toString();
         redisOperations.getRedisHashOperations().put(token, USER_ID, JSON.toJSONString(userId));
-        redisOperations.getRedisValueOperations().set("SESSION_HOLDER_" + mobile, token);
+        redisOperations.getRedisValueOperations().set(SESSION_HOLDER_KEY, token);
         touchSession(token);
         return token;
     }
