@@ -1,6 +1,8 @@
 package com.github.yungyu16.gobang.base;
 
 import com.alibaba.fastjson.JSON;
+import com.github.yungyu16.gobang.constant.WsHandlerName;
+import com.github.yungyu16.gobang.core.MsgHandler;
 import com.github.yungyu16.gobang.core.WsSocketOperations;
 import com.github.yungyu16.gobang.exeception.BizException;
 import com.github.yungyu16.gobang.ws.msg.InputMsg;
@@ -20,12 +22,24 @@ import java.util.UUID;
  * @description Created by Yungyu on 2019/11/13.
  */
 @Component
-public class WsHandlerBase extends LogOperationsBase implements WebSocketHandler {
+public abstract class WsHandlerBase extends LogOperationsBase implements WebSocketHandler {
 
     @Autowired
     private WsSocketOperations wsSocketOperations;
     private BizException UN_SUPPORT_MSG_TYPE = new BizException("不支持的消息类型");
-    private Map<String, Object> msgHandlers = Maps.newConcurrentMap();
+    private Map<String, MsgHandler> msgHandlers = Maps.newConcurrentMap();
+
+    public abstract WsHandlerName handlerName();
+
+    public void addMsgHandler(String type, String subType, MsgHandler msgHandler) {
+        if (StringUtils.isBlank(type)) {
+            throw new NullPointerException("type");
+        }
+        if (StringUtils.isBlank(type)) {
+            throw new NullPointerException("subType");
+        }
+        msgHandlers.put(String.join(":", type, subType), msgHandler);
+    }
 
     @Override
     public void handleMessage(WebSocketSession session, WebSocketMessage<?> message) throws Exception {
@@ -45,8 +59,11 @@ public class WsHandlerBase extends LogOperationsBase implements WebSocketHandler
                 }
                 String msgType = String.join(":", type.trim(), subType.trim());
                 log.info("开始处理msg:{}", msgType);
-                Object o = msgHandlers.get(msgType);
-
+                MsgHandler handler = msgHandlers.get(msgType);
+                if (handler == null) {
+                    throw new BizException("不支持的消息类型");
+                }
+                handler.whenInputMsg(session, msg);
             } else {
                 throw UN_SUPPORT_MSG_TYPE;
             }
@@ -78,4 +95,6 @@ public class WsHandlerBase extends LogOperationsBase implements WebSocketHandler
     public boolean supportsPartialMessages() {
         return false;
     }
+
+
 }
