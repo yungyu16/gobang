@@ -76,13 +76,9 @@ public class WebSocketConfig extends LogOperationsBase implements WebSocketConfi
                 String msgSubType = annotation.msgSubType();
                 WsHandlerBase wsHandlerBase = wsHandlerMapping.get(wsHandlerName);
                 if (wsHandlerBase != null) {
-                    wsHandlerBase.addMsgHandler(msgType, msgSubType, (session, msg) -> {
-                        mt.invoke(bean, session, msg);
-                    });
+                    wsHandlerBase.addMsgHandler(msgType, msgSubType, (session, msg) -> mt.invoke(bean, session, msg));
                 }
-
             }, mt -> mt.isAnnotationPresent(WsMsgHandler.class));
-
         });
     }
 }
