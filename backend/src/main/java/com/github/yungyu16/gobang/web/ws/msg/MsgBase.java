@@ -1,4 +1,4 @@
-package com.github.yungyu16.gobang.ws.msg;
+package com.github.yungyu16.gobang.web.ws.msg;
 
 import lombok.Data;
 

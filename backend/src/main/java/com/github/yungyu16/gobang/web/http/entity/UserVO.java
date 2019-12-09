@@ -1,4 +1,4 @@
-package com.github.yungyu16.gobang.web.entity;
+package com.github.yungyu16.gobang.web.http.entity;
 
 import lombok.Data;
 

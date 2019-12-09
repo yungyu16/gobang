@@ -1,20 +1,18 @@
-package com.github.yungyu16.gobang.base;
+package com.github.yungyu16.gobang.web.ws;
 
 import com.alibaba.fastjson.JSON;
-import com.github.yungyu16.gobang.constant.WsHandlerName;
-import com.github.yungyu16.gobang.core.MsgHandler;
+import com.github.yungyu16.gobang.base.LogOperationsBase;
+import com.github.yungyu16.gobang.core.OnlineMsgContext;
 import com.github.yungyu16.gobang.core.WsSocketOperations;
 import com.github.yungyu16.gobang.exeception.BizException;
-import com.github.yungyu16.gobang.ws.msg.InputMsg;
-import com.github.yungyu16.gobang.ws.msg.OutputMsg;
-import com.google.common.collect.Maps;
+import com.github.yungyu16.gobang.web.ws.msg.InputMsg;
+import com.github.yungyu16.gobang.web.ws.msg.OutputMsg;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.*;
 
-import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -22,24 +20,16 @@ import java.util.UUID;
  * @description Created by Yungyu on 2019/11/13.
  */
 @Component
-public abstract class WsHandlerBase extends LogOperationsBase implements WebSocketHandler {
+public class OnlineMsgHandler extends LogOperationsBase implements WebSocketHandler {
 
     @Autowired
     private WsSocketOperations wsSocketOperations;
+
+    @Autowired
+    private OnlineMsgContext onlineMsgContext;
+
     private BizException UN_SUPPORT_MSG_TYPE = new BizException("不支持的消息类型");
-    private Map<String, MsgHandler> msgHandlers = Maps.newConcurrentMap();
 
-    public abstract WsHandlerName handlerName();
-
-    public void addMsgHandler(String type, String subType, MsgHandler msgHandler) {
-        if (StringUtils.isBlank(type)) {
-            throw new NullPointerException("type");
-        }
-        if (StringUtils.isBlank(type)) {
-            throw new NullPointerException("subType");
-        }
-        msgHandlers.put(String.join(":", type, subType), msgHandler);
-    }
 
     @Override
     public void handleMessage(WebSocketSession session, WebSocketMessage<?> message) throws Exception {
@@ -59,11 +49,7 @@ public abstract class WsHandlerBase extends LogOperationsBase implements WebSock
                 }
                 String msgType = String.join(":", type.trim(), subType.trim());
                 log.info("开始处理msg:{}", msgType);
-                MsgHandler handler = msgHandlers.get(msgType);
-                if (handler == null) {
-                    throw new BizException("不支持的消息类型");
-                }
-                handler.whenInputMsg(session, msg);
+                onlineMsgContext.handleMsg(session, msg);
             } else {
                 throw UN_SUPPORT_MSG_TYPE;
             }
@@ -95,6 +81,4 @@ public abstract class WsHandlerBase extends LogOperationsBase implements WebSock
     public boolean supportsPartialMessages() {
         return false;
     }
-
-
 }

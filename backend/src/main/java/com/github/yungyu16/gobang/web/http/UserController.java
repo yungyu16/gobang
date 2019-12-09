@@ -2,19 +2,19 @@
  * Copyright (c) 2019 Yungyu  songjialin16@gmail.com. All rights reserved.
  */
 
-package com.github.yungyu16.gobang.web;
+package com.github.yungyu16.gobang.web.http;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.github.yungyu16.gobang.annotation.WithoutLogin;
-import com.github.yungyu16.gobang.base.WebRespBase;
+import com.github.yungyu16.gobang.base.WebResponse;
 import com.github.yungyu16.gobang.core.SessionOperations;
 import com.github.yungyu16.gobang.dao.entity.UserRecord;
 import com.github.yungyu16.gobang.domain.UserDomain;
 import com.github.yungyu16.gobang.event.SignOutEvent;
 import com.github.yungyu16.gobang.exeception.BizException;
-import com.github.yungyu16.gobang.web.entity.UserForm;
-import com.github.yungyu16.gobang.web.entity.UserVO;
+import com.github.yungyu16.gobang.web.http.entity.UserForm;
+import com.github.yungyu16.gobang.web.http.entity.UserVO;
 import com.google.common.base.CharMatcher;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -41,13 +41,13 @@ public class UserController extends BaseController {
             .or(Character::isLetterOrDigit);
 
     @GetMapping("validate")
-    public WebRespBase validate() {
-        return WebRespBase.success();
+    public WebResponse validate() {
+        return WebResponse.success();
     }
 
     @WithoutLogin
     @PostMapping("sign-in")
-    public WebRespBase<String> signIn(@RequestBody UserForm userForm) {
+    public WebResponse<String> signIn(@RequestBody UserForm userForm) {
         String mobile = userForm.getMobile();
         String password = userForm.getPassword();
 
@@ -64,7 +64,7 @@ public class UserController extends BaseController {
         String digestPwd = getDigestPwd(password);
         if (StringUtils.equalsIgnoreCase(digestPwd, user.getPwd())) {
             String sessionToken = sessionOperations.newSession(user.getId(), mobile);
-            return WebRespBase.success(sessionToken);
+            return WebResponse.success(sessionToken);
         } else {
             throw new BizException("密码错误");
         }
@@ -72,7 +72,7 @@ public class UserController extends BaseController {
 
     @WithoutLogin
     @PostMapping("sign-up")
-    public synchronized WebRespBase signUp(@RequestBody UserForm userForm) {
+    public synchronized WebResponse signUp(@RequestBody UserForm userForm) {
         String userName = userForm.getUserName();
         String mobile = userForm.getMobile();
         String password = userForm.getPassword();
@@ -100,23 +100,23 @@ public class UserController extends BaseController {
         entity.setMobile(mobile);
         entity.setPwd(getDigestPwd(password));
         userDomain.save(entity);
-        return WebRespBase.success();
+        return WebResponse.success();
     }
 
     @GetMapping("detail")
-    public WebRespBase<UserVO> detail() {
+    public WebResponse<UserVO> detail() {
         return sessionOperations.getSessionUserId()
                 .map(it -> {
                     UserRecord userRecord = userDomain.getById(it);
                     UserVO userVO = new UserVO();
                     BeanUtils.copyProperties(userRecord, userVO);
                     return userVO;
-                }).map(WebRespBase::success)
+                }).map(WebResponse::success)
                 .orElseThrow(() -> new BizException("用户不存在"));
     }
 
     @GetMapping("sign-out")
-    public WebRespBase signOut() {
+    public WebResponse signOut() {
         sessionOperations.getSessionToken()
                 .ifPresent(it -> {
                     log.info("删除会话...");
@@ -125,12 +125,12 @@ public class UserController extends BaseController {
                         applicationContext.publishEvent(new SignOutEvent(userId));
                     });
                 });
-        return WebRespBase.success();
+        return WebResponse.success();
     }
 
     @GetMapping("history")
-    public WebRespBase history() {
-        return WebRespBase.success();
+    public WebResponse history() {
+        return WebResponse.success();
     }
 
     private String getDigestPwd(String password) {

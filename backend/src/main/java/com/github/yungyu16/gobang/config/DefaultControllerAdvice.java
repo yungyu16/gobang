@@ -8,7 +8,7 @@ package com.github.yungyu16.gobang.config;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.alibaba.fastjson.serializer.ValueFilter;
-import com.github.yungyu16.gobang.base.WebRespBase;
+import com.github.yungyu16.gobang.base.WebResponse;
 import com.github.yungyu16.gobang.exeception.BizException;
 import com.github.yungyu16.gobang.exeception.BizSessionTimeoutException;
 import lombok.extern.slf4j.Slf4j;
@@ -86,16 +86,16 @@ public class DefaultControllerAdvice {
 
     @ExceptionHandler
     @ResponseBody
-    public WebRespBase handleException(Exception e) {
+    public WebResponse handleException(Exception e) {
         if (e instanceof BizSessionTimeoutException) {
             log.info("会话过期 {}", e.getMessage());
-            return WebRespBase.sessionTimeout();
+            return WebResponse.sessionTimeout();
         }
         if (e instanceof BizException) {
             log.info("请求错误 {}", e.getMessage());
-            return WebRespBase.badRequest(e.getMessage());
+            return WebResponse.badRequest(e.getMessage());
         }
         log.error("服务端异常", e);
-        return WebRespBase.error();
+        return WebResponse.error();
     }
 }

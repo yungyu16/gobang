@@ -2,18 +2,18 @@
  * Copyright (c) 2019 Yungyu  songjialin16@gmail.com. All rights reserved.
  */
 
-package com.github.yungyu16.gobang.web;
+package com.github.yungyu16.gobang.web.http;
 
 import com.alibaba.fastjson.JSONObject;
-import com.github.yungyu16.gobang.base.WebRespBase;
+import com.github.yungyu16.gobang.base.WebResponse;
 import com.github.yungyu16.gobang.core.OnlineUserContext;
 import com.github.yungyu16.gobang.core.SessionOperations;
 import com.github.yungyu16.gobang.dao.entity.GameRecord;
 import com.github.yungyu16.gobang.dao.entity.UserRecord;
 import com.github.yungyu16.gobang.domain.GameDomain;
 import com.github.yungyu16.gobang.exeception.BizSessionTimeoutException;
-import com.github.yungyu16.gobang.ws.msg.MsgTypes;
-import com.github.yungyu16.gobang.ws.msg.OutputMsg;
+import com.github.yungyu16.gobang.web.ws.msg.MsgTypes;
+import com.github.yungyu16.gobang.web.ws.msg.OutputMsg;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -36,22 +36,22 @@ public class GameController extends BaseController {
     private OnlineUserContext onlineUserContext;
 
     @GetMapping("create")
-    public WebRespBase create() {
+    public WebResponse create() {
         Integer gameId = newGame();
-        return WebRespBase.success(gameId);
+        return WebResponse.success(gameId);
     }
 
     @GetMapping("invite")
-    public WebRespBase invite(@RequestParam Integer gameId, @RequestParam Integer userId) {
+    public WebResponse invite(@RequestParam Integer gameId, @RequestParam Integer userId) {
         sendInviteMsg(userId, gameId);
-        return WebRespBase.success();
+        return WebResponse.success();
     }
 
     @GetMapping("create-and-invite")
-    public WebRespBase createAndInvite(@RequestParam Integer userId) {
+    public WebResponse createAndInvite(@RequestParam Integer userId) {
         Integer gameId = newGame();
         sendInviteMsg(userId, gameId);
-        return WebRespBase.success(gameId);
+        return WebResponse.success(gameId);
     }
 
     private Integer newGame() {
