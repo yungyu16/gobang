@@ -1,0 +1,35 @@
+name: Build & Deploy
+on:
+  push:
+    branches: [ release ]
+  pull_request:
+    branches: [ release ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up JDK 1.8
+        uses: actions/setup-java@v1
+        with:
+          java-version: 1.8
+      - name: Build with Maven
+        run: mvn -B package --file pom.xml
+      - name: Build Image
+        uses: mr-smithers-excellent/docker-build-push@v2
+        with:
+          # Name of the Docker image
+          image: yungyu16/gobang
+          # Tag override for Docker image
+          tag: latest
+          # Target Docker registry
+          registry: docker.pkg.github.com
+          # Location of Dockerfile, if not Dockerfile in root directory
+          dockerfile: docker/Dockerfile
+          # Docker build arguments in format KEY=VALUE,KEY=VALUE
+          # buildArgs:  optional
+          # Docker registry username
+          username: ${{ secrets.DOCKER_USER_NAME }}
+          # Docker registry password
+          password: ${{ secrets.DOCKER_PASSWORD }}
