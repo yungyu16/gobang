@@ -21,6 +21,6 @@ jobs:
           PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
         run: docker login -u $USER_NAME -p $PASSWORD docker.pkg.github.com
       - name: docker build
-        run: docker build -t docker.pkg.github.com/yungyu16/gobang:latest docker
+        run: docker build -t docker.pkg.github.com/yungyu16/gobang/gobang-dev:latest docker
       - name: docker push
-        run: docker push docker.pkg.github.com/yungyu16/gobang:latest
+        run: docker push docker.pkg.github.com/yungyu16/gobang/gobang-dev:latest
