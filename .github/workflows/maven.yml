@@ -1,8 +1,4 @@
-# This workflow will build a Java project with Maven
-# For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
-
-name: Java CI with Maven
-
+name: Build & Deploy
 on:
   push:
     branches: [ release ]
@@ -11,9 +7,7 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v2
     - name: Set up JDK 1.8
@@ -22,17 +16,20 @@ jobs:
         java-version: 1.8
     - name: Build with Maven
       run: mvn -B package --file pom.xml
-    - name: Docker Publish
-      uses: manusa/actions-publish-docker@v1.0.1
+    - name: Build Image
+      uses: mr-smithers-excellent/docker-build-push@v2
       with:
         # Name of the Docker image
-        name: gobang
-        # Tag for the Docker image
-        tag: latest # optional
-        # Script body to compute tag name for the Docker image, has context as the main function argument
-        # Username for Docker registry
-        username: ${{ secret.DOCKER_USER_NAME }}
-        # Password for Docker registry
-        password:  ${{ secret.DOCKER_PASSWORD }}
-        # Registry URL
+        image: yungyu16/gobang
+        # Tag override for Docker image
+        tag: latest
+        # Target Docker registry
         registry: docker.pkg.github.com
+        # Location of Dockerfile, if not Dockerfile in root directory
+        dockerfile: docker/Dockerfile
+        # Docker build arguments in format KEY=VALUE,KEY=VALUE
+        # buildArgs:  optional
+        # Docker registry username
+        username: ${{ secrets.DOCKER_USER_NAME }}
+        # Docker registry password
+        password: ${{ secrets.DOCKER_PASSWORD }}
