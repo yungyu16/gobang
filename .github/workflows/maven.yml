@@ -5,9 +5,9 @@ name: Java CI with Maven
 
 on:
   push:
-    branches: [ master ]
+    branches: [ release ]
   pull_request:
-    branches: [ master ]
+    branches: [ release ]
 
 jobs:
   build:
@@ -22,3 +22,19 @@ jobs:
         java-version: 1.8
     - name: Build with Maven
       run: mvn -B package --file pom.xml
+    - name: Docker Publish
+      uses: manusa/actions-publish-docker@v1.0.1
+      with:
+        # Name of the Docker image
+        name: gobang
+        # Tag for the Docker image
+        tag: latest # optional
+        # Script body to compute tag name for the Docker image, has context as the main function argument
+        # Username for Docker registry
+        username: 
+        # Password for Docker registry
+        password: 
+        # Registry URL
+        registry: docker.pkg.github.com
+        # Don't skip pull requests
+        include pull requests: # optional  
