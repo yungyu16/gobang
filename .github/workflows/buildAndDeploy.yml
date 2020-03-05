@@ -14,13 +14,13 @@ jobs:
       - name: maven build
         run: mvn -B package --file pom.xml
       - name: list build context
-        uses: ll docker
+        run: ll docker
       - name: docker login
         env:
           USER_NAME: ${{ secrets.DOCKER_USER_NAME }}
           PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-        uses: docker login -u $USER_NAME -p $PASSWORD docker.pkg.github.com
+        run: docker login -u $USER_NAME -p $PASSWORD docker.pkg.github.com
       - name: docker build
-        uses: docker build -f docker/Dockerfile -t docker.pkg.github.com/yungyu16/gobang:latest
+        run: docker build -f docker/Dockerfile -t docker.pkg.github.com/yungyu16/gobang:latest
       - name: docker push
-        uses: docker push docker.pkg.github.com/yungyu16/gobang:latest
+        run: docker push docker.pkg.github.com/yungyu16/gobang:latest
