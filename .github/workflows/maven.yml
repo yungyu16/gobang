@@ -31,10 +31,8 @@ jobs:
         tag: latest # optional
         # Script body to compute tag name for the Docker image, has context as the main function argument
         # Username for Docker registry
-        username: 
+        username: ${{ secret.DOCKER_USER_NAME }}
         # Password for Docker registry
-        password: 
+        password:  ${{ secret.DOCKER_PASSWORD }}
         # Registry URL
         registry: docker.pkg.github.com
-        # Don't skip pull requests
-        include pull requests: # optional  
