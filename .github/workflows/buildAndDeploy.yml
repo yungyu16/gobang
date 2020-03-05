@@ -19,8 +19,15 @@ jobs:
         env:
           USER_NAME: ${{ secrets.DOCKER_USER_NAME }}
           PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+          REPO_PATH: ${{ 'docker.pkg.github.com/yungyu16/gobang/' }}
+          IMG_NAME: ${{ 'gobang-dev' }}
         run: docker login -u $USER_NAME -p $PASSWORD docker.pkg.github.com
       - name: docker build
-        run: docker build -t docker.pkg.github.com/yungyu16/gobang/gobang-dev:latest docker
-      - name: docker push
-        run: docker push docker.pkg.github.com/yungyu16/gobang/gobang-dev:latest
+        run: docker build -t gobang-dev:latest docker
+      - name: docker tag and push
+        env:
+          REPO_PATH: ${{ 'docker.pkg.github.com/yungyu16/gobang/' }}
+          IMG_NAME: ${{ 'gobang-dev' }}
+        run: docker tag gobang-dev:latest $REPO_PATH$IMG_NAME:latest && docker push $REPO_PATH$IMG_NAME:latest
+          && TIMESTAMP=$(date '+%Y%m%d%H%M%S')
+          && docker tag gobang-dev:latest $REPO_PATH$IMG_NAME:$TIMESTAMP && docker push $REPO_PATH$IMG_NAME:$TIMESTAMP
