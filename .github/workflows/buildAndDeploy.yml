@@ -28,6 +28,6 @@ jobs:
         env:
           REPO_PATH: ${{ 'docker.pkg.github.com/yungyu16/gobang/' }}
           IMG_NAME: ${{ 'gobang-dev' }}
-        run: docker tag gobang-dev:latest $REPO_PATH$IMG_NAME:latest && docker push $REPO_PATH$IMG_NAME:latest
-          && TIMESTAMP=$(date '+%Y%m%d%H%M%S')
+        run: TIMESTAMP=$(date '+%Y%m%d%H%M%S')
           && docker tag gobang-dev:latest $REPO_PATH$IMG_NAME:$TIMESTAMP && docker push $REPO_PATH$IMG_NAME:$TIMESTAMP
+          && docker tag gobang-dev:latest $REPO_PATH$IMG_NAME:latest && docker push $REPO_PATH$IMG_NAME:latest
