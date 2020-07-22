@@ -2,7 +2,6 @@
 # gobang
 前后端齐全的五子棋对战观战系统
 
-release分支为稳定版本
 # 图示
 ![pic1](doc/pic1.jpg)
 ---
