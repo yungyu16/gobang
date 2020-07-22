@@ -5,7 +5,7 @@
 # 技术架构
 - Spring Boot + Mybatis Plus + H2 Db
 - WebSocket
-- Vue + Vue Router + Vuex + Vant
+- Canvas + Vue + Vue Router + Vuex + Vant
 
 # TODO List
 * [ ] 抽象出一个基于 `参与者`、`信令`、`房间状态机`三要素的小程序框架
