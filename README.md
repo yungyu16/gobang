@@ -8,7 +8,7 @@
 - Canvas + Vue + Vue Router + Vuex + Vant
 
 # TODO List
-* [ ] 抽象出一个基于 `参与者`、`信令`、`房间状态机`三要素的小程序框架
+* [ ] 抽象出一个基于 `参与者`、`信令`、`房间状态机`三要素的小游戏框架
 * [ ] UI美化
 * [ ] React Native 原生客户端 
 * [ ] 基于Netty的自定义信令协议
