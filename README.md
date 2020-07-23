@@ -3,7 +3,7 @@
 前后端齐全的五子棋对战观战系统,前后端代码通过Maven打包到一个fatJar中,部署简单方便。
 
 # 技术架构
-- Spring Boot + Mybatis Plus + H2 Db
+- Spring Boot + Mybatis Plus
 - WebSocket
 - Canvas + Vue + Vue Router + Vuex + Vant
 
